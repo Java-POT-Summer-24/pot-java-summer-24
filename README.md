@@ -29,3 +29,13 @@ ALL TOOLS MUST BE THE LATEST STABLE VERSION!
 1.	Monolith Architecture
 2.	SOLID, DRY, KISS
 3.	RESTful API
+
+#### Code Style Configuration:
+The code style settings should be automatically detected if you open the most recent version of the project.
+To verify that the appropriate code style is used you can do the following:
+
+Go to File -> Settings ->
+
+Navigate to Editor -> Code Style > Java. ->
+
+Ensure GoogleStyle is selected in the Scheme dropdown.
