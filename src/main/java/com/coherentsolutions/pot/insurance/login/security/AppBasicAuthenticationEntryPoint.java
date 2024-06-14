@@ -1,4 +1,4 @@
-package com.coherentsolutions.pot.insurance.security;
+package com.coherentsolutions.pot.insurance.login.security;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;

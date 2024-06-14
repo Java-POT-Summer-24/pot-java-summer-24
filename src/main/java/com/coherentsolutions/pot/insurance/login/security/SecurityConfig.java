@@ -1,4 +1,4 @@
-package com.coherentsolutions.pot.insurance.security;
+package com.coherentsolutions.pot.insurance.login.security;
 
 import org.springframework.context.annotation.Bean;
 
@@ -21,7 +21,7 @@ public class SecurityConfig{
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(autorize -> autorize
+                .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/login").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
@@ -30,13 +30,13 @@ public class SecurityConfig{
     }
 
     @Bean
-    public InMemoryUserDetailsManager userDetailsService(){
-        UserDetails user = User
-                .withUsername("user")
+    public InMemoryUserDetailsManager adminDetailsService(){
+        UserDetails admin = User
+                .withUsername("admin")
                 .password(passwordEncoder().encode("password"))
-                .roles("USER_ROLE")
+                .roles("ADMIN_ROLE")
                 .build();
-        return new InMemoryUserDetailsManager(user);
+        return new InMemoryUserDetailsManager(admin);
     }
 
     @Bean
