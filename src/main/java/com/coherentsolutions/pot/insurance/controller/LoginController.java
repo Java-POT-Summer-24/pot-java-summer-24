@@ -1,4 +1,4 @@
-package com.coherentsolutions.pot.insurance.login;
+package com.coherentsolutions.pot.insurance.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

@@ -1,4 +1,4 @@
-package com.coherentsolutions.pot.insurance.login.security;
+package com.coherentsolutions.pot.insurance.security;
 
 import org.springframework.context.annotation.Bean;
 
