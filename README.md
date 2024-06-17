@@ -49,46 +49,8 @@ Step 1: Set up the development environment
 5. Install Postman
 6. Install Git
 
-Step 2: Configure application
-1. Modify application.yml in the src/main/resources directory.
-```
-# For PostgreSQL
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.xml
-  server:
-    port: 8080
-```
-2. Modify application.yml for liquibase configuration
-```
-  liquibase:
-      change-log: classpath:db/changelog/db.changelog-master.xml
-```
-3. Add to dependencies in build.gradle
+Step 2: Run application
 
-```
-        implementation 'org.springframework.boot:spring-boot-starter'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.postgresql:postgresql:42.5.0'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation 'org.liquibase:liquibase-core'
-	implementation 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-```
-4. Ensure Lombok is enabled in IntelliJ IDEA
-5. Run InsuranceApplication.java
-6. Go to http://localhost:8080
+1. Ensure Lombok is enabled in IntelliJ IDEA
+2. Run InsuranceApplication.java
+3. Go to http://localhost:8080
