@@ -2,7 +2,6 @@ package com.coherentsolutions.pot.insurance.controller;
 
 import com.coherentsolutions.pot.insurance.entity.ExampleEntity;
 import com.coherentsolutions.pot.insurance.service.ExampleService;
-import java.util.Optional;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
