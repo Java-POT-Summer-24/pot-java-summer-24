@@ -42,8 +42,24 @@ class CompanyControllerIntegrationTest {
 
     @Test
     void testGetAllCompany() throws Exception {
-        CompanyEntity company1 = new CompanyEntity("Test Company 1", "LT", "Sauletekio", "+37023423424", "test1@example.com", "http://www.example1.com", "active");
-        CompanyEntity company2 = new CompanyEntity("Test Company 2", "LT", "Sauletekio", "+37023423424", "test2@example.com", "http://www.example2.com", "active");
+        CompanyEntity company1 = CompanyEntity.builder()
+                .name("Test Company 1")
+                .countryCode("LT")
+                .address("Sauletekio")
+                .phoneNumber("+37023423424")
+                .email("info@example.com")
+                .website("http://www.example.com")
+                .status("active")
+                .build();
+        CompanyEntity company2 = CompanyEntity.builder()
+                .name("Test Company 2")
+                .countryCode("LT")
+                .address("Sauletekio")
+                .phoneNumber("+37023423424")
+                .email("info@example.com")
+                .website("http://www.example.com")
+                .status("active")
+                .build();
         companyRepository.save(company1);
         companyRepository.save(company2);
 
@@ -57,7 +73,15 @@ class CompanyControllerIntegrationTest {
 
     @Test
     void testCreateCompany() throws Exception {
-        CompanyEntity company = new CompanyEntity("Test Company", "LT", "Sauletekio", "+37023423424", "test@example.com", "http://www.example.com", "active");
+        CompanyEntity company =  CompanyEntity.builder()
+                .name("Test Company")
+                .countryCode("LT")
+                .address("Sauletekio")
+                .phoneNumber("+37023423424")
+                .email("info@example.com")
+                .website("http://www.example.com")
+                .status("active")
+                .build();
 
         mockMvc.perform(post("/company")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -74,7 +98,15 @@ class CompanyControllerIntegrationTest {
 
     @Test
     void testUpdateCompany() throws Exception {
-        CompanyEntity company = new CompanyEntity("Test Company", "LT", "Sauletekio", "+37023423424", "test@example.com", "http://www.example.com", "active");
+        CompanyEntity company =  CompanyEntity.builder()
+                .name("Test Company 2")
+                .countryCode("LT")
+                .address("Sauletekio")
+                .phoneNumber("+37023423424")
+                .email("info@example.com")
+                .website("http://www.example.com")
+                .status("active")
+                .build();
         company = companyRepository.save(company);
         company.setName("Updated Company");
 
@@ -87,7 +119,15 @@ class CompanyControllerIntegrationTest {
 
     @Test
     void testDeactivateCompany() throws Exception {
-        CompanyEntity company = new CompanyEntity("Test Company", "LT", "Sauletekio", "+37023423424", "test@example.com", "http://www.example.com", "active");
+        CompanyEntity company = CompanyEntity.builder()
+                .name("Test Company 1")
+                .countryCode("LT")
+                .address("Sauletekio")
+                .phoneNumber("+37023423424")
+                .email("info@example.com")
+                .website("http://www.example.com")
+                .status("active")
+                .build();
         company = companyRepository.save(company);
 
         mockMvc.perform(delete("/company/{id}", company.getId()))

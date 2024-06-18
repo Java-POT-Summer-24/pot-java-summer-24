@@ -3,47 +3,36 @@ package com.coherentsolutions.pot.insurance.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-
-@Getter
-@Setter
+@Data
+@Builder
 @Entity
 @Table(name = "COMPANY")
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class CompanyEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column()
+    @Column
     private String name;
 
-    @Column()
+    @Column
     private String countryCode;
 
-    @Column()
+    @Column
     private String address;
 
-    @Column()
+    @Column
     private String phoneNumber;
 
-    @Column()
+    @Column
     private String email;
 
-    @Column()
+    @Column
     private String website;
 
-    @Column()
+    @Column
     private String status;
-
-    public CompanyEntity(String name, String countryCode, String address, String phoneNumber, String email, String website, String status) {
-        this.name = name;
-        this.countryCode = countryCode;
-        this.address = address;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.website = website;
-        this.status = status;
-    }
 }

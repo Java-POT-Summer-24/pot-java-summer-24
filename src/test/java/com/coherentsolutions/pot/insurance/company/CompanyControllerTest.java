@@ -31,7 +31,15 @@ class CompanyControllerTest {
 
     @Test
     void testCreateCompany() {
-        CompanyEntity company = new CompanyEntity();
+        CompanyEntity company =  CompanyEntity.builder()
+                .name("Test Company")
+                .countryCode("LT")
+                .address("Sauletekio")
+                .phoneNumber("+37023423424")
+                .email("info@example.com")
+                .website("http://www.example.com")
+                .status("active")
+                .build();
         when(companyService.addCompany(any(CompanyEntity.class))).thenReturn(company);
 
         CompanyEntity createdCompany = companyController.createCompany(company);
@@ -42,8 +50,24 @@ class CompanyControllerTest {
 
     @Test
     void testGetAllCompany() {
-        CompanyEntity company1 = new CompanyEntity();
-        CompanyEntity company2 = new CompanyEntity();
+        CompanyEntity company1 =  CompanyEntity.builder()
+                .name("Test Company 1")
+                .countryCode("LT")
+                .address("Sauletekio")
+                .phoneNumber("+37023423424")
+                .email("info@example.com")
+                .website("http://www.example.com")
+                .status("active")
+                .build();
+        CompanyEntity company2 =  CompanyEntity.builder()
+                .name("Test Company 2")
+                .countryCode("LT")
+                .address("Sauletekio")
+                .phoneNumber("+37023423424")
+                .email("info@example.com")
+                .website("http://www.example.com")
+                .status("active")
+                .build();
         List<CompanyEntity> companyList = Arrays.asList(company1, company2);
         when(companyService.getAllCompanies()).thenReturn(companyList);
 
@@ -55,7 +79,15 @@ class CompanyControllerTest {
 
     @Test
     void testUpdateCompany() {
-        CompanyEntity company = new CompanyEntity();
+        CompanyEntity company = CompanyEntity.builder()
+                .name("Test Company")
+                .countryCode("LT")
+                .address("Sauletekio")
+                .phoneNumber("+37023423424")
+                .email("info@example.com")
+                .website("http://www.example.com")
+                .status("active")
+                .build();
         when(companyService.updateCompany(anyInt(), any(CompanyEntity.class))).thenReturn(company);
 
         CompanyEntity updatedCompany = companyController.updateCompany(1, company);
@@ -66,7 +98,15 @@ class CompanyControllerTest {
 
     @Test
     void testDeactivateCompany() {
-        CompanyEntity company = new CompanyEntity();
+        CompanyEntity company = CompanyEntity.builder()
+                .name("Test Company")
+                .countryCode("LT")
+                .address("Sauletekio")
+                .phoneNumber("+37023423424")
+                .email("info@example.com")
+                .website("http://www.example.com")
+                .status("active")
+                .build();
         when(companyService.deactivateCompany(anyInt())).thenReturn(company);
 
         CompanyEntity deactivateCompany = companyController.deactivateCompany(1);

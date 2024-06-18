@@ -1,12 +1,11 @@
 package com.coherentsolutions.pot.insurance.service;
 
 import com.coherentsolutions.pot.insurance.entity.CompanyEntity;
+import com.coherentsolutions.pot.insurance.exception.ResourceNotFoundException;
 import com.coherentsolutions.pot.insurance.repository.CompanyRepository;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -35,8 +34,8 @@ public class CompanyService {
                     company.setWebsite(updatedCompany.getWebsite());
                     return companyRepository.save(company);
                 })
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Company with ID " + id + " was not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Company with ID " + id + " was not found"));
+
 
     }
 
@@ -46,8 +45,7 @@ public class CompanyService {
                     company.setStatus("deactivate");
                     return companyRepository.save(company);
                 })
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Company with ID " + id + " was not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Company with ID " + id + " was not found"));
     }
 }
 
