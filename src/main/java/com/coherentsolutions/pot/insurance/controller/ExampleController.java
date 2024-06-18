@@ -26,7 +26,7 @@ public class ExampleController {
   }
 
   @PutMapping("/{id}")
-  public Optional<ExampleEntity> updateExample(@PathVariable Integer id, @RequestBody ExampleEntity example) {
+  public ExampleEntity updateExample(@PathVariable Integer id, @RequestBody ExampleEntity example) {
     return exampleService.updateExample(id, example);
   }
 

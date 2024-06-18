@@ -47,4 +47,10 @@ JDBC URL: jdbc:h2:mem:testdb
 
 User Name: sa
 
-Password: password
+Password: dbpassword123
+
+Password is stored as environment variable.
+
+Ensure you have set up the environment variable before attempting to connect.
+
+
