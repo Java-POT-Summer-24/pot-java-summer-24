@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="2" author="dmytro.mazurev">
+        <createTable tableName="company">
+            <column name="id" type="INTEGER" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR2(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="country_code" type="VARCHAR2(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="VARCHAR2(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone_number" type="VARCHAR2(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR2(255)"/>
+            <column name="website" type="VARCHAR2(255)"/>
+            <column name="status" type="VARCHAR2(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

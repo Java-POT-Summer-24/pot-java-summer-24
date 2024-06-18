@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="dmytro.mazurev">
+        <comment>Insert sample data into example_table</comment>
+<!--            <insert tableName="company">-->
+<!--              <column name="name" value="Example Company"/>-->
+<!--              <column name="country_code" value="US"/>-->
+<!--              <column name="address" value="1234 Example Street"/>-->
+<!--              <column name="phone_number" value="123-456-7890"/>-->
+<!--              <column name="email" value="info@example.com"/>-->
+<!--              <column name="website" value="http://www.example.com"/>-->
+<!--              <column name="status" value="active"/>-->
+<!--            </insert>-->
+    </changeSet>
+
+</databaseChangeLog>
