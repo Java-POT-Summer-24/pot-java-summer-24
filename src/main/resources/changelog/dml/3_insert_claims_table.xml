@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="3" author="heorhii.popov">
+    <comment>Insert sample data into claims table</comment>
+    <sql>
+      INSERT INTO claims (claim_number, consumer, employer, date_of_service, plan, amount, status)
+      VALUES ('BY102102', 'Ivanov P', 'ISSoft', '2023-06-01', 'Dental', 150.50, 'Pending');
+      INSERT INTO claims (claim_number, consumer, employer, date_of_service, plan, amount, status)
+      VALUES ('BY102103', 'Petr Ivanov', 'ISSoft', '2023-06-02', 'Medical', 200.00, 'Approved');
+      INSERT INTO claims (claim_number, consumer, employer, date_of_service, plan, amount, status)
+      VALUES ('BY102104', 'Ivan Petrov', 'ISSoft', '2023-06-03', 'Dental', 300.75, 'Declined');
+    </sql>
+  </changeSet>
+
+</databaseChangeLog>
