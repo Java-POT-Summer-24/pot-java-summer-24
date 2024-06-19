@@ -40,17 +40,6 @@ Navigate to Editor -> Code Style > Java. ->
 
 Ensure GoogleStyle is selected in the Scheme dropdown.
 
-#### H2 Database connection:
-Open your web browser and navigate to http://localhost:8080/h2-console. Use the following settings to connect:
 
-JDBC URL: jdbc:h2:mem:testdb
-
-User Name: sa
-
-Password: dbpassword123
-
-Password is stored as environment variable.
-
-Ensure you have set up the environment variable before attempting to connect.
 
 
