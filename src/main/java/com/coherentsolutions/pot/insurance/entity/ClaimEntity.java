@@ -2,6 +2,8 @@ package com.coherentsolutions.pot.insurance.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -38,13 +40,15 @@ public class ClaimEntity {
   @Column
   private Date dateOfService;
 
+  @Enumerated(EnumType.STRING)
   @Column
-  private String plan;
+  private Plan plan;
 
   @Column
   private BigDecimal amount;
 
+  @Enumerated(EnumType.STRING)
   @Column
-  private String status;
+  private Status status;
 
 }

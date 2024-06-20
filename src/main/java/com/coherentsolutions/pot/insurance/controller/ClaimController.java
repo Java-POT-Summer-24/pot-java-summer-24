@@ -30,7 +30,7 @@ public class ClaimController {
   }
 
   @PostMapping
-  public ResponseEntity<ClaimDTO> addClaim(@RequestBody ClaimDTO claimDTO) {
+  public ResponseEntity<ClaimDTO> addClaim(@Valid @RequestBody ClaimDTO claimDTO) {
     ClaimDTO newClaim = claimService.addClaim(claimDTO);
     return ResponseEntity.status(HttpStatus.CREATED).body(newClaim);
   }
