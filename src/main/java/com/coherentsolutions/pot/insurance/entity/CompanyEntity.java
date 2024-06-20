@@ -1,38 +1,33 @@
 package com.coherentsolutions.pot.insurance.entity;
 
+import com.coherentsolutions.pot.insurance.constants.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @Data
-@Builder
 @Entity
-@Table(name = "COMPANY")
+@Table(name = "company")
 @NoArgsConstructor
 @AllArgsConstructor
 public class CompanyEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private UUID id;
 
-    @Column
     private String name;
 
-    @Column
     private String countryCode;
 
-    @Column
     private String address;
 
-    @Column
     private String phoneNumber;
 
-    @Column
     private String email;
 
-    @Column
     private String website;
 
-    @Column
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private Status status;
 }

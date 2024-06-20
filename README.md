@@ -45,6 +45,9 @@ Open your web browser and navigate to http://localhost:8080/h2-console. Use the 
 
 JDBC URL: jdbc:h2:mem:testdb
 
-User Name: sa
+### Deactivate wildcard imports:
+Open settings and then select Editor | Code Style | Java.
 
-Password: password
+Enabled "Use single class import" option
+
+In the "Class count to use import with '*'" and "Names count to use static import with '*'" fields write 999.

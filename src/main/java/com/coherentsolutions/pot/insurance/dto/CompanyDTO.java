@@ -1,21 +1,24 @@
 package com.coherentsolutions.pot.insurance.dto;
 
+import com.coherentsolutions.pot.insurance.constants.Status;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+import java.util.UUID;
+
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
-@Getter
 public class CompanyDTO {
-    private Integer id;
+    private UUID id;
     private String name;
     private String countryCode;
     private String address;
     private String phoneNumber;
     private String email;
     private String website;
-    private String status;
+    private Status status;
 }

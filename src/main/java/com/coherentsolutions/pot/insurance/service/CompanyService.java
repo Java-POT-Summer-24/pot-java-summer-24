@@ -1,51 +1,59 @@
 package com.coherentsolutions.pot.insurance.service;
 
+import com.coherentsolutions.pot.insurance.constants.Status;
+import com.coherentsolutions.pot.insurance.dto.CompanyDTO;
 import com.coherentsolutions.pot.insurance.entity.CompanyEntity;
-import com.coherentsolutions.pot.insurance.exception.ResourceNotFoundException;
+import com.coherentsolutions.pot.insurance.exception.CompanyNotFoundException;
+import com.coherentsolutions.pot.insurance.mapper.CompanyMapper;
 import com.coherentsolutions.pot.insurance.repository.CompanyRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
+    private final CompanyMapper companyMapper = CompanyMapper.INSTANCE;
 
-    public CompanyEntity addCompany(CompanyEntity company) {
-        return companyRepository.save(company);
+    public CompanyDTO addCompany(CompanyDTO companyDto) {
+        CompanyEntity company = companyMapper.toEntity(companyDto);
+        if (company.getId() == null) {
+            company.setId(UUID.randomUUID());
+        }
+        CompanyEntity createCompany = companyRepository.save(company);
+
+        return companyMapper.toDTO(createCompany);
     }
 
-    public List<CompanyEntity> getAllCompanies() {
-        return companyRepository.findAll();
+    public List<CompanyDTO> getAllCompanies() {
+        return companyRepository.findAll().stream()
+                .map(companyMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public CompanyEntity updateCompany(Integer id, CompanyEntity updatedCompany) {
+    public CompanyDTO updateCompany(CompanyDTO updatedCompany) {
+        CompanyEntity company = companyRepository.findById(updatedCompany.getId())
+                .orElseThrow(() -> new CompanyNotFoundException("Company with ID " + updatedCompany.getId() + " was not found"));
+
+        companyMapper.updateCompanyFromDTO(updatedCompany, company);
+        company = companyRepository.save(company);
+        return companyMapper.toDTO(company);
+    }
+
+    public CompanyDTO deactivateCompany(UUID id) {
         return companyRepository.findById(id)
                 .map(company -> {
-                    company.setName(updatedCompany.getName());
-                    company.setCountryCode(updatedCompany.getCountryCode());
-                    company.setAddress(updatedCompany.getAddress());
-                    company.setPhoneNumber(updatedCompany.getPhoneNumber());
-                    company.setEmail(updatedCompany.getEmail());
-                    company.setWebsite(updatedCompany.getWebsite());
-                    return companyRepository.save(company);
+                    company.setStatus(Status.DEACTIVATED);
+                    company = companyRepository.save(company);
+                    return companyMapper.toDTO(company);
                 })
-                .orElseThrow(() -> new ResourceNotFoundException("Company with ID " + id + " was not found"));
-
-
-    }
-
-    public CompanyEntity deactivateCompany(Integer id) {
-        return companyRepository.findById(id)
-                .map(company -> {
-                    company.setStatus("deactivate");
-                    return companyRepository.save(company);
-                })
-                .orElseThrow(() -> new ResourceNotFoundException("Company with ID " + id + " was not found"));
+                .orElseThrow(() -> new CompanyNotFoundException("Company with ID " + id + " was not found"));
     }
 }
 

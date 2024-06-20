@@ -30,6 +30,7 @@ dependencies {
 	runtimeOnly 'com.h2database:h2'
 	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
+	testImplementation 'org.jeasy:easy-random-core:4.1.0'
 }
 
 tasks.named('test') {
