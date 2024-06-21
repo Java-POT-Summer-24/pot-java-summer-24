@@ -4,7 +4,6 @@ import com.coherentsolutions.pot.insurance.controller.CompanyController;
 import com.coherentsolutions.pot.insurance.dto.CompanyDTO;
 import com.coherentsolutions.pot.insurance.service.CompanyService;
 import org.jeasy.random.EasyRandom;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,12 +26,7 @@ class CompanyControllerTest {
     @InjectMocks
     private CompanyController companyController;
 
-    private EasyRandom easyRandom;
-
-    @BeforeEach
-    void setUp() {
-        easyRandom = new EasyRandom();
-    }
+    private final EasyRandom easyRandom = new EasyRandom();
 
     @Test
     void testCreateCompany() {

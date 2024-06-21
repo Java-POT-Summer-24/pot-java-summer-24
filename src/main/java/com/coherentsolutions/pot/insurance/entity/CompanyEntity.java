@@ -1,8 +1,10 @@
 package com.coherentsolutions.pot.insurance.entity;
 
-import com.coherentsolutions.pot.insurance.constants.Status;
+import com.coherentsolutions.pot.insurance.constants.CompanyStatus;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
@@ -14,6 +16,7 @@ import java.util.UUID;
 public class CompanyEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     private String name;
@@ -29,5 +32,5 @@ public class CompanyEntity {
     private String website;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private CompanyStatus status;
 }

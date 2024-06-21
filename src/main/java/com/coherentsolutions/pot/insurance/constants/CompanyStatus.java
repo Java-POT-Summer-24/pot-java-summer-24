@@ -1,6 +1,6 @@
 package com.coherentsolutions.pot.insurance.constants;
 
-public enum Status {
+public enum CompanyStatus {
     ACTIVE,
     DEACTIVATED,
 }

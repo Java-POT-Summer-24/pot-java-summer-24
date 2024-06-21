@@ -1,6 +1,6 @@
 package com.coherentsolutions.pot.insurance.dto;
 
-import com.coherentsolutions.pot.insurance.constants.Status;
+import com.coherentsolutions.pot.insurance.constants.CompanyStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,5 +20,5 @@ public class CompanyDTO {
     private String phoneNumber;
     private String email;
     private String website;
-    private Status status;
+    private CompanyStatus status;
 }
