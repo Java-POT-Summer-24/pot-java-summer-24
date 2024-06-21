@@ -9,3 +9,6 @@
    <!--        Include change logs below-->
   <include file="changelog/ddl/1_create_example_table.xml"/>
   <include file="changelog/dml/1_insert_example_table.xml"/>
+  <include file="changelog/ddl/4_create_packages_table.xml"/>
+  <include file="changelog/dml/4_insert_packages_table.xml"/>
+</databaseChangeLog>
