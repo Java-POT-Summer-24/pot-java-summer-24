@@ -27,28 +27,21 @@ public class ClaimEntity {
   @Id
   private UUID id;
 
-  @Column
   private String claimNumber;
 
-  @Column
   private String consumer;
 
-  @Column
   private String employer;
 
   @Temporal(TemporalType.DATE)
-  @Column
   private Date dateOfService;
 
   @Enumerated(EnumType.STRING)
-  @Column
   private Plan plan;
 
-  @Column
   private BigDecimal amount;
 
   @Enumerated(EnumType.STRING)
-  @Column
   private Status status;
 
 }
