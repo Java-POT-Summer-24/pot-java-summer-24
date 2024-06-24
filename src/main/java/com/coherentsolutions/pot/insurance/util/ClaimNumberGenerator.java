@@ -1,7 +1,8 @@
 package com.coherentsolutions.pot.insurance.util;
 import java.util.UUID;
+import lombok.experimental.UtilityClass;
 
-
+@UtilityClass
 public class ClaimNumberGenerator {
 
   public static String generate() {
