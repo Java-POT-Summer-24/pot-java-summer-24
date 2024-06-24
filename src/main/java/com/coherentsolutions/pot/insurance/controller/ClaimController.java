@@ -19,45 +19,38 @@ public class ClaimController {
 
   @GetMapping
   public ResponseEntity<List<ClaimDTO>> getAllClaims() {
-    List<ClaimDTO> claims = claimService.getAllClaims();
-    return ResponseEntity.ok(claims);
+    return ResponseEntity.ok(claimService.getAllClaims());
   }
 
   @GetMapping("/{id}")
   public ResponseEntity<ClaimDTO> getClaimById(@PathVariable UUID id) {
-    ClaimDTO claim = claimService.getClaimById(id);
-    return ResponseEntity.ok(claim);
+    return ResponseEntity.ok(claimService.getClaimById(id));
   }
 
   @PostMapping
   public ResponseEntity<ClaimDTO> addClaim(@Valid @RequestBody ClaimDTO claimDTO) {
-    ClaimDTO newClaim = claimService.addClaim(claimDTO);
-    return ResponseEntity.status(HttpStatus.CREATED).body(newClaim);
+    return ResponseEntity.status(HttpStatus.CREATED).body(claimService.addClaim(claimDTO));
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<ClaimDTO> updateClaim(@PathVariable UUID id, @Valid @RequestBody ClaimDTO claimDTO) {
     claimDTO.setId(id);
-    ClaimDTO updatedClaim = claimService.updateClaim(claimDTO);
-    return ResponseEntity.ok(updatedClaim);
+    return ResponseEntity.ok(claimService.updateClaim(claimDTO));
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteClaim(@PathVariable UUID id) {
-    claimService.deleteClaim(id);
-    return ResponseEntity.noContent().build();
+  public ResponseEntity<ClaimDTO> deactivateClaim(@PathVariable UUID id) {
+    return ResponseEntity.ok(claimService.deactivateClaim(id));
   }
 
   /*@GetMapping("/company/{companyName}")
   public ResponseEntity<List<ClaimDTO>> getClaimsByCompany(@PathVariable String name) {
-    List<ClaimDTO> claims = claimService.getClaimsByCompany(name);
-    return ResponseEntity.ok(claims);
+    return ResponseEntity.ok(claimService.getClaimsByCompany(name));
   }
 
   @GetMapping("/user/{userName}")
   public ResponseEntity<List<ClaimDTO>> getClaimsByUser(@PathVariable String userName) {
-    List<ClaimDTO> claims = claimService.getClaimsByUser(userName);
-    return ResponseEntity.ok(claims);
+    return ResponseEntity.ok(claimService.getClaimsByUser(userName));
   }*/
   //also commented for now, as I don't have employer or consumer
 }

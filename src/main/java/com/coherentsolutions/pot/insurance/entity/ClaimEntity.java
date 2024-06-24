@@ -5,12 +5,11 @@ import com.coherentsolutions.pot.insurance.constants.ClaimStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +17,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "claims")
+@Table(name = "claim")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,6 +25,7 @@ import lombok.NoArgsConstructor;
 public class ClaimEntity {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
   private UUID id;
 
   private String claimNumber;
@@ -34,13 +34,12 @@ public class ClaimEntity {
 
   private String employer;
 
-  @Temporal(TemporalType.DATE)
-  private Date dateOfService;
+  private LocalDate dateOfService;
 
   @Enumerated(EnumType.STRING)
   private ClaimPlan plan;
 
-  private BigDecimal amount;
+  private double amount;
 
   @Enumerated(EnumType.STRING)
   private ClaimStatus status;

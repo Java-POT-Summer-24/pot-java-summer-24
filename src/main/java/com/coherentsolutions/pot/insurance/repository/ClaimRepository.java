@@ -8,10 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClaimRepository extends JpaRepository<ClaimEntity, UUID> {
 
-  boolean existsByClaimNumber(String claimNumber);
-
-  ClaimEntity findByClaimNumber(String claimNumber);
-
   //List<ClaimEntity> findByEmployer(String employer);
 
   //List<ClaimEntity> findByConsumer(String consumer);

@@ -1,5 +1,6 @@
 package com.coherentsolutions.pot.insurance.claim;
 
+import com.coherentsolutions.pot.insurance.constants.ClaimStatus;
 import com.coherentsolutions.pot.insurance.controller.ClaimController;
 import com.coherentsolutions.pot.insurance.dto.ClaimDTO;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
@@ -84,13 +85,20 @@ class ClaimControllerTest {
   }
 
   @Test
-  void testDeleteClaim() {
+  void testDeactivateClaim() {
     UUID id = UUID.randomUUID();
-    doNothing().when(claimService).deleteClaim(id);
+    ClaimDTO originalClaimDTO = easyRandom.nextObject(ClaimDTO.class);
+    originalClaimDTO.setId(id);
+    originalClaimDTO.setStatus(ClaimStatus.DEACTIVATED);
 
-    ResponseEntity<Void> response = claimController.deleteClaim(id);
+    when(claimService.deactivateClaim(id)).thenReturn(originalClaimDTO);
 
-    assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-    verify(claimService).deleteClaim(id);
+    ResponseEntity<ClaimDTO> response = claimController.deactivateClaim(id);
+    ClaimDTO resultClaimDTO = response.getBody();
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(ClaimStatus.DEACTIVATED, resultClaimDTO.getStatus());
+
+    verify(claimService).deactivateClaim(id);
   }
 }

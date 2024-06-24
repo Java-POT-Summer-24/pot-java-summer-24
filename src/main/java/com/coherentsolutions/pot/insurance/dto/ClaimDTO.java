@@ -5,8 +5,7 @@ import com.coherentsolutions.pot.insurance.constants.ClaimStatus;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +21,6 @@ public class ClaimDTO {
 
   private UUID id;
 
-  @NotBlank(message = "Claim number is required")
   private String claimNumber;
 
   @NotBlank(message = "Consumer is required")
@@ -32,14 +30,14 @@ public class ClaimDTO {
   private String employer;
 
   @NotNull(message = "Date of service is required")
-  private Date dateOfService;
+  private LocalDate dateOfService;
 
   @NotNull(message = "Plan is required")
   private ClaimPlan plan;
 
   @NotNull(message = "Amount is required")
   @DecimalMin(value = "0.0", inclusive = false, message = "Amount must be greater than zero")
-  private BigDecimal amount;
+  private double amount;
 
   @NotNull(message = "Status is required")
   private ClaimStatus status;
