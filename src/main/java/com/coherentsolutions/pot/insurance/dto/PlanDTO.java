@@ -15,13 +15,16 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlanDTO {
-    private UUID id;
+    private UUID planId;
 
     @NotBlank(message = "Plan name is required")
     private String planName;
 
     @NotBlank(message = "Status is required")
     private PlanStatus status;
+
+    @NotBlank(message = "Plan type is required")
+    private PlanType planType;
 
     @NotBlank(message = "Payroll frequency is required")
     private PayrollFrequency payrollFrequency;

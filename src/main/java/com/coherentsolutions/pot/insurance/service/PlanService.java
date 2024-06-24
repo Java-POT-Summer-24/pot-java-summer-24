@@ -23,7 +23,7 @@ public class PlanService {
     private final PlanRepository planRepository;
     public ResponseEntity<PlanDTO> addPlan(PlanDTO planDTO) {
         try{
-            UUID planId = planDTO.getId();
+            UUID planId = planDTO.getPlanId();
             if(planRepository.existsByPlanId(planId)){
                 throw new BadRequestException("Plan with ID " + planId + " already exists");
             }
@@ -51,7 +51,7 @@ public class PlanService {
 
     public ResponseEntity<PlanDTO> updatePlan(PlanDTO planDTO){
         try{
-            UUID planId = planDTO.getId();
+            UUID planId = planDTO.getPlanId();
             PlanEntity existingPlan = planRepository.findByPlanId(planId)
                     .orElseThrow(() -> new NotFoundException("Plan with ID " + planId + " not found"));
 

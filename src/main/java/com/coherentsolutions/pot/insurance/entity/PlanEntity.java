@@ -2,6 +2,7 @@ package com.coherentsolutions.pot.insurance.entity;
 
 import com.coherentsolutions.pot.insurance.dto.enums.PayrollFrequency;
 import com.coherentsolutions.pot.insurance.dto.enums.PlanStatus;
+import com.coherentsolutions.pot.insurance.dto.enums.PlanType;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -19,12 +20,13 @@ public class PlanEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID planId;
 
-    private String description;
-
     private String planName;
 
     @Enumerated(EnumType.STRING)
     private PayrollFrequency payrollFrequency;
+
+    @Enumerated(EnumType.STRING)
+    private PlanType planType;
 
     @Temporal(TemporalType.DATE)
     private LocalDate startDate;

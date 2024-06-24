@@ -33,7 +33,7 @@ public class PlanController {
 
     @PutMapping("/{id}")
     public ResponseEntity<PlanDTO> updatePlan(@PathVariable UUID id, @Valid @RequestBody PlanDTO planDTO){
-        planDTO.setId(id);
+        planDTO.setPlanId(id);
         return planService.updatePlan(planDTO);
     }
 
