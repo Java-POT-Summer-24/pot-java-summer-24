@@ -21,7 +21,7 @@ public class PlanDTO {
     private String planName;
 
     @NotBlank(message = "Status is required")
-    private Status status;
+    private PlanStatus status;
 
     @NotBlank(message = "Payroll frequency is required")
     private PayrollFrequency payrollFrequency;
