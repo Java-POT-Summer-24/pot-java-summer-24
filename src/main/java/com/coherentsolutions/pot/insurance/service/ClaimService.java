@@ -42,8 +42,9 @@ public class ClaimService {
   }
 
   public ClaimDTO updateClaim(ClaimDTO claimDTO) {
-    ClaimEntity existingClaim = claimRepository.findById(claimDTO.getId())
-        .orElseThrow(() -> new NotFoundException("Claim with ID " + claimDTO.getId() + " not found"));
+    UUID claimId = claimDTO.getId();
+    ClaimEntity existingClaim = claimRepository.findById(claimId)
+        .orElseThrow(() -> new NotFoundException("Claim with ID " + claimId + " not found"));
 
     ClaimMapper.INSTANCE.updateClaimFromDTO(claimDTO, existingClaim);
     existingClaim = claimRepository.save(existingClaim);

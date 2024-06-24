@@ -4,5 +4,6 @@ public enum ClaimStatus {
   HOLD,
   APPROVED,
   DECLINED,
-  DEACTIVATED
+  DEACTIVATED,
+  ACTIVE
 }
