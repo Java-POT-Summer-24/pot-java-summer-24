@@ -40,6 +40,17 @@ Navigate to Editor -> Code Style > Java. ->
 
 Ensure GoogleStyle is selected in the Scheme dropdown.
 
+#### Manual to run project locally:
+Step 1: Set up the development environment
+1. Install JDK 8 or higher
+2. Install IntelliJ IDEA
+3. Install Gradle
+4. Install PostgreSQL
+5. Install Postman
+6. Install Git
 
+Step 2: Run application
 
-
+1. Ensure Lombok is enabled in IntelliJ IDEA
+2. Run InsuranceApplication.java
+3. Go to http://localhost:8080

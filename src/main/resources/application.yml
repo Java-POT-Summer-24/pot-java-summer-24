@@ -1,4 +1,5 @@
-spring.application.name: insurance
+# H2 Database Configuration (for development/testing)
+# Comment the following lines to use PostgreSQL instead of H2
 
 spring:
   application:
@@ -24,5 +25,26 @@ server:
   error:
     include-message: always
     include-binding-errors: always
+    port: 8080
 
 # Including server.error configurations to see detailed error messages in API responses.
+
+# PostgreSQL database configuration (for production)
+# Uncomment the following lines to use PostgreSQL instead of H2
+#spring:
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/postgres
+#    username: postgres
+#    password: postgres
+#    driver-class-name: org.postgresql.Driver
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+#  liquibase:
+#    change-log: classpath:changelog/changelog-master.xml
+#  server:
+#    port: 8080
+
