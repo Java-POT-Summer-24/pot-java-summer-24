@@ -32,9 +32,8 @@ public class ClaimController {
     return ResponseEntity.status(HttpStatus.CREATED).body(claimService.addClaim(claimDTO));
   }
 
-  @PutMapping("/{id}")
-  public ResponseEntity<ClaimDTO> updateClaim(@PathVariable UUID id, @Valid @RequestBody ClaimDTO claimDTO) {
-    claimDTO.setId(id);
+  @PutMapping
+  public ResponseEntity<ClaimDTO> updateClaim(@Valid @RequestBody ClaimDTO claimDTO) {
     return ResponseEntity.ok(claimService.updateClaim(claimDTO));
   }
 

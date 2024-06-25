@@ -70,14 +70,12 @@ class ClaimControllerTest {
   @Test
   void testUpdateClaim() {
     ClaimDTO originalClaimDTO = easyRandom.nextObject(ClaimDTO.class);
-    UUID id = UUID.randomUUID();
-    originalClaimDTO.setId(id);
     ClaimDTO updatedClaimDTO = easyRandom.nextObject(ClaimDTO.class);
-    updatedClaimDTO.setId(id);
+    updatedClaimDTO.setId(originalClaimDTO.getId());
 
     when(claimService.updateClaim(any(ClaimDTO.class))).thenReturn(updatedClaimDTO);
 
-    ResponseEntity<ClaimDTO> response = claimController.updateClaim(id, originalClaimDTO);
+    ResponseEntity<ClaimDTO> response = claimController.updateClaim(originalClaimDTO);
     ClaimDTO result = response.getBody();
 
     assertEquals(updatedClaimDTO, result);
