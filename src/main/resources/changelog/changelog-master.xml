@@ -6,6 +6,6 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <include file="changelog/ddl/1_create_company_table.xml"/>
-  <include file="changelog/dml/1_insert_company_table.xml"/>
+  <include file="/changelog/ddl/2_create_company_table.xml"/>
+  <include file="/changelog/dml/2_insert_company_table.xml"/>
 </databaseChangeLog>

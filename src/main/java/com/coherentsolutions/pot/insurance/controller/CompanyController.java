@@ -34,7 +34,6 @@ public class CompanyController {
 
     @PutMapping
     public CompanyDTO updateCompany(@RequestBody CompanyDTO company) {
-        System.out.println("asd");
         return companyService.updateCompany(company);
     }
 
