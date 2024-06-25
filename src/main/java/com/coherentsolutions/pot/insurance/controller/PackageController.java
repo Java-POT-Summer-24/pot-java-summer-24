@@ -35,7 +35,7 @@ public class PackageController {
 
   @PutMapping
   public ResponseEntity<PackageDTO> updatePackage(@Valid @RequestBody PackageDTO packageDTO) {
-    return ResponseEntity.ok(packageService.getPackageById(packageService.updatePackage(packageDTO).getId()));
+    return ResponseEntity.ok(packageService.updatePackage(packageDTO));
   }
 
 
