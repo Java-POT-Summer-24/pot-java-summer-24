@@ -1,14 +1,16 @@
 package com.coherentsolutions.pot.insurance.entity;
 
-import jakarta.persistence.Column;
+import com.coherentsolutions.pot.insurance.constants.PackagePayrollFrequency;
+import com.coherentsolutions.pot.insurance.constants.PackageStatus;
+import com.coherentsolutions.pot.insurance.constants.PackageType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -17,7 +19,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "packages")
+@Table(name = "package")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,26 +27,25 @@ import lombok.NoArgsConstructor;
 public class PackageEntity {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
   private UUID id;
 
   private String name;
 
   @Enumerated(EnumType.STRING)
-  private Status status; //can be enum
+  private PackageStatus status;
 
   @Enumerated(EnumType.STRING)
-  private PayrollFrequency payrollFrequency; // can be enum
+  private PackagePayrollFrequency payrollFrequency;
 
-  @Temporal(TemporalType.DATE)
-  private Date startDate;
+  private LocalDate startDate;
 
-  @Temporal(TemporalType.DATE)
-  private Date endDate;
+  private LocalDate endDate;
 
   @Enumerated(EnumType.STRING)
-  private Type type;//?????????
+  private PackageType type;
 
-  private BigDecimal contributions;
+  private double contributions;
 
 
 }

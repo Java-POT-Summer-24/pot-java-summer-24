@@ -8,12 +8,12 @@
   <changeSet id="4" author="heorhii.popov">
     <comment>Insert sample data into packages table</comment>
     <sql>
-      INSERT INTO packages (name, status, payroll_frequency, start_date, end_date, type, contributions)
-      VALUES ('Basic Health', 'ACTIVE', 'MONTHLY', '2024-01-01', '2024-12-31', 'STANDARD', 100.00);
-      INSERT INTO packages (name, status, payroll_frequency, start_date, end_date, type, contributions)
-      VALUES ('Premium Health', 'ACTIVE', 'MONTHLY', '2024-01-01', '2024-12-31', 'PREMIUM', 200.00);
-      INSERT INTO packages (name, status, payroll_frequency, start_date, end_date, type, contributions)
-      VALUES ('Enterprise Health', 'ACTIVE', 'MONTHLY', '2024-01-01', '2024-12-31', 'ENTERPRISE', 300.00);
+      INSERT INTO package (id, name, status, payroll_frequency, start_date, end_date, type, contributions)
+      VALUES ('83d8456f-95bb-4f84-859f-8da1f6abac1a', 'Basic Health', 'ACTIVE', 'MONTHLY', '2024-01-01', '2024-12-31', 'MEDICAL', 100.00);
+      INSERT INTO package (id, name, status, payroll_frequency, start_date, end_date, type, contributions)
+      VALUES ('83d8456f-95bb-4f84-859f-8da1f6abac2b', 'Premium Health', 'ACTIVE', 'MONTHLY', '2024-01-01', '2024-12-31', 'DENTAL', 200.00);
+      INSERT INTO package (id, name, status, payroll_frequency, start_date, end_date, type, contributions)
+      VALUES ('83d8456f-95bb-4f84-859f-8da1f6abac3c', 'Enterprise Health', 'ACTIVE', 'MONTHLY', '2024-01-01', '2024-12-31', 'MEDICAL', 300.00);
     </sql>
   </changeSet>
 

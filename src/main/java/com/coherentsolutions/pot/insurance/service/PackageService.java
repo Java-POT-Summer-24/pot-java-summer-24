@@ -1,9 +1,10 @@
 package com.coherentsolutions.pot.insurance.service;
 
+import com.coherentsolutions.pot.insurance.constants.PackageStatus;
 import com.coherentsolutions.pot.insurance.dto.PackageDTO;
 import com.coherentsolutions.pot.insurance.entity.PackageEntity;
-import com.coherentsolutions.pot.insurance.exception.BadRequestException;
 import com.coherentsolutions.pot.insurance.exception.NotFoundException;
+import com.coherentsolutions.pot.insurance.exception.BadRequestException;
 import com.coherentsolutions.pot.insurance.mapper.PackageMapper;
 import com.coherentsolutions.pot.insurance.repository.PackageRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,46 +22,44 @@ public class PackageService {
 
   public List<PackageDTO> getAllPackages() {
     return packageRepository.findAll().stream()
-        .map(PackageMapper.INSTANCE::packageToPackageDTO)
+        .map(PackageMapper.INSTANCE::entityToDto)
         .collect(Collectors.toList());
   }
 
   public PackageDTO getPackageById(UUID id) {
     PackageEntity packageEntity = packageRepository.findById(id)
         .orElseThrow(() -> new NotFoundException("Package with ID " + id + " not found"));
-    return PackageMapper.INSTANCE.packageToPackageDTO(packageEntity);
+    return PackageMapper.INSTANCE.entityToDto(packageEntity);
   }
 
   public PackageDTO addPackage(PackageDTO packageDTO) {
-    if (packageRepository.existsByName(packageDTO.getName())) {
-      throw new BadRequestException("Package with name " + packageDTO.getName() + " already exists.");
-    }
-    PackageEntity packageEntity = PackageMapper.INSTANCE.packageDTOToPackage(packageDTO);
-    packageEntity.setId(UUID.randomUUID());
+    packageRepository.findByName(packageDTO.getName())
+        .ifPresent(existingPackage -> {
+          throw new BadRequestException("Package with name " + packageDTO.getName() + " already exists.");
+        });
+    PackageEntity packageEntity = PackageMapper.INSTANCE.dtoToEntity(packageDTO);
     packageEntity = packageRepository.save(packageEntity);
-    return PackageMapper.INSTANCE.packageToPackageDTO(packageEntity);
+    return PackageMapper.INSTANCE.entityToDto(packageEntity);
   }
 
-  public PackageDTO updatePackage(UUID id, PackageDTO packageDTO) {
-    if (!packageRepository.existsById(id)) {
-      throw new NotFoundException("Package with ID " + id + " not found");
-    }
-
-    PackageEntity existingPackage = packageRepository.findById(id).orElse(null);
-    if (existingPackage != null && !existingPackage.getName().equals(packageDTO.getName()) && packageRepository.existsByName(packageDTO.getName())) {
-      throw new BadRequestException("Package with name " + packageDTO.getName() + " already exists under a different ID.");
-    }
-
-    PackageEntity packageEntity = PackageMapper.INSTANCE.packageDTOToPackage(packageDTO);
-    packageEntity.setId(id);
-    packageEntity = packageRepository.save(packageEntity);
-    return PackageMapper.INSTANCE.packageToPackageDTO(packageEntity);
+  public PackageDTO updatePackage(PackageDTO packageDTO) {
+    UUID packageId = packageDTO.getId();
+    PackageEntity existingPackage = packageRepository.findById(packageId)
+        .orElseThrow(() -> new NotFoundException("Package with ID " + packageId + " not found"));
+    PackageMapper.INSTANCE.updatePackageFromDTO(packageDTO, existingPackage);
+    existingPackage = packageRepository.save(existingPackage);
+    return PackageMapper.INSTANCE.entityToDto(existingPackage);
   }
 
-  public void deletePackage(UUID id) {
-    if (!packageRepository.existsById(id)) {
-      throw new NotFoundException("Package with ID " + id + " not found");
-    }
-    packageRepository.deleteById(id);
+  public PackageDTO deactivatePackage(UUID id) {
+    return packageRepository.findById(id)
+        .map(packageEntity -> {
+          packageEntity.setStatus(PackageStatus.DEACTIVATED);
+          packageEntity = packageRepository.save(packageEntity);
+          return PackageMapper.INSTANCE.entityToDto(packageEntity);
+        })
+        .orElseThrow(() -> new NotFoundException("Package with ID " + id + " was not found"));
   }
 }
+
+//extract to local variables and stuff... See code reviews.
