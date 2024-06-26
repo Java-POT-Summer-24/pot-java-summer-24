@@ -1,6 +1,6 @@
 package com.coherentsolutions.pot.insurance.mappers;
 
-import com.coherentsolutions.pot.insurance.dtos.EmployeeDTO;
+import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
 import com.coherentsolutions.pot.insurance.entity.Employee;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

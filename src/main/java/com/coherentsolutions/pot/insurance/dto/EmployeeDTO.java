@@ -1,4 +1,4 @@
-package com.coherentsolutions.pot.insurance.dtos;
+package com.coherentsolutions.pot.insurance.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
