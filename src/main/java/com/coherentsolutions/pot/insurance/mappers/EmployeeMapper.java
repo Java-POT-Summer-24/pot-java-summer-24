@@ -1,14 +1,14 @@
 package com.coherentsolutions.pot.insurance.mappers;
 
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
-import com.coherentsolutions.pot.insurance.entity.Employee;
+import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 @Mapper
 public interface EmployeeMapper {
     EmployeeMapper INSTANCE = Mappers.getMapper(EmployeeMapper.class);
 
-    EmployeeDTO employeeToEmployeeDTO(Employee employee);
+    EmployeeDTO employeeToEmployeeDTO(EmployeeEntity employee);
 
-    Employee employeeDTOToEmployee(EmployeeDTO employeeDTO);
+    EmployeeEntity employeeDTOToEmployee(EmployeeDTO employeeDTO);
 }

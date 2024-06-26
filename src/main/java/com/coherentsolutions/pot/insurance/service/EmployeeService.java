@@ -9,9 +9,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
-/*Employer Portal is used to manage company and user profiles, enroll users into insurance plans,
-as well as to view enrollments and file claims – all depending in user permissions/functions.
-*/
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
