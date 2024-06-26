@@ -1,6 +1,7 @@
 package com.coherentsolutions.pot.insurance.service;
 
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
+import com.coherentsolutions.pot.insurance.mappers.EmployeeMapper;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,10 +16,11 @@ as well as to view enrollments and file claims – all depending in user permiss
 @RequiredArgsConstructor
 public class EmployeeService {
     private final EmployeeRepository employeeRepository;
+    private final EmployeeMapper employeeMapper;
 
     public EmployeeDTO addEmployee(EmployeeDTO employeeDTO){
         return EmployeeDTO.builder()
-                .employeeId(employeeRepository.save(employeeDTO.toEntity(employeeDTO)).getEmployeeId())
+                .employeeId(employeeRepository.save(employeeMapper.employeeDTOToEmployee(employeeDTO)).getEmployeeId())
                 .firstName(employeeDTO.getFirstName())
                 .lastName(employeeDTO.getLastName())
                 .userName(employeeDTO.getUserName())
@@ -61,7 +63,7 @@ public class EmployeeService {
                     employee.setFirstName(updatedEmployeeDTO.getFirstName());
                     employee.setLastName(updatedEmployeeDTO.getLastName());
                     employee.setUserName(updatedEmployeeDTO.getUserName());
-                    employee.setDateOfBirth(updatedEmployeeDTO.getDateOfBirth());
+                    //employee.setDateOfBirth(updatedEmployeeDTO.getDateOfBirth()); left to fix due to string - date conversion
                     employee.setSSN(updatedEmployeeDTO.getSSN());
                     employee.setPhoneNumber(updatedEmployeeDTO.getPhoneNumber());
                     return EmployeeDTO.builder()
