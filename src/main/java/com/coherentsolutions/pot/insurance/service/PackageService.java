@@ -61,5 +61,3 @@ public class PackageService {
         .orElseThrow(() -> new NotFoundException("Package with ID " + id + " was not found"));
   }
 }
-
-//extract to local variables and stuff... See code reviews.

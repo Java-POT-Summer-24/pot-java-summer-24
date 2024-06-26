@@ -11,6 +11,4 @@ public interface PackageRepository extends JpaRepository<PackageEntity, UUID> {
 
   Optional<PackageEntity> findByName(String name);
 
-  //is this needed?
-
 }

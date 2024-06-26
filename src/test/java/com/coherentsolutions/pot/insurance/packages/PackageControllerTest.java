@@ -1,20 +1,22 @@
 package com.coherentsolutions.pot.insurance.packages;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.coherentsolutions.pot.insurance.controller.PackageController;
 import com.coherentsolutions.pot.insurance.dto.PackageDTO;
 import com.coherentsolutions.pot.insurance.service.PackageService;
+import java.util.List;
+import java.util.UUID;
+import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.jeasy.random.EasyRandom;
-import java.util.List;
-import java.util.UUID;
 import org.springframework.http.ResponseEntity;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PackageControllerTest {
