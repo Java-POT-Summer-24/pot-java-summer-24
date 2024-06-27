@@ -12,9 +12,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.jeasy.random.EasyRandom;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -42,15 +47,28 @@ class ClaimControllerTest {
   }
 
   @Test
-  void testGetAllClaims() {
+  void testGetFilteredSortedClaims() {
     List<ClaimDTO> claimsList = easyRandom.objects(ClaimDTO.class, 3).toList();
-    when(claimService.getAllClaims()).thenReturn(claimsList);
+    Page<ClaimDTO> pagedClaims = new PageImpl<>(claimsList);
 
-    ResponseEntity<List<ClaimDTO>> response = claimController.getAllClaims();
-    List<ClaimDTO> result = response.getBody();
+    int page = 0;
+    int size = 10;
+    String sort = "dateOfService,desc";
+    Sort sortedBy = Sort.by(Sort.Order.desc(sort.split(",")[0]));
+    PageRequest pageable = PageRequest.of(page, size, sortedBy);
 
-    assertEquals(3, result.size());
-    verify(claimService).getAllClaims();
+    when(claimService.getFilteredSortedClaims(null, null, null, null, page, size, sortedBy))
+        .thenReturn(pagedClaims);
+
+    ResponseEntity<Page<ClaimDTO>> response = claimController.getFilteredSortedClaims(null, null, null, null, page, size, sort);
+
+    assertNotNull(response);
+    assertNotNull(response.getBody());
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(3, response.getBody().getContent().size());
+    assertEquals(claimsList, response.getBody().getContent());
+
+    verify(claimService).getFilteredSortedClaims(null, null, null, null, page, size, sortedBy);
   }
 
   @Test

@@ -8,6 +8,10 @@ import com.coherentsolutions.pot.insurance.mapper.ClaimMapper;
 import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
 import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +23,32 @@ import java.util.stream.Collectors;
 public class ClaimService {
 
   private final ClaimRepository claimRepository;
+
+  public Page<ClaimDTO> getFilteredSortedClaims(String claimNumber, String consumer, String employer,
+      ClaimStatus status, int page, int size, Sort sort) {
+    Specification<ClaimEntity> spec = buildSpecification(claimNumber, consumer, employer, status);
+    PageRequest pageRequest = PageRequest.of(page, size, sort);
+    return claimRepository.findAll(spec, pageRequest).map(ClaimMapper.INSTANCE::entityToDto);
+  }
+
+  private Specification<ClaimEntity> buildSpecification(String claimNumber, String consumer, String employer, ClaimStatus status) {
+    Specification<ClaimEntity> spec = Specification.where(null);
+
+    if (claimNumber != null && !claimNumber.isEmpty()) {
+      spec = spec.and((root, query, cb) -> cb.equal(root.get("claimNumber"), claimNumber));
+    }
+    if (consumer != null && !consumer.isEmpty()) {
+      spec = spec.and((root, query, cb) -> cb.equal(root.get("consumer"), consumer));
+    }
+    if (employer != null && !employer.isEmpty()) {
+      spec = spec.and((root, query, cb) -> cb.equal(root.get("employer"), employer));
+    }
+    if (status != null) {
+      spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), status));
+    }
+
+    return spec;
+  }
 
   public List<ClaimDTO> getAllClaims() {
     return claimRepository.findAll().stream()
