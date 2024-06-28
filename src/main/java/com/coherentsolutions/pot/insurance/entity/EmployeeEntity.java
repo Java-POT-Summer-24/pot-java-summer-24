@@ -27,6 +27,8 @@ public class EmployeeEntity {
 
     private String userName; // unique field
 
+    private String email;
+
     private Date dateOfBirth;
 
     private Integer SSN;
