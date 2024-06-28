@@ -41,16 +41,7 @@ public class PackageIntegrationTest {
 
   @Test
   void testAddPackage() throws Exception {
-    PackageDTO packageDTO = PackageDTO.builder()
-        .id(UUID.randomUUID())
-        .name("Basic Health Package")
-        .status(PackageStatus.ACTIVE)
-        .payrollFrequency(PackagePayrollFrequency.MONTHLY)
-        .startDate(LocalDate.of(2024, 1, 1))
-        .endDate(LocalDate.of(2025, 1, 1))
-        .type(PackageType.DENTAL)
-        .contributions(150.00)
-        .build();
+    PackageDTO packageDTO = createBasicPackageDTO().build();
     String packageJson = objectMapper.writeValueAsString(packageDTO);
 
     Mockito.when(packageService.addPackage(Mockito.any())).thenReturn(packageDTO);
@@ -74,15 +65,8 @@ public class PackageIntegrationTest {
   @Test
   void testGetPackageById() throws Exception {
     UUID packageId = UUID.fromString("83d8456f-95bb-4f84-859f-8da1f6abac1a");
-    PackageDTO packageDTO = PackageDTO.builder()
+    PackageDTO packageDTO = createBasicPackageDTO()
         .id(packageId)
-        .name("Basic Health Package")
-        .status(PackageStatus.ACTIVE)
-        .payrollFrequency(PackagePayrollFrequency.MONTHLY)
-        .startDate(LocalDate.of(2024, 1, 1))
-        .endDate(LocalDate.of(2025, 1, 1))
-        .type(PackageType.DENTAL)
-        .contributions(150.00)
         .build();
 
     Mockito.when(packageService.getPackageById(packageId)).thenReturn(packageDTO);
@@ -95,15 +79,9 @@ public class PackageIntegrationTest {
   @Test
   void testUpdatePackage() throws Exception {
     UUID packageId = UUID.fromString("83d8456f-95bb-4f84-859f-8da1f6abac1a");
-    PackageDTO packageDTO = PackageDTO.builder()
+    PackageDTO packageDTO = createBasicPackageDTO()
         .id(packageId)
         .name("Updated Health Package")
-        .status(PackageStatus.ACTIVE)
-        .payrollFrequency(PackagePayrollFrequency.MONTHLY)
-        .startDate(LocalDate.of(2024, 1, 1))
-        .endDate(LocalDate.of(2026, 1, 1))
-        .type(PackageType.MEDICAL)
-        .contributions(200.00)
         .build();
     String packageJson = objectMapper.writeValueAsString(packageDTO);
 
@@ -121,15 +99,9 @@ public class PackageIntegrationTest {
   @Test
   void testDeactivatePackage() throws Exception {
     UUID packageId = UUID.fromString("83d8456f-95bb-4f84-859f-8da1f6abac1a");
-    PackageDTO packageDTO = PackageDTO.builder()
+    PackageDTO packageDTO = createBasicPackageDTO()
         .id(packageId)
-        .name("Basic Health Package")
         .status(PackageStatus.DEACTIVATED)
-        .payrollFrequency(PackagePayrollFrequency.MONTHLY)
-        .startDate(LocalDate.of(2024, 1, 1))
-        .endDate(LocalDate.of(2025, 1, 1))
-        .type(PackageType.DENTAL)
-        .contributions(150.00)
         .build();
 
     Mockito.when(packageService.deactivatePackage(packageId)).thenReturn(packageDTO);
@@ -137,5 +109,17 @@ public class PackageIntegrationTest {
     mockMvc.perform(delete("/v1/packages/{id}", packageId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("DEACTIVATED"));
+  }
+
+  private PackageDTO.PackageDTOBuilder createBasicPackageDTO() {
+    return PackageDTO.builder()
+        .id(UUID.randomUUID())
+        .name("Basic Health Package")
+        .status(PackageStatus.ACTIVE)
+        .payrollFrequency(PackagePayrollFrequency.MONTHLY)
+        .startDate(LocalDate.of(2024, 1, 1))
+        .endDate(LocalDate.of(2025, 1, 1))
+        .type(PackageType.DENTAL)
+        .contributions(150.00);
   }
 }
