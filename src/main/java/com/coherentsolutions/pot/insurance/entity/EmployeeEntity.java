@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -27,7 +27,7 @@ public class EmployeeEntity {
 
     private String email;
 
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     private Integer SSN;
 
