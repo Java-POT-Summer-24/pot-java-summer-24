@@ -1,14 +1,10 @@
 package com.coherentsolutions.pot.insurance.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.Date;
 import java.util.UUID;
 
@@ -20,6 +16,7 @@ import java.util.UUID;
 @Builder
 public class EmployeeEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID employeeId;
 
     private String firstName;
