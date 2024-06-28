@@ -18,41 +18,19 @@ public class EmployeeService {
     private final EmployeeMapper employeeMapper;
 
     public EmployeeDTO addEmployee(EmployeeDTO employeeDTO){
-        return EmployeeDTO.builder()
-                .employeeId(employeeRepository.save(employeeMapper.employeeDTOToEmployee(employeeDTO)).getEmployeeId())
-                .firstName(employeeDTO.getFirstName())
-                .lastName(employeeDTO.getLastName())
-                .userName(employeeDTO.getUserName())
-                .dateOfBirth(employeeDTO.getDateOfBirth())
-                .SSN(employeeDTO.getSSN())
-                .phoneNumber(employeeDTO.getPhoneNumber())
-                .build();
+        return employeeMapper
+                .employeeToEmployeeDTO(employeeRepository.save(employeeMapper.employeeDTOToEmployee(employeeDTO)));
     }
+
     public EmployeeDTO getEmployee(UUID employeeId){
         return employeeRepository.findById(employeeId)
-                .map(employee -> EmployeeDTO.builder()
-                        .employeeId(employee.getEmployeeId())
-                        .firstName(employee.getFirstName())
-                        .lastName(employee.getLastName())
-                        .userName(employee.getUserName())
-                        .dateOfBirth(String.valueOf(employee.getDateOfBirth()))
-                        .SSN(employee.getSSN())
-                        .phoneNumber(employee.getPhoneNumber())
-                        .build())
+                .map(employeeMapper::employeeToEmployeeDTO)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Error 404: Employee not found with id: " + employeeId));
     }
 
     public List<EmployeeDTO> getAllEmployees(){
         return employeeRepository.findAll().stream()
-                .map(employee -> EmployeeDTO.builder()
-                        .employeeId(employee.getEmployeeId())
-                        .firstName(employee.getFirstName())
-                        .lastName(employee.getLastName())
-                        .userName(employee.getUserName())
-                        .dateOfBirth(String.valueOf(employee.getDateOfBirth()))
-                        .SSN(employee.getSSN())
-                        .phoneNumber(employee.getPhoneNumber())
-                        .build())
+                .map(employeeMapper::employeeToEmployeeDTO)
                 .toList();
     }
 
@@ -65,15 +43,7 @@ public class EmployeeService {
                     //employee.setDateOfBirth(updatedEmployeeDTO.getDateOfBirth()); left to fix due to string - date conversion
                     employee.setSSN(updatedEmployeeDTO.getSSN());
                     employee.setPhoneNumber(updatedEmployeeDTO.getPhoneNumber());
-                    return EmployeeDTO.builder()
-                            .employeeId(employeeRepository.save(employee).getEmployeeId())
-                            .firstName(employee.getFirstName())
-                            .lastName(employee.getLastName())
-                            .userName(employee.getUserName())
-                            .dateOfBirth(String.valueOf(employee.getDateOfBirth()))
-                            .SSN(employee.getSSN())
-                            .phoneNumber(employee.getPhoneNumber())
-                            .build();
+                    return employeeMapper.employeeToEmployeeDTO(employeeRepository.save(employee));
                 })
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Error 404: Employee not found with id: " + employeeId));
     }
