@@ -21,6 +21,11 @@ public class ClaimController {
   private final ClaimService claimService;
 
   @GetMapping
+  public ResponseEntity<List<ClaimDTO>> getAllClaims() {
+    return ResponseEntity.ok(claimService.getAllClaims());
+  }
+
+  @GetMapping("/filtered")
   public ResponseEntity<Page<ClaimDTO>> getFilteredSortedClaims(
       @RequestParam(required = false) String claimNumber,
       @RequestParam(required = false) String consumer,

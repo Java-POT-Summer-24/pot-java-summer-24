@@ -35,6 +35,18 @@ class ClaimControllerTest {
   private ClaimController claimController;
 
   @Test
+  void testGetAllClaims() {
+    List<ClaimDTO> claimsList = easyRandom.objects(ClaimDTO.class, 3).toList();
+    when(claimService.getAllClaims()).thenReturn(claimsList);
+
+    ResponseEntity<List<ClaimDTO>> response = claimController.getAllClaims();
+    List<ClaimDTO> result = response.getBody();
+
+    assertEquals(3, result.size());
+    verify(claimService).getAllClaims();
+  }
+
+  @Test
   void testAddClaim() {
     ClaimDTO newClaimDTO = easyRandom.nextObject(ClaimDTO.class);
     when(claimService.addClaim(any(ClaimDTO.class))).thenReturn(newClaimDTO);
