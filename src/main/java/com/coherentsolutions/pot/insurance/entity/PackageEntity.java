@@ -6,15 +6,12 @@ import com.coherentsolutions.pot.insurance.constants.PackageType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -23,11 +20,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PackageEntity {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private UUID id;
+@EqualsAndHashCode(callSuper = true)
+public class PackageEntity extends BaseEntity {
 
   private String name;
 
@@ -45,6 +39,5 @@ public class PackageEntity {
   private PackageType type;
 
   private double contributions;
-
 
 }

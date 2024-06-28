@@ -12,21 +12,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.coherentsolutions.pot.insurance.constants.PackagePayrollFrequency;
 import com.coherentsolutions.pot.insurance.constants.PackageStatus;
 import com.coherentsolutions.pot.insurance.constants.PackageType;
+import com.coherentsolutions.pot.insurance.controller.PackageController;
 import com.coherentsolutions.pot.insurance.dto.PackageDTO;
+import com.coherentsolutions.pot.insurance.service.PackageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.Base64;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(controllers = PackageController.class)
+@Import(TestSecurityConfig.class)
 public class PackageIntegrationTest {
 
   @Autowired
@@ -35,14 +37,8 @@ public class PackageIntegrationTest {
   @Autowired
   private ObjectMapper objectMapper;
 
-  private static final String USERNAME = "admin";
-  private static final String PASSWORD = "password";
-
-  private String basicAuthHeader() {
-    String auth = USERNAME + ":" + PASSWORD;
-    byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
-    return "Basic " + new String(encodedAuth);
-  }
+  @MockBean
+  private PackageService packageService;
 
   @Test
   void testAddPackage() throws Exception {
@@ -58,8 +54,9 @@ public class PackageIntegrationTest {
     );
     String packageJson = objectMapper.writeValueAsString(packageDTO);
 
+    Mockito.when(packageService.addPackage(Mockito.any())).thenReturn(packageDTO);
+
     mockMvc.perform(post("/v1/packages")
-            .header("Authorization", basicAuthHeader())
             .contentType(MediaType.APPLICATION_JSON)
             .content(packageJson))
         .andExpect(status().isCreated())
@@ -68,8 +65,7 @@ public class PackageIntegrationTest {
 
   @Test
   void testGetAllPackages() throws Exception {
-    mockMvc.perform(get("/v1/packages")
-            .header("Authorization", basicAuthHeader()))
+    mockMvc.perform(get("/v1/packages"))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
@@ -79,8 +75,20 @@ public class PackageIntegrationTest {
   @Test
   void testGetPackageById() throws Exception {
     UUID packageId = UUID.fromString("83d8456f-95bb-4f84-859f-8da1f6abac1a");
-    mockMvc.perform(get("/v1/packages/{id}", packageId)
-            .header("Authorization", basicAuthHeader()))
+    PackageDTO packageDTO = new PackageDTO(
+        packageId,
+        "Basic Health Package",
+        PackageStatus.ACTIVE,
+        PackagePayrollFrequency.MONTHLY,
+        LocalDate.of(2024, 1, 1),
+        LocalDate.of(2025, 1, 1),
+        PackageType.DENTAL,
+        150.00
+    );
+
+    Mockito.when(packageService.getPackageById(packageId)).thenReturn(packageDTO);
+
+    mockMvc.perform(get("/v1/packages/{id}", packageId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(packageId.toString()));
   }
@@ -100,8 +108,9 @@ public class PackageIntegrationTest {
     );
     String packageJson = objectMapper.writeValueAsString(packageDTO);
 
+    Mockito.when(packageService.updatePackage(Mockito.any())).thenReturn(packageDTO);
+
     mockMvc.perform(put("/v1/packages")
-            .header("Authorization", basicAuthHeader())
             .contentType(MediaType.APPLICATION_JSON)
             .content(packageJson))
         .andDo(print())
@@ -113,8 +122,20 @@ public class PackageIntegrationTest {
   @Test
   void testDeactivatePackage() throws Exception {
     UUID packageId = UUID.fromString("83d8456f-95bb-4f84-859f-8da1f6abac1a");
-    mockMvc.perform(delete("/v1/packages/{id}", packageId)
-            .header("Authorization", basicAuthHeader()))
+    PackageDTO packageDTO = new PackageDTO(
+        packageId,
+        "Basic Health Package",
+        PackageStatus.DEACTIVATED,
+        PackagePayrollFrequency.MONTHLY,
+        LocalDate.of(2024, 1, 1),
+        LocalDate.of(2025, 1, 1),
+        PackageType.DENTAL,
+        150.00
+    );
+
+    Mockito.when(packageService.deactivatePackage(packageId)).thenReturn(packageDTO);
+
+    mockMvc.perform(delete("/v1/packages/{id}", packageId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("DEACTIVATED"));
   }
