@@ -4,7 +4,9 @@ import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
 import com.coherentsolutions.pot.insurance.mappers.EmployeeMapper;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +39,7 @@ public class EmployeeService {
                         .SSN(employee.getSSN())
                         .phoneNumber(employee.getPhoneNumber())
                         .build())
-                .orElse(null);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Error 404: Employee not found with id: " + employeeId));
     }
 
     public List<EmployeeDTO> getAllEmployees(){
@@ -73,7 +75,7 @@ public class EmployeeService {
                             .phoneNumber(employee.getPhoneNumber())
                             .build();
                 })
-                .orElse(null);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Error 404: Employee not found with id: " + employeeId));
     }
 
     public void deleteEmployee(UUID employeeId){
