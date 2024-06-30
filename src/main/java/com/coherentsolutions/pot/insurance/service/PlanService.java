@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public class PlanService {
     private final PlanRepository planRepository;
     public ResponseEntity<PlanDTO> addPlan(PlanDTO planDTO) {
-        try{
             UUID planId = planDTO.getPlanId();
             if(planRepository.existsByPlanId(planId)){
                 throw new BadRequestException("Plan with ID " + planId + " already exists");
@@ -31,26 +30,14 @@ public class PlanService {
 
             plan = planRepository.save(plan);
             return new ResponseEntity<>(PlanMapper.INSTANCE.toPlanDto(plan), HttpStatus.CREATED);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-        return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
     }
     public ResponseEntity<List<PlanDTO>> getAllPlans() {
-        try{
             return new ResponseEntity<>(planRepository.findAll().stream()
                     .map(PlanMapper.INSTANCE::toPlanDto)
                     .collect(Collectors.toList()), HttpStatus.OK);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
     }
 
     public ResponseEntity<PlanDTO> updatePlan(PlanDTO planDTO){
-        try{
             UUID planId = planDTO.getPlanId();
             PlanEntity existingPlan = planRepository.findByPlanId(planId)
                     .orElseThrow(() -> new NotFoundException("Plan with ID " + planId + " not found"));
@@ -59,13 +46,8 @@ public class PlanService {
             existingPlan = planRepository.save(existingPlan);
 
             return new ResponseEntity<>(PlanMapper.INSTANCE.toPlanDto(existingPlan), HttpStatus.OK);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
+
 
     public ResponseEntity<PlanDTO> deactivatePlan(UUID id){
         return planRepository.findByPlanId(id)
@@ -77,14 +59,8 @@ public class PlanService {
                 .orElseThrow(() -> new NotFoundException("Plan with id " + id + " not found"));
     }
     public ResponseEntity<PlanDTO> getPlanById(UUID id){
-        try{
             PlanEntity plan = planRepository.findByPlanId(id)
                     .orElseThrow(() -> new NotFoundException("Plan with id " + id + " not found"));
             return new ResponseEntity<>(PlanMapper.INSTANCE.toPlanDto(plan), HttpStatus.OK);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 }

@@ -16,7 +16,7 @@ import java.util.UUID;
 public class PlanController {
     private final PlanService planService;
 
-    @GetMapping("allPlans")
+    @GetMapping
     public ResponseEntity<List<PlanDTO>> getAllPlans() {
         return planService.getAllPlans();
     }
@@ -26,14 +26,13 @@ public class PlanController {
         return planService.getPlanById(id);
     }
 
-    @PostMapping("add")
+    @PostMapping
     public ResponseEntity<PlanDTO> addPlan(@Valid @RequestBody PlanDTO planDTO){
         return planService.addPlan(planDTO);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<PlanDTO> updatePlan(@PathVariable UUID id, @Valid @RequestBody PlanDTO planDTO){
-        planDTO.setPlanId(id);
+    @PutMapping
+    public ResponseEntity<PlanDTO> updatePlan(@Valid @RequestBody PlanDTO planDTO){
         return planService.updatePlan(planDTO);
     }
 
