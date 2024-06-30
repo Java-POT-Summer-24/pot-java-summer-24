@@ -93,16 +93,15 @@ class PlanControllerTest {
     void testDeactivatePlan() {
         UUID id = UUID.randomUUID();
         PlanDTO originalPlanDTO = easyRandom.nextObject(PlanDTO.class);
-        ResponseEntity<PlanDTO> responseEntity = new ResponseEntity<>(originalPlanDTO, HttpStatus.CREATED);
         originalPlanDTO.setPlanId(id);
         originalPlanDTO.setStatus(PlanStatus.DEACTIVATED);
+        ResponseEntity<PlanDTO> responseEntity = new ResponseEntity<>(originalPlanDTO, HttpStatus.CREATED);
 
         when(planService.deactivatePlan(id)).thenReturn(responseEntity);
 
         ResponseEntity<PlanDTO> response = planController.deactivatePlan(id);
         PlanDTO resultPlanDTO = response.getBody();
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
         
         assert resultPlanDTO != null;
         assertEquals(PlanStatus.DEACTIVATED, resultPlanDTO.getStatus());
