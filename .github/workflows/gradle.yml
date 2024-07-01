@@ -28,7 +28,7 @@ jobs:
           gradle-version: '8.5'
 
       - name: Build with Gradle 8.5
-        run: gradle build
+        run: gradle bootJar
 
       - name: Build & push Docker image
         uses: mr-smithers-excellent/docker-build-push@v6
