@@ -21,14 +21,10 @@ public class PlanService {
     private final PlanRepository planRepository;
 
     public PlanDTO addPlan(PlanDTO planDTO) {
-            UUID planId = planDTO.getPlanId();
-            if(planRepository.existsById(planId)){
-                throw new BadRequestException("Plan with ID " + planId + " already exists");
-            }
             PlanEntity plan = PlanMapper.INSTANCE.toPlanEntity(planDTO);
+            PlanEntity createdPlan = planRepository.save(plan);
 
-            plan = planRepository.save(plan);
-            return PlanMapper.INSTANCE.toPlanDto(plan);
+            return PlanMapper.INSTANCE.toPlanDto(createdPlan);
     }
 
     public List<PlanDTO> getAllPlans() {

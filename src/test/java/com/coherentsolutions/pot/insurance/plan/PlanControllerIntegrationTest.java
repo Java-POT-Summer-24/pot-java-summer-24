@@ -92,11 +92,14 @@ public class PlanControllerIntegrationTest {
   void testUpdatePlan() throws Exception {
     PlanDTO originalPlanDTO = easyRandom.nextObject(PlanDTO.class);
     PlanDTO updatedPlanDTO = easyRandom.nextObject(PlanDTO.class);
-    updatedPlanDTO.setPlanId(originalPlanDTO.getPlanId());
+
+    UUID planId = UUID.randomUUID();
+    originalPlanDTO.setPlanId(planId);
+    updatedPlanDTO.setPlanId(planId);
 
     when(planService.updatePlan(any(PlanDTO.class))).thenReturn(updatedPlanDTO);
 
-    mockMvc.perform(put("/v1/plans")
+    mockMvc.perform(put("/v1/plans/{id}", planId)
             .with(SecurityMockMvcRequestPostProcessors.csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(originalPlanDTO)))
