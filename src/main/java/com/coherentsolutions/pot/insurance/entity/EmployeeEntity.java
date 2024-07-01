@@ -33,6 +33,6 @@ public class EmployeeEntity {
 
     private Integer phoneNumber;
 
-    @Column(name = "is_deleted")
-    private boolean isDeleted = false;
+//    @Column(name = "is_deleted")
+//    private boolean isDeleted = false;
 }

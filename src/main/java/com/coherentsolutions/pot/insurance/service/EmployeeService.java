@@ -42,12 +42,12 @@ public class EmployeeService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Error 404: Employee not found with id: " + employeeId));
     }
 
-    public void deleteEmployee(UUID employeeId){
-        employeeRepository.findById(employeeId)
-                .map(employee -> {
-                    employee.setDeleted(true);
-                    return employeeRepository.save(employee);
-                })
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Error 404: Employee not found with id: " + employeeId));
-    }
+//    public void deleteEmployee(UUID employeeId){
+//        employeeRepository.findById(employeeId)
+//                .map(employee -> {
+//                    employee.setDeleted(true);
+//                    return employeeRepository.save(employee);
+//                })
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Error 404: Employee not found with id: " + employeeId));
+//    }
 }
