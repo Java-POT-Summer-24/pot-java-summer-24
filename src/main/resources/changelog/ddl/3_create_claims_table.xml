@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="3" author="heorhii.popov">
+    <sql>
+      CREATE TABLE claim (
+      id UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
+      claim_number VARCHAR(255) NOT NULL UNIQUE,
+      consumer VARCHAR(255) NOT NULL,
+      employer VARCHAR(255) NOT NULL,
+      date_of_service DATE NOT NULL,
+      plan VARCHAR(255) NOT NULL,
+      amount DOUBLE NOT NULL,
+      status VARCHAR(255) NOT NULL
+      );
+    </sql>
+  </changeSet>
+</databaseChangeLog>
