@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="5" author="lukas.simonelis">
+        <sql>
+            INSERT INTO employee (employee_id, first_name, last_name, user_name, email, date_of_birth, ssn, phone_number, status)
+            VALUES
+            (RANDOM_UUID(), 'John', 'Doe', 'johndoe', 'john.doe@example.com', '1980-01-01', 123456789, 1234567890, 'ACTIVE'),
+            (RANDOM_UUID(), 'Jane', 'Doe', 'janedoe', 'jane.doe@example.com', '1985-01-01', 987654321, 9876543210, 'INACTIVE');
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
