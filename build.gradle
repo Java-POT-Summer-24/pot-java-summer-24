@@ -32,6 +32,7 @@ dependencies {
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 	testImplementation 'org.jeasy:easy-random-core:5.0.0'
+	testImplementation 'org.springframework.security:spring-security-test:6.3.1'
 	runtimeOnly 'com.h2database:h2'
   
   
