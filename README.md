@@ -40,6 +40,7 @@ Navigate to Editor -> Code Style > Java. ->
 
 Ensure GoogleStyle is selected in the Scheme dropdown.
 
+
 #### H2 Database connection:
 Open your web browser and navigate to http://localhost:8080/h2-console. Use the following settings to connect:
 
@@ -51,3 +52,18 @@ Open settings and then select Editor | Code Style | Java.
 Enabled "Use single class import" option
 
 In the "Class count to use import with '*'" and "Names count to use static import with '*'" fields write 999.
+
+#### Manual to run project locally:
+Step 1: Set up the development environment
+1. Install JDK 8 or higher
+2. Install IntelliJ IDEA
+3. Install Gradle
+4. Install PostgreSQL
+5. Install Postman
+6. Install Git
+
+Step 2: Run application
+
+1. Ensure Lombok is enabled in IntelliJ IDEA
+2. Run InsuranceApplication.java
+3. Go to http://localhost:8080
