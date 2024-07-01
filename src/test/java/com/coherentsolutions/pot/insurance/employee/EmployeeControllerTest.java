@@ -51,7 +51,7 @@ class EmployeeControllerTest {
             .with(SecurityMockMvcRequestPostProcessors.csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(newEmployeeDTO)))
-        .andExpect(status().isOk())
+        .andExpect(status().isCreated())
         .andExpect(content().json(objectMapper.writeValueAsString(newEmployeeDTO)));
 
     verify(employeeService).addEmployee(newEmployeeDTO);
@@ -115,7 +115,7 @@ class EmployeeControllerTest {
     mockMvc.perform(delete("/v1/employees/{employeeId}", id)
             .with(SecurityMockMvcRequestPostProcessors.csrf())
             .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
+        .andExpect(status().isNoContent());
 
     verify(employeeService).deactivateEmployee(id);
   }
