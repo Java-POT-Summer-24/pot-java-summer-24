@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -101,20 +102,19 @@ class PlanControllerTest {
 
     @Test
     void testDeactivateNonExistingPlan() {
-        UUID nonExistentId = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
 
-        // Simulate NotFoundException being thrown by planService.deactivatePlan(id)
-        when(planService.deactivatePlan(nonExistentId)).thenThrow(NotFoundException.class);
+        // Mock NotFoundException scenario
+        when(planService.deactivatePlan(id)).thenThrow(new NotFoundException("Plan with id " + id + " not found"));
 
-        try {
-            planController.deactivatePlan(nonExistentId);
-        } catch (NotFoundException e) {
-            // NotFoundException expected, test passes
-            verify(planService).deactivatePlan(nonExistentId);
-            return;
-        }
-        // If NotFoundException is not thrown, fail the test
-        throw new AssertionError("Expected NotFoundException was not thrown");
+        // Assert that NotFoundException is thrown
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            planController.deactivatePlan(id);
+        });
+
+        assertEquals("Plan with id " + id + " not found", exception.getMessage());
+
+        verify(planService).deactivatePlan(id);
     }
 }
 
