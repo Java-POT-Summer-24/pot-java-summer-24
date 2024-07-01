@@ -6,6 +6,9 @@ import com.coherentsolutions.pot.insurance.entity.ClaimEntity;
 import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.mapper.ClaimMapper;
 import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
+import com.coherentsolutions.pot.insurance.specifications.ClaimSpecifications;
+import com.coherentsolutions.pot.insurance.specifications.FilterCriteria;
+import com.coherentsolutions.pot.insurance.specifications.SortCriteria;
 import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,27 +27,27 @@ public class ClaimService {
 
   private final ClaimRepository claimRepository;
 
-  public Page<ClaimDTO> getFilteredSortedClaims(String claimNumber, String consumer, String employer,
-      ClaimStatus status, int page, int size, Sort sort) {
-    Specification<ClaimEntity> spec = buildSpecification(claimNumber, consumer, employer, status);
+  public Page<ClaimDTO> getFilteredSortedClaims(FilterCriteria filterCriteria, SortCriteria sortCriteria, int page, int size) {
+    Specification<ClaimEntity> spec = buildSpecification(filterCriteria);
+    Sort sort = Sort.by(sortCriteria.getDirection(), sortCriteria.getField());
     PageRequest pageRequest = PageRequest.of(page, size, sort);
     return claimRepository.findAll(spec, pageRequest).map(ClaimMapper.INSTANCE::entityToDto);
   }
 
-  private Specification<ClaimEntity> buildSpecification(String claimNumber, String consumer, String employer, ClaimStatus status) {
+  private Specification<ClaimEntity> buildSpecification(FilterCriteria filterCriteria) {
     Specification<ClaimEntity> spec = Specification.where(null);
 
-    if (claimNumber != null && !claimNumber.isEmpty()) {
-      spec = spec.and((root, query, cb) -> cb.equal(root.get("claimNumber"), claimNumber));
+    if (filterCriteria.getClaimNumber() != null && !filterCriteria.getClaimNumber().isEmpty()) {
+      spec = spec.and(ClaimSpecifications.byClaimNumber(filterCriteria.getClaimNumber()));
     }
-    if (consumer != null && !consumer.isEmpty()) {
-      spec = spec.and((root, query, cb) -> cb.equal(root.get("consumer"), consumer));
+    if (filterCriteria.getConsumer() != null && !filterCriteria.getConsumer().isEmpty()) {
+      spec = spec.and(ClaimSpecifications.byConsumer(filterCriteria.getConsumer()));
     }
-    if (employer != null && !employer.isEmpty()) {
-      spec = spec.and((root, query, cb) -> cb.equal(root.get("employer"), employer));
+    if (filterCriteria.getEmployer() != null && !filterCriteria.getEmployer().isEmpty()) {
+      spec = spec.and(ClaimSpecifications.byEmployer(filterCriteria.getEmployer()));
     }
-    if (status != null) {
-      spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), status));
+    if (filterCriteria.getStatus() != null) {
+      spec = spec.and(ClaimSpecifications.byStatus(filterCriteria.getStatus()));
     }
 
     return spec;

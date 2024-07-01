@@ -1,8 +1,10 @@
 package com.coherentsolutions.pot.insurance.controller;
 
-import com.coherentsolutions.pot.insurance.constants.ClaimStatus;
 import com.coherentsolutions.pot.insurance.dto.ClaimDTO;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
+import com.coherentsolutions.pot.insurance.specifications.FilterAndSortCriteria;
+import com.coherentsolutions.pot.insurance.specifications.FilterCriteria;
+import com.coherentsolutions.pot.insurance.specifications.SortCriteria;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,22 +27,25 @@ public class ClaimController {
     return ResponseEntity.ok(claimService.getAllClaims());
   }
 
-  @GetMapping("/filtered")
+  @PostMapping("/filtered")
   public ResponseEntity<Page<ClaimDTO>> getFilteredSortedClaims(
-      @RequestParam(required = false) String claimNumber,
-      @RequestParam(required = false) String consumer,
-      @RequestParam(required = false) String employer,
-      @RequestParam(required = false) ClaimStatus status,
+      @RequestBody FilterAndSortCriteria criteria,
       @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size,
-      @RequestParam(defaultValue = "dateOfService,desc") String sort) {
-    String[] sortParams = sort.split(",");
-    Sort.Direction dir = "asc".equalsIgnoreCase(sortParams[1]) ? Sort.Direction.ASC : Sort.Direction.DESC;
-    Sort sorting = Sort.by(dir, sortParams[0]);
+      @RequestParam(defaultValue = "10") int size) {
 
-    return ResponseEntity.ok(claimService.getFilteredSortedClaims(
-        claimNumber, consumer, employer, status, page, size, sorting));
+    FilterCriteria filterCriteria = criteria.getFilterCriteria();
+    SortCriteria sortCriteria = criteria.getSortCriteria();
+
+    // default sorting if no sort criteria are provided
+    if (sortCriteria == null) {
+      sortCriteria = new SortCriteria();
+      sortCriteria.setField("dateOfService");
+      sortCriteria.setDirection(Sort.Direction.DESC);
+    }
+
+    return ResponseEntity.ok(claimService.getFilteredSortedClaims(filterCriteria, sortCriteria, page, size));
   }
+
 
   @GetMapping("/{id}")
   public ResponseEntity<ClaimDTO> getClaimById(@PathVariable UUID id) {
