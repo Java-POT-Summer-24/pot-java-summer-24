@@ -24,10 +24,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 @ExtendWith(MockitoExtension.class)
 class ClaimControllerTest {
@@ -45,8 +44,7 @@ class ClaimControllerTest {
     List<ClaimDTO> claimsList = easyRandom.objects(ClaimDTO.class, 3).toList();
     when(claimService.getAllClaims()).thenReturn(claimsList);
 
-    ResponseEntity<List<ClaimDTO>> response = claimController.getAllClaims();
-    List<ClaimDTO> result = response.getBody();
+    List<ClaimDTO> result = claimController.getAllClaims();
 
     assertEquals(3, result.size());
     verify(claimService).getAllClaims();
@@ -57,8 +55,7 @@ class ClaimControllerTest {
     ClaimDTO newClaimDTO = easyRandom.nextObject(ClaimDTO.class);
     when(claimService.addClaim(any(ClaimDTO.class))).thenReturn(newClaimDTO);
 
-    ResponseEntity<ClaimDTO> response = claimController.addClaim(newClaimDTO);
-    ClaimDTO createdClaimDTO = response.getBody();
+    ClaimDTO createdClaimDTO = claimController.addClaim(newClaimDTO);
 
     assertEquals(newClaimDTO, createdClaimDTO);
     verify(claimService).addClaim(newClaimDTO);
@@ -78,18 +75,16 @@ class ClaimControllerTest {
     criteria.setFilterCriteria(filterCriteria);
     criteria.setSortCriteria(sortCriteria);
 
-    Pageable pageable = Pageable.ofSize(10).withPage(0);
+    Pageable pageable = PageRequest.of(0, 10, Sort.by(sortCriteria.getDirection(), sortCriteria.getField()));
 
     when(claimService.getFilteredSortedClaims(any(FilterCriteria.class), any(SortCriteria.class), anyInt(), anyInt()))
         .thenReturn(pagedClaims);
 
-    ResponseEntity<Page<ClaimDTO>> response = claimController.getFilteredSortedClaims(criteria, pageable);
+    Page<ClaimDTO> result = claimController.getFilteredSortedClaims(criteria, pageable);
 
-    assertNotNull(response);
-    assertNotNull(response.getBody());
-    assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals(3, response.getBody().getContent().size());
-    assertEquals(claimsList, response.getBody().getContent());
+    assertNotNull(result);
+    assertEquals(3, result.getContent().size());
+    assertEquals(claimsList, result.getContent());
 
     verify(claimService).getFilteredSortedClaims(any(FilterCriteria.class), any(SortCriteria.class), anyInt(), anyInt());
   }
@@ -101,8 +96,7 @@ class ClaimControllerTest {
     claimDTO.setId(id);
     when(claimService.getClaimById(id)).thenReturn(claimDTO);
 
-    ResponseEntity<ClaimDTO> response = claimController.getClaimById(id);
-    ClaimDTO result = response.getBody();
+    ClaimDTO result = claimController.getClaimById(id);
 
     assertEquals(claimDTO.getId(), result.getId());
     verify(claimService).getClaimById(id);
@@ -116,8 +110,7 @@ class ClaimControllerTest {
 
     when(claimService.updateClaim(any(ClaimDTO.class))).thenReturn(updatedClaimDTO);
 
-    ResponseEntity<ClaimDTO> response = claimController.updateClaim(originalClaimDTO);
-    ClaimDTO result = response.getBody();
+    ClaimDTO result = claimController.updateClaim(originalClaimDTO);
 
     assertEquals(updatedClaimDTO, result);
     verify(claimService).updateClaim(originalClaimDTO);
@@ -132,12 +125,9 @@ class ClaimControllerTest {
 
     when(claimService.deactivateClaim(id)).thenReturn(originalClaimDTO);
 
-    ResponseEntity<ClaimDTO> response = claimController.deactivateClaim(id);
-    ClaimDTO resultClaimDTO = response.getBody();
+    ClaimDTO resultClaimDTO = claimController.deactivateClaim(id);
 
-    assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(ClaimStatus.DEACTIVATED, resultClaimDTO.getStatus());
-
     verify(claimService).deactivateClaim(id);
   }
 }

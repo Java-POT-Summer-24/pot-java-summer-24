@@ -38,13 +38,13 @@ public class ClaimService {
   private Specification<ClaimEntity> buildSpecification(FilterCriteria filterCriteria) {
     Specification<ClaimEntity> spec = Specification.where(null);
 
-    if (filterCriteria.getClaimNumber() != null && !filterCriteria.getClaimNumber().isEmpty()) {
+    if (isNotEmpty(filterCriteria.getClaimNumber())) {
       spec = spec.and(ClaimSpecifications.byClaimNumber(filterCriteria.getClaimNumber()));
     }
-    if (filterCriteria.getConsumer() != null && !filterCriteria.getConsumer().isEmpty()) {
+    if (isNotEmpty(filterCriteria.getConsumer())) {
       spec = spec.and(ClaimSpecifications.byConsumer(filterCriteria.getConsumer()));
     }
-    if (filterCriteria.getEmployer() != null && !filterCriteria.getEmployer().isEmpty()) {
+    if (isNotEmpty(filterCriteria.getEmployer())) {
       spec = spec.and(ClaimSpecifications.byEmployer(filterCriteria.getEmployer()));
     }
     if (filterCriteria.getStatus() != null) {
@@ -53,6 +53,11 @@ public class ClaimService {
 
     return spec;
   }
+
+  private boolean isNotEmpty(String value) {
+    return value != null && !value.isEmpty();
+  }
+
 
   public List<ClaimDTO> getAllClaims() {
     return claimRepository.findAll().stream()
