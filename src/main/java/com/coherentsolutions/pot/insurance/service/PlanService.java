@@ -4,7 +4,6 @@ import com.coherentsolutions.pot.insurance.dto.PlanDTO;
 import com.coherentsolutions.pot.insurance.dto.enums.PlanStatus;
 import com.coherentsolutions.pot.insurance.entity.PlanEntity;
 import com.coherentsolutions.pot.insurance.exception.NotFoundException;
-import com.coherentsolutions.pot.insurance.exception.BadRequestException;
 import com.coherentsolutions.pot.insurance.mapper.PlanMapper;
 import com.coherentsolutions.pot.insurance.repository.PlanRepository;
 import lombok.RequiredArgsConstructor;

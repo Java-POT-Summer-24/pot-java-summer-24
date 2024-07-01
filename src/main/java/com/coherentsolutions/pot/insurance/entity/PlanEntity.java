@@ -1,10 +1,13 @@
 package com.coherentsolutions.pot.insurance.entity;
 
-import com.coherentsolutions.pot.insurance.dto.enums.PayrollFrequency;
 import com.coherentsolutions.pot.insurance.dto.enums.PlanStatus;
 import com.coherentsolutions.pot.insurance.dto.enums.PlanType;
-import jakarta.persistence.*;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
@@ -22,9 +25,6 @@ import lombok.NoArgsConstructor;
 public class PlanEntity extends BaseEntity {
 
     private String planName;
-
-    @Enumerated(EnumType.STRING)
-    private PayrollFrequency payrollFrequency;
 
     @Enumerated(EnumType.STRING)
     private PlanType planType;

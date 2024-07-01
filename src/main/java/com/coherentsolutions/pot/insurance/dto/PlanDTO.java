@@ -26,9 +26,6 @@ public class PlanDTO {
     @NotBlank(message = "Plan type is required")
     private PlanType planType;
 
-    @NotBlank(message = "Payroll frequency is required")
-    private PayrollFrequency payrollFrequency;
-
     @NotBlank(message = "Start date is required")
     private LocalDate startDate;
 
