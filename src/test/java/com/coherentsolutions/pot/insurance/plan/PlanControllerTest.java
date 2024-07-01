@@ -13,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.jeasy.random.EasyRandom;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,9 +32,8 @@ class PlanControllerTest {
     @Test
     void testAddPlan() {
         PlanDTO newPlanDTO = easyRandom.nextObject(PlanDTO.class);
-        ResponseEntity<PlanDTO> responseEntity = new ResponseEntity<>(newPlanDTO, HttpStatus.CREATED);
 
-        when(planService.addPlan(any(PlanDTO.class))).thenReturn(responseEntity);
+        when(planService.addPlan(any(PlanDTO.class))).thenReturn(newPlanDTO);
 
         ResponseEntity<PlanDTO> response = planController.addPlan(newPlanDTO);
         PlanDTO createdPlanDTO = response.getBody();
@@ -47,8 +45,7 @@ class PlanControllerTest {
     @Test
     void testGetAllPlans() {
         List<PlanDTO> plansList = easyRandom.objects(PlanDTO.class, 3).toList();
-        ResponseEntity<List<PlanDTO>> responseEntity = new ResponseEntity<>(plansList, HttpStatus.OK);
-        when(planService.getAllPlans()).thenReturn(responseEntity);
+        when(planService.getAllPlans()).thenReturn(plansList);
 
         ResponseEntity<List<PlanDTO>> response = planController.getAllPlans();
         List<PlanDTO> result = response.getBody();
@@ -61,10 +58,9 @@ class PlanControllerTest {
     @Test
     void testGetPlanById() {
         PlanDTO PlanDTO = easyRandom.nextObject(PlanDTO.class);
-        ResponseEntity<PlanDTO> responseEntity = new ResponseEntity<>(PlanDTO, HttpStatus.CREATED);
         UUID id = UUID.randomUUID();
         PlanDTO.setPlanId(id);
-        when(planService.getPlanById(id)).thenReturn(responseEntity);
+        when(planService.getPlanById(id)).thenReturn(PlanDTO);
 
         ResponseEntity<PlanDTO> response = planController.getPlanById(id);
         PlanDTO result = response.getBody();
@@ -79,8 +75,8 @@ class PlanControllerTest {
         PlanDTO originalPlanDTO = easyRandom.nextObject(PlanDTO.class);
         PlanDTO updatedPlanDTO = easyRandom.nextObject(PlanDTO.class);
         updatedPlanDTO.setPlanId(originalPlanDTO.getPlanId());
-        ResponseEntity<PlanDTO> responseEntity = new ResponseEntity<>(updatedPlanDTO, HttpStatus.CREATED);
-        when(planService.updatePlan(any(PlanDTO.class))).thenReturn(responseEntity);
+
+        when(planService.updatePlan(any(PlanDTO.class))).thenReturn(updatedPlanDTO);
 
         ResponseEntity<PlanDTO> response = planController.updatePlan(originalPlanDTO);
         PlanDTO result = response.getBody();
@@ -95,9 +91,8 @@ class PlanControllerTest {
         PlanDTO originalPlanDTO = easyRandom.nextObject(PlanDTO.class);
         originalPlanDTO.setPlanId(id);
         originalPlanDTO.setStatus(PlanStatus.DEACTIVATED);
-        ResponseEntity<PlanDTO> responseEntity = new ResponseEntity<>(originalPlanDTO, HttpStatus.CREATED);
 
-        when(planService.deactivatePlan(id)).thenReturn(responseEntity);
+        when(planService.deactivatePlan(id)).thenReturn(originalPlanDTO);
 
         ResponseEntity<PlanDTO> response = planController.deactivatePlan(id);
         PlanDTO resultPlanDTO = response.getBody();

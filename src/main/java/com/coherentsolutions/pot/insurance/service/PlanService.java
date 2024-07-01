@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -21,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PlanService {
     private final PlanRepository planRepository;
-    public ResponseEntity<PlanDTO> addPlan(PlanDTO planDTO) {
+    public PlanDTO addPlan(PlanDTO planDTO) {
             UUID planId = planDTO.getPlanId();
             if(planRepository.existsByPlanId(planId)){
                 throw new BadRequestException("Plan with ID " + planId + " already exists");
@@ -29,15 +28,15 @@ public class PlanService {
             PlanEntity plan = PlanMapper.INSTANCE.toPlanEntity(planDTO);
 
             plan = planRepository.save(plan);
-            return new ResponseEntity<>(PlanMapper.INSTANCE.toPlanDto(plan), HttpStatus.CREATED);
+            return PlanMapper.INSTANCE.toPlanDto(plan);
     }
-    public ResponseEntity<List<PlanDTO>> getAllPlans() {
-            return new ResponseEntity<>(planRepository.findAll().stream()
+    public List<PlanDTO> getAllPlans() {
+            return planRepository.findAll().stream()
                     .map(PlanMapper.INSTANCE::toPlanDto)
-                    .collect(Collectors.toList()), HttpStatus.OK);
+                    .collect(Collectors.toList());
     }
 
-    public ResponseEntity<PlanDTO> updatePlan(PlanDTO planDTO){
+    public PlanDTO updatePlan(PlanDTO planDTO){
             UUID planId = planDTO.getPlanId();
             PlanEntity existingPlan = planRepository.findByPlanId(planId)
                     .orElseThrow(() -> new NotFoundException("Plan with ID " + planId + " not found"));
@@ -45,22 +44,22 @@ public class PlanService {
             PlanMapper.INSTANCE.updatePlanFromDTO(planDTO, existingPlan);
             existingPlan = planRepository.save(existingPlan);
 
-            return new ResponseEntity<>(PlanMapper.INSTANCE.toPlanDto(existingPlan), HttpStatus.OK);
+            return PlanMapper.INSTANCE.toPlanDto(existingPlan);
     }
 
 
-    public ResponseEntity<PlanDTO> deactivatePlan(UUID id){
+    public PlanDTO deactivatePlan(UUID id){
         return planRepository.findByPlanId(id)
                 .map(plan -> {
                     plan.setStatus(PlanStatus.DEACTIVATED);
                     plan = planRepository.save(plan);
-                    return new ResponseEntity<>(PlanMapper.INSTANCE.toPlanDto(plan), HttpStatus.OK);
+                    return PlanMapper.INSTANCE.toPlanDto(plan);
                 })
                 .orElseThrow(() -> new NotFoundException("Plan with id " + id + " not found"));
     }
-    public ResponseEntity<PlanDTO> getPlanById(UUID id){
+    public PlanDTO getPlanById(UUID id){
             PlanEntity plan = planRepository.findByPlanId(id)
                     .orElseThrow(() -> new NotFoundException("Plan with id " + id + " not found"));
-            return new ResponseEntity<>(PlanMapper.INSTANCE.toPlanDto(plan), HttpStatus.OK);
+            return PlanMapper.INSTANCE.toPlanDto(plan);
     }
 }
