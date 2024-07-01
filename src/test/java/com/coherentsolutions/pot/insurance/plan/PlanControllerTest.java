@@ -4,6 +4,7 @@ package com.coherentsolutions.pot.insurance.plan;
 import com.coherentsolutions.pot.insurance.controller.PlanController;
 import com.coherentsolutions.pot.insurance.dto.PlanDTO;
 import com.coherentsolutions.pot.insurance.dto.enums.PlanStatus;
+import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.service.PlanService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,8 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.jeasy.random.EasyRandom;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -97,6 +97,24 @@ class PlanControllerTest {
         assertEquals(PlanStatus.DEACTIVATED, resultPlanDTO.getStatus());
 
         verify(planService).deactivatePlan(id);
+    }
+
+    @Test
+    void testDeactivateNonExistingPlan() {
+        UUID nonExistentId = UUID.randomUUID();
+
+        // Simulate NotFoundException being thrown by planService.deactivatePlan(id)
+        when(planService.deactivatePlan(nonExistentId)).thenThrow(NotFoundException.class);
+
+        try {
+            planController.deactivatePlan(nonExistentId);
+        } catch (NotFoundException e) {
+            // NotFoundException expected, test passes
+            verify(planService).deactivatePlan(nonExistentId);
+            return;
+        }
+        // If NotFoundException is not thrown, fail the test
+        throw new AssertionError("Expected NotFoundException was not thrown");
     }
 }
 
