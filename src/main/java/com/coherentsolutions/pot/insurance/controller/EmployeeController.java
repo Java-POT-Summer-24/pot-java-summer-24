@@ -40,7 +40,7 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/{employeeId}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deactivateEmployee(@PathVariable UUID employeeId){
         employeeService.deactivateEmployee(employeeId);
     }
