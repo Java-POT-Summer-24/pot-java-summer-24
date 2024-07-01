@@ -41,7 +41,7 @@ public class EmployeeService {
                     employee.setLastName(updatedEmployeeDTO.getLastName());
                     employee.setUserName(updatedEmployeeDTO.getUserName());
                     //employee.setDateOfBirth(updatedEmployeeDTO.getDateOfBirth()); left to fix due to string - date conversion
-                    employee.setSSN(updatedEmployeeDTO.getSSN());
+                    employee.setSsn(updatedEmployeeDTO.getSsn());
                     employee.setPhoneNumber(updatedEmployeeDTO.getPhoneNumber());
                     return employeeMapper.employeeToEmployeeDTO(employeeRepository.save(employee));
                 })

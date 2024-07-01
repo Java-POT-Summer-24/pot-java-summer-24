@@ -18,6 +18,6 @@ public class EmployeeDTO {
     private String userName;
     private String email;
     private LocalDate dateOfBirth;
-    private Integer SSN;
+    private Integer ssn;
     private Integer phoneNumber;
 }

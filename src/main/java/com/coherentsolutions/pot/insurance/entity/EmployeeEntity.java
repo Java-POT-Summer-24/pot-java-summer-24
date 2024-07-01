@@ -29,7 +29,7 @@ public class EmployeeEntity {
 
     private LocalDate dateOfBirth;
 
-    private Integer SSN;
+    private Integer ssn;
 
     private Integer phoneNumber;
 
