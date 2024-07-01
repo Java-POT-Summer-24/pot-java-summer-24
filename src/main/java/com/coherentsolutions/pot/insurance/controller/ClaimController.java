@@ -6,14 +6,25 @@ import com.coherentsolutions.pot.insurance.specifications.FilterAndSortCriteria;
 import com.coherentsolutions.pot.insurance.specifications.FilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.SortCriteria;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.UUID;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/claims")
@@ -27,27 +38,26 @@ public class ClaimController {
     return ResponseEntity.ok(claimService.getAllClaims());
   }
 
-  @PostMapping("/filtered")
+  @GetMapping("/filtered")
   public ResponseEntity<Page<ClaimDTO>> getFilteredSortedClaims(
-      @RequestBody FilterAndSortCriteria criteria,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size) {
+      @ParameterObject FilterAndSortCriteria criteria,
+      @ParameterObject Pageable pageable) {
 
-    FilterCriteria filterCriteria = criteria.getFilterCriteria();
-    SortCriteria sortCriteria = criteria.getSortCriteria();
+    FilterCriteria filterCriteria = Optional.ofNullable(criteria.getFilterCriteria())
+        .orElse(new FilterCriteria());
+    SortCriteria sortCriteria = Optional.ofNullable(criteria.getSortCriteria())
+        .orElseGet(() -> {
+          SortCriteria defaultSort = new SortCriteria();
+          defaultSort.setField("dateOfService");
+          defaultSort.setDirection(Sort.Direction.DESC);
+          return defaultSort;
+        });
 
-    // default sorting if no sort criteria are provided
-    if (sortCriteria == null) {
-      sortCriteria = new SortCriteria();
-      sortCriteria.setField("dateOfService");
-      sortCriteria.setDirection(Sort.Direction.DESC);
-    }
+    int pageSize = pageable.getPageSize() == 20 ? 10 : pageable.getPageSize();
+    Sort sort = Sort.by(sortCriteria.getDirection(), sortCriteria.getField());
+    PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
 
-    if (filterCriteria == null) {
-      filterCriteria = new FilterCriteria();
-    }
-
-    Page<ClaimDTO> claimsPage = claimService.getFilteredSortedClaims(filterCriteria, sortCriteria, page, size);
+    Page<ClaimDTO> claimsPage = claimService.getFilteredSortedClaims(filterCriteria, sortCriteria, pageRequest.getPageNumber(), pageRequest.getPageSize());
 
     return ResponseEntity.ok(claimsPage);
   }

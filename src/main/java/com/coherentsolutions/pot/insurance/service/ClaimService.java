@@ -10,10 +10,8 @@ import com.coherentsolutions.pot.insurance.specifications.ClaimSpecifications;
 import com.coherentsolutions.pot.insurance.specifications.FilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.SortCriteria;
 import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
-import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,14 +31,8 @@ public class ClaimService {
     Specification<ClaimEntity> spec = buildSpecification(filterCriteria);
     Sort sort = Sort.by(sortCriteria.getDirection(), sortCriteria.getField());
     PageRequest pageRequest = PageRequest.of(page, size, sort);
-    Page<ClaimEntity> resultPage = claimRepository.findAll(spec, pageRequest);
 
-    //return an empty page if no results are found
-    if (resultPage.isEmpty()) {
-      return new PageImpl<>(Collections.emptyList(), pageRequest, 0);
-    }
-
-    return resultPage.map(ClaimMapper.INSTANCE::entityToDto);
+    return claimRepository.findAll(spec, pageRequest).map(ClaimMapper.INSTANCE::entityToDto);
   }
 
   private Specification<ClaimEntity> buildSpecification(FilterCriteria filterCriteria) {
