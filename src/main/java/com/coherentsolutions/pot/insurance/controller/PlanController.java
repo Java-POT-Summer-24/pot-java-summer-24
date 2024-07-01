@@ -5,7 +5,6 @@ import com.coherentsolutions.pot.insurance.service.PlanService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,29 +15,33 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PlanController {
     private final PlanService planService;
-
     @GetMapping
-    public ResponseEntity<List<PlanDTO>> getAllPlans() {
-        return ResponseEntity.ok(planService.getAllPlans());
+    @ResponseStatus(HttpStatus.OK)
+    public List<PlanDTO> getAllPlans() {
+        return planService.getAllPlans();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlanDTO> getPlanById(@PathVariable UUID id){
-        return ResponseEntity.ok(planService.getPlanById(id));
+    @ResponseStatus(HttpStatus.OK)
+    public PlanDTO getPlanById(@PathVariable UUID id){
+        return planService.getPlanById(id);
     }
 
     @PostMapping
-    public ResponseEntity<PlanDTO> addPlan(@Valid @RequestBody PlanDTO planDTO){
-        return ResponseEntity.status(HttpStatus.CREATED).body(planService.addPlan(planDTO));
+    @ResponseStatus(HttpStatus.CREATED)
+    public PlanDTO addPlan(@Valid @RequestBody PlanDTO planDTO){
+        return planService.addPlan(planDTO);
     }
 
     @PutMapping
-    public ResponseEntity<PlanDTO> updatePlan(@Valid @RequestBody PlanDTO planDTO){
-        return ResponseEntity.ok(planService.updatePlan(planDTO));
+    @ResponseStatus(HttpStatus.OK)
+    public PlanDTO updatePlan(@Valid @RequestBody PlanDTO planDTO){
+        return planService.updatePlan(planDTO);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<PlanDTO> deactivatePlan(@PathVariable UUID id) {
-        return ResponseEntity.ok(planService.deactivatePlan(id));
+    @ResponseStatus(HttpStatus.OK)
+    public PlanDTO deactivatePlan(@PathVariable UUID id) {
+        return planService.deactivatePlan(id);
     }
 }

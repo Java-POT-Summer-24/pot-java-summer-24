@@ -8,8 +8,6 @@ import com.coherentsolutions.pot.insurance.exception.BadRequestException;
 import com.coherentsolutions.pot.insurance.mapper.PlanMapper;
 import com.coherentsolutions.pot.insurance.repository.PlanRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

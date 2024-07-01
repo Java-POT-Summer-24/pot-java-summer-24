@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.jeasy.random.EasyRandom;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,8 +36,7 @@ class PlanControllerTest {
 
         when(planService.addPlan(any(PlanDTO.class))).thenReturn(newPlanDTO);
 
-        ResponseEntity<PlanDTO> response = planController.addPlan(newPlanDTO);
-        PlanDTO createdPlanDTO = response.getBody();
+        PlanDTO createdPlanDTO = planController.addPlan(newPlanDTO);
 
         assertEquals(newPlanDTO, createdPlanDTO);
         verify(planService).addPlan(newPlanDTO);
@@ -47,8 +47,7 @@ class PlanControllerTest {
         List<PlanDTO> plansList = easyRandom.objects(PlanDTO.class, 3).toList();
         when(planService.getAllPlans()).thenReturn(plansList);
 
-        ResponseEntity<List<PlanDTO>> response = planController.getAllPlans();
-        List<PlanDTO> result = response.getBody();
+        List<PlanDTO> result = planController.getAllPlans();
 
         assert result != null;
         assertEquals(3, result.size());
@@ -62,8 +61,7 @@ class PlanControllerTest {
         PlanDTO.setPlanId(id);
         when(planService.getPlanById(id)).thenReturn(PlanDTO);
 
-        ResponseEntity<PlanDTO> response = planController.getPlanById(id);
-        PlanDTO result = response.getBody();
+        PlanDTO result = planController.getPlanById(id);
 
         assert result != null;
         assertEquals(PlanDTO.getPlanId(), result.getPlanId());
@@ -78,8 +76,7 @@ class PlanControllerTest {
 
         when(planService.updatePlan(any(PlanDTO.class))).thenReturn(updatedPlanDTO);
 
-        ResponseEntity<PlanDTO> response = planController.updatePlan(originalPlanDTO);
-        PlanDTO result = response.getBody();
+        PlanDTO result = planController.updatePlan(originalPlanDTO);
 
         assertEquals(updatedPlanDTO, result);
         verify(planService).updatePlan(originalPlanDTO);
@@ -94,9 +91,7 @@ class PlanControllerTest {
 
         when(planService.deactivatePlan(id)).thenReturn(originalPlanDTO);
 
-        ResponseEntity<PlanDTO> response = planController.deactivatePlan(id);
-        PlanDTO resultPlanDTO = response.getBody();
-
+        PlanDTO resultPlanDTO = planController.deactivatePlan(id);
         
         assert resultPlanDTO != null;
         assertEquals(PlanStatus.DEACTIVATED, resultPlanDTO.getStatus());
