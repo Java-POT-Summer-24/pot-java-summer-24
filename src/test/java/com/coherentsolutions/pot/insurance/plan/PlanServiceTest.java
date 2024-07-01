@@ -1,14 +1,12 @@
 package com.coherentsolutions.pot.insurance.plan;
 
 
-import com.coherentsolutions.pot.insurance.controller.PlanController;
 import com.coherentsolutions.pot.insurance.dto.PlanDTO;
 import com.coherentsolutions.pot.insurance.dto.enums.PlanStatus;
 import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.service.PlanService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.jeasy.random.EasyRandom;
@@ -21,15 +19,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class PlanControllerTest {
+class PlanServiceTest {
 
     private final EasyRandom easyRandom = new EasyRandom();
 
     @Mock
     private PlanService planService;
-
-    @InjectMocks
-    private PlanController planController;
 
     @Test
     void testAddPlan() {
@@ -37,7 +32,7 @@ class PlanControllerTest {
 
         when(planService.addPlan(any(PlanDTO.class))).thenReturn(newPlanDTO);
 
-        PlanDTO createdPlanDTO = planController.addPlan(newPlanDTO);
+        PlanDTO createdPlanDTO = planService.addPlan(newPlanDTO);
 
         assertEquals(newPlanDTO, createdPlanDTO);
         verify(planService).addPlan(newPlanDTO);
@@ -48,7 +43,7 @@ class PlanControllerTest {
         List<PlanDTO> plansList = easyRandom.objects(PlanDTO.class, 3).toList();
         when(planService.getAllPlans()).thenReturn(plansList);
 
-        List<PlanDTO> result = planController.getAllPlans();
+        List<PlanDTO> result = planService.getAllPlans();
 
         assert result != null;
         assertEquals(3, result.size());
@@ -62,7 +57,7 @@ class PlanControllerTest {
         PlanDTO.setPlanId(id);
         when(planService.getPlanById(id)).thenReturn(PlanDTO);
 
-        PlanDTO result = planController.getPlanById(id);
+        PlanDTO result = planService.getPlanById(id);
 
         assert result != null;
         assertEquals(PlanDTO.getPlanId(), result.getPlanId());
@@ -77,7 +72,7 @@ class PlanControllerTest {
 
         when(planService.updatePlan(any(PlanDTO.class))).thenReturn(updatedPlanDTO);
 
-        PlanDTO result = planController.updatePlan(originalPlanDTO);
+        PlanDTO result = planService.updatePlan(originalPlanDTO);
 
         assertEquals(updatedPlanDTO, result);
         verify(planService).updatePlan(originalPlanDTO);
@@ -92,8 +87,8 @@ class PlanControllerTest {
 
         when(planService.deactivatePlan(id)).thenReturn(originalPlanDTO);
 
-        PlanDTO resultPlanDTO = planController.deactivatePlan(id);
-        
+        PlanDTO resultPlanDTO = planService.deactivatePlan(id);
+
         assert resultPlanDTO != null;
         assertEquals(PlanStatus.DEACTIVATED, resultPlanDTO.getStatus());
 
@@ -109,7 +104,7 @@ class PlanControllerTest {
 
         // Assert that NotFoundException is thrown
         NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            planController.deactivatePlan(id);
+            planService.deactivatePlan(id);
         });
 
         assertEquals("Plan with id " + id + " not found", exception.getMessage());
@@ -117,4 +112,3 @@ class PlanControllerTest {
         verify(planService).deactivatePlan(id);
     }
 }
-

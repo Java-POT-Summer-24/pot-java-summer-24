@@ -14,7 +14,9 @@ import java.util.UUID;
 @RequestMapping("/v1/plans")
 @RequiredArgsConstructor
 public class PlanController {
+
     private final PlanService planService;
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<PlanDTO> getAllPlans() {

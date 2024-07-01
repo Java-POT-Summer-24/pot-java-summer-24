@@ -65,7 +65,7 @@ public class PlanControllerIntegrationTest {
     when(planService.getAllPlans()).thenReturn(plansList);
 
     mockMvc.perform(get("/v1/plans")
-        .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().json(objectMapper.writeValueAsString(plansList)));
 
@@ -81,7 +81,7 @@ public class PlanControllerIntegrationTest {
     when(planService.getPlanById(id)).thenReturn(planDTO);
 
     mockMvc.perform(get("/v1/plans/{id}", id)
-        .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().json(objectMapper.writeValueAsString(planDTO)));
     verify(planService).getPlanById(id);
@@ -97,9 +97,9 @@ public class PlanControllerIntegrationTest {
     when(planService.updatePlan(any(PlanDTO.class))).thenReturn(updatedPlanDTO);
 
     mockMvc.perform(put("/v1/plans")
-        .with(SecurityMockMvcRequestPostProcessors.csrf())
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(originalPlanDTO)))
+            .with(SecurityMockMvcRequestPostProcessors.csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(originalPlanDTO)))
         .andExpect(status().isOk())
         .andExpect(content().json(objectMapper.writeValueAsString(updatedPlanDTO)));
 
@@ -115,9 +115,9 @@ public class PlanControllerIntegrationTest {
 
     when(planService.deactivatePlan(id)).thenReturn(originalPlanDTO);
 
-    mockMvc.perform(delete("/plans/{id}", id)
-        .with(SecurityMockMvcRequestPostProcessors.csrf())
-        .contentType(MediaType.APPLICATION_JSON))
+    mockMvc.perform(delete("/v1/plans/{id}", id)
+            .with(SecurityMockMvcRequestPostProcessors.csrf())
+            .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().json(objectMapper.writeValueAsString(originalPlanDTO)));
 

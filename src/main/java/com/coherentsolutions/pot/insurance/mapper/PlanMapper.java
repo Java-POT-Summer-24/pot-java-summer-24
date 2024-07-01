@@ -13,6 +13,6 @@ public interface PlanMapper {
     PlanDTO toPlanDto(PlanEntity plan);
     PlanEntity toPlanEntity(PlanDTO planDTO);
 
-    @Mapping(target = "planId", ignore = true)
+    @Mapping(target = "id", ignore = true)
     void updatePlanFromDTO(PlanDTO dto, @MappingTarget PlanEntity entity);
 }

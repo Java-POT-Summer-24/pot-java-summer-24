@@ -17,10 +17,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PlanService {
+
     private final PlanRepository planRepository;
+
     public PlanDTO addPlan(PlanDTO planDTO) {
             UUID planId = planDTO.getPlanId();
-            if(planRepository.existsByPlanId(planId)){
+            if(planRepository.existsById(planId)){
                 throw new BadRequestException("Plan with ID " + planId + " already exists");
             }
             PlanEntity plan = PlanMapper.INSTANCE.toPlanEntity(planDTO);
@@ -28,6 +30,7 @@ public class PlanService {
             plan = planRepository.save(plan);
             return PlanMapper.INSTANCE.toPlanDto(plan);
     }
+
     public List<PlanDTO> getAllPlans() {
             return planRepository.findAll().stream()
                     .map(PlanMapper.INSTANCE::toPlanDto)
@@ -36,7 +39,7 @@ public class PlanService {
 
     public PlanDTO updatePlan(PlanDTO planDTO){
             UUID planId = planDTO.getPlanId();
-            PlanEntity existingPlan = planRepository.findByPlanId(planId)
+            PlanEntity existingPlan = planRepository.findById(planId)
                     .orElseThrow(() -> new NotFoundException("Plan with ID " + planId + " not found"));
 
             PlanMapper.INSTANCE.updatePlanFromDTO(planDTO, existingPlan);
@@ -45,9 +48,8 @@ public class PlanService {
             return PlanMapper.INSTANCE.toPlanDto(existingPlan);
     }
 
-
     public PlanDTO deactivatePlan(UUID id){
-        return planRepository.findByPlanId(id)
+        return planRepository.findById(id)
                 .map(plan -> {
                     plan.setStatus(PlanStatus.DEACTIVATED);
                     plan = planRepository.save(plan);
@@ -55,8 +57,9 @@ public class PlanService {
                 })
                 .orElseThrow(() -> new NotFoundException("Plan with id " + id + " not found"));
     }
+
     public PlanDTO getPlanById(UUID id){
-            PlanEntity plan = planRepository.findByPlanId(id)
+            PlanEntity plan = planRepository.findById(id)
                     .orElseThrow(() -> new NotFoundException("Plan with id " + id + " not found"));
             return PlanMapper.INSTANCE.toPlanDto(plan);
     }

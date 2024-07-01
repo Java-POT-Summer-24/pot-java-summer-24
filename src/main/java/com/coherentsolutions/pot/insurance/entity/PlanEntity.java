@@ -18,10 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-public class PlanEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private UUID planId;
+public class PlanEntity extends BaseEntity {
 
     private String planName;
 
