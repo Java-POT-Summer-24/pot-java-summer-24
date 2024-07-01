@@ -1,7 +1,7 @@
 package com.coherentsolutions.pot.insurance.service;
 
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
-import com.coherentsolutions.pot.insurance.mappers.EmployeeMapper;
+import com.coherentsolutions.pot.insurance.mapper.EmployeeMapper;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

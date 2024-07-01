@@ -1,4 +1,4 @@
-package com.coherentsolutions.pot.insurance.mappers;
+package com.coherentsolutions.pot.insurance.mapper;
 
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
 import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
