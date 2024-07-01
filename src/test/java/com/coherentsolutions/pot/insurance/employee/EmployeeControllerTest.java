@@ -2,6 +2,7 @@ package com.coherentsolutions.pot.insurance.employee;
 
 import com.coherentsolutions.pot.insurance.controller.EmployeeController;
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
+import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.service.EmployeeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jeasy.random.EasyRandom;
@@ -118,5 +119,19 @@ class EmployeeControllerTest {
         .andExpect(status().isNoContent());
 
     verify(employeeService).deactivateEmployee(id);
+  }
+
+  // negative case test
+  @Test
+  @WithMockUser(username = "admin")
+  void testGetEmployee_NotFound() throws Exception {
+    UUID id = UUID.randomUUID();
+    when(employeeService.getEmployee(id)).thenThrow(new NotFoundException("Employee not found"));
+
+    mockMvc.perform(get("/v1/employees/{employeeId}", id)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+
+    verify(employeeService).getEmployee(id);
   }
 }
