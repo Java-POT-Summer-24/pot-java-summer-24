@@ -40,6 +40,19 @@ Navigate to Editor -> Code Style > Java. ->
 
 Ensure GoogleStyle is selected in the Scheme dropdown.
 
+
+#### H2 Database connection:
+Open your web browser and navigate to http://localhost:8080/h2-console. Use the following settings to connect:
+
+JDBC URL: jdbc:h2:mem:testdb
+
+### Deactivate wildcard imports:
+Open settings and then select Editor | Code Style | Java.
+
+Enabled "Use single class import" option
+
+In the "Class count to use import with '*'" and "Names count to use static import with '*'" fields write 999.
+
 #### Manual to run project locally:
 Step 1: Set up the development environment
 1. Install JDK 8 or higher
