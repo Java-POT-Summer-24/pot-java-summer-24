@@ -15,35 +15,29 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmployeeService {
     private final EmployeeRepository employeeRepository;
-    private final EmployeeMapper employeeMapper;
 
     public EmployeeDTO addEmployee(EmployeeDTO employeeDTO){
-        return employeeMapper
-                .employeeToEmployeeDTO(employeeRepository.save(employeeMapper.employeeDTOToEmployee(employeeDTO)));
+        return EmployeeMapper.INSTANCE
+                .employeeToEmployeeDTO(employeeRepository.save(EmployeeMapper.INSTANCE.employeeDTOToEmployee(employeeDTO)));
     }
 
     public EmployeeDTO getEmployee(UUID employeeId){
         return employeeRepository.findById(employeeId)
-                .map(employeeMapper::employeeToEmployeeDTO)
+                .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Error 404: Employee not found with id: " + employeeId));
     }
 
     public List<EmployeeDTO> getAllEmployees(){
         return employeeRepository.findAll().stream()
-                .map(employeeMapper::employeeToEmployeeDTO)
+                .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO)
                 .toList();
     }
 
     public EmployeeDTO updateEmployee(UUID employeeId, EmployeeDTO updatedEmployeeDTO){
         return employeeRepository.findById(employeeId)
                 .map(employee -> {
-                    employee.setFirstName(updatedEmployeeDTO.getFirstName());
-                    employee.setLastName(updatedEmployeeDTO.getLastName());
-                    employee.setUserName(updatedEmployeeDTO.getUserName());
-                    //employee.setDateOfBirth(updatedEmployeeDTO.getDateOfBirth()); left to fix due to string - date conversion
-                    employee.setSsn(updatedEmployeeDTO.getSsn());
-                    employee.setPhoneNumber(updatedEmployeeDTO.getPhoneNumber());
-                    return employeeMapper.employeeToEmployeeDTO(employeeRepository.save(employee));
+                    EmployeeMapper.INSTANCE.updateEmployeeFromDTO(updatedEmployeeDTO, employee);
+                    return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employeeRepository.save(employee));
                 })
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Error 404: Employee not found with id: " + employeeId));
     }
