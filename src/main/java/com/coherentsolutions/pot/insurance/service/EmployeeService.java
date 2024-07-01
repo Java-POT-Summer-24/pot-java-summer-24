@@ -45,7 +45,7 @@ public class EmployeeService {
                 .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
     }
 
-    public void deleteEmployee(UUID employeeId){
+    public void deactivateEmployee(UUID employeeId){
         employeeRepository.findById(employeeId)
                 .map(employee -> {
                     if (employee.getStatus() == EmployeeStatus.INACTIVE) {

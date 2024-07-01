@@ -86,10 +86,10 @@ class EmployeeControllerTest {
   @Test
   void testDeactivateEmployee() {
     UUID id = UUID.randomUUID();
-    doNothing().when(employeeService).deleteEmployee(id);
+    doNothing().when(employeeService).deactivateEmployee(id);
 
     employeeController.deactivateEmployee(id);
 
-    verify(employeeService).deleteEmployee(id);
+    verify(employeeService).deactivateEmployee(id);
   }
 }
