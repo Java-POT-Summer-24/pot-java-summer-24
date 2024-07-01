@@ -24,7 +24,7 @@ import java.util.UUID;
 public class EmployeeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID employeeId;
+    private UUID id;
 
     private String firstName;
 
@@ -38,7 +38,7 @@ public class EmployeeEntity {
 
     private Integer ssn;
 
-    private Integer phoneNumber;
+    private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
     private EmployeeStatus status;

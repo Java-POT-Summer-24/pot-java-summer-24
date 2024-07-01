@@ -8,7 +8,7 @@
     <changeSet id="4" author="lukas.simonelis">
         <sql>
             CREATE TABLE employee (
-            employee_id UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
+            id UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
             first_name VARCHAR(255) NOT NULL,
             last_name VARCHAR(255) NOT NULL,
             user_name VARCHAR(255) NOT NULL UNIQUE,

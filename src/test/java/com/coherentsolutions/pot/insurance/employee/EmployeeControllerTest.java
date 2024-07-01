@@ -63,7 +63,7 @@ class EmployeeControllerTest {
   void testGetEmployee() throws Exception {
     EmployeeDTO employeeDTO = easyRandom.nextObject(EmployeeDTO.class);
     UUID id = UUID.randomUUID();
-    employeeDTO.setEmployeeId(id);
+    employeeDTO.setId(id);
     when(employeeService.getEmployee(id)).thenReturn(employeeDTO);
 
     mockMvc.perform(get("/v1/employees/{employeeId}", id)
@@ -93,9 +93,9 @@ class EmployeeControllerTest {
   void testUpdateEmployee() throws Exception {
     EmployeeDTO originalEmployeeDTO = easyRandom.nextObject(EmployeeDTO.class);
     UUID id = UUID.randomUUID();
-    originalEmployeeDTO.setEmployeeId(id);
+    originalEmployeeDTO.setId(id);
     EmployeeDTO updatedEmployeeDTO = easyRandom.nextObject(EmployeeDTO.class);
-    updatedEmployeeDTO.setEmployeeId(id);
+    updatedEmployeeDTO.setId(id);
 
     when(employeeService.updateEmployee(any(UUID.class), any(EmployeeDTO.class))).thenReturn(updatedEmployeeDTO);
 
