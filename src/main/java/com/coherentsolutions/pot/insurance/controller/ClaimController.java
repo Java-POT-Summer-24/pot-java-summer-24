@@ -43,7 +43,13 @@ public class ClaimController {
       sortCriteria.setDirection(Sort.Direction.DESC);
     }
 
-    return ResponseEntity.ok(claimService.getFilteredSortedClaims(filterCriteria, sortCriteria, page, size));
+    if (filterCriteria == null) {
+      filterCriteria = new FilterCriteria();
+    }
+
+    Page<ClaimDTO> claimsPage = claimService.getFilteredSortedClaims(filterCriteria, sortCriteria, page, size);
+
+    return ResponseEntity.ok(claimsPage);
   }
 
 
