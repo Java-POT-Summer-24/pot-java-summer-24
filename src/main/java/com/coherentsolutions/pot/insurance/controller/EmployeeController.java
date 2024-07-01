@@ -34,7 +34,7 @@ public class EmployeeController {
         return employeeService.updateEmployee(employeeId, updatedEmployeeDTO);
     }
 
-    @PutMapping("/{employeeId}")
+    @DeleteMapping("/{employeeId}")
     public void deactivateEmployee(@PathVariable UUID employeeId){
         employeeService.deactivateEmployee(employeeId);
     }

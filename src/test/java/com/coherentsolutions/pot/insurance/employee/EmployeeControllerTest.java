@@ -1,94 +1,121 @@
 package com.coherentsolutions.pot.insurance.employee;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.coherentsolutions.pot.insurance.controller.EmployeeController;
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
 import com.coherentsolutions.pot.insurance.service.EmployeeService;
-import java.util.List;
-import java.util.UUID;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jeasy.random.EasyRandom;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
 
-@Nested
-@ExtendWith(MockitoExtension.class)
+import java.util.List;
+import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@ExtendWith(SpringExtension.class)
+@WebMvcTest(EmployeeController.class)
 class EmployeeControllerTest {
+
+  @Autowired
+  private MockMvc mockMvc;
+
+  @MockBean
+  private EmployeeService employeeService;
 
   private final EasyRandom easyRandom = new EasyRandom();
 
-  @Mock
-  private EmployeeService employeeService;
-
-  @InjectMocks
-  private EmployeeController employeeController;
+  @Autowired
+  private ObjectMapper objectMapper;
 
   @Test
-  void testAddEmployee() {
+  @WithMockUser(username = "admin")
+  void testAddEmployee() throws Exception {
     EmployeeDTO newEmployeeDTO = easyRandom.nextObject(EmployeeDTO.class);
     when(employeeService.addEmployee(any(EmployeeDTO.class))).thenReturn(newEmployeeDTO);
 
-    EmployeeDTO createdEmployeeDTO = employeeController.addEmployee(newEmployeeDTO);
+    mockMvc.perform(post("/v1/employees")
+            .with(SecurityMockMvcRequestPostProcessors.csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(newEmployeeDTO)))
+        .andExpect(status().isOk())
+        .andExpect(content().json(objectMapper.writeValueAsString(newEmployeeDTO)));
 
-    assertEquals(newEmployeeDTO, createdEmployeeDTO);
     verify(employeeService).addEmployee(newEmployeeDTO);
   }
 
   @Test
-  void testGetEmployee() {
+  @WithMockUser(username = "admin")
+  void testGetEmployee() throws Exception {
     EmployeeDTO employeeDTO = easyRandom.nextObject(EmployeeDTO.class);
     UUID id = UUID.randomUUID();
     employeeDTO.setEmployeeId(id);
     when(employeeService.getEmployee(id)).thenReturn(employeeDTO);
 
-    EmployeeDTO result = employeeController.getEmployee(id);
+    mockMvc.perform(get("/v1/employees/{employeeId}", id)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().json(objectMapper.writeValueAsString(employeeDTO)));
 
-    assertEquals(employeeDTO.getEmployeeId(), result.getEmployeeId());
     verify(employeeService).getEmployee(id);
   }
 
   @Test
-  void testGetAllEmployees() {
+  @WithMockUser(username = "admin")
+  void testGetAllEmployees() throws Exception {
     List<EmployeeDTO> employeesList = easyRandom.objects(EmployeeDTO.class, 3).toList();
     when(employeeService.getAllEmployees()).thenReturn(employeesList);
 
-    List<EmployeeDTO> result = employeeController.getAllEmployees();
+    mockMvc.perform(get("/v1/employees")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().json(objectMapper.writeValueAsString(employeesList)));
 
-    assertEquals(3, result.size());
     verify(employeeService).getAllEmployees();
   }
 
   @Test
-  void testUpdateEmployee() {
+  @WithMockUser(username = "admin")
+  void testUpdateEmployee() throws Exception {
     EmployeeDTO originalEmployeeDTO = easyRandom.nextObject(EmployeeDTO.class);
+    UUID id = UUID.randomUUID();
+    originalEmployeeDTO.setEmployeeId(id);
     EmployeeDTO updatedEmployeeDTO = easyRandom.nextObject(EmployeeDTO.class);
-    updatedEmployeeDTO.setEmployeeId((originalEmployeeDTO.getEmployeeId()));
+    updatedEmployeeDTO.setEmployeeId(id);
 
-    when(employeeService.updateEmployee(any(UUID.class), any(EmployeeDTO.class))).thenReturn(
-        updatedEmployeeDTO);
+    when(employeeService.updateEmployee(any(UUID.class), any(EmployeeDTO.class))).thenReturn(updatedEmployeeDTO);
 
-    EmployeeDTO result = employeeController.updateEmployee(originalEmployeeDTO.getEmployeeId(),
-        originalEmployeeDTO);
+    mockMvc.perform(put("/v1/employees/{employeeId}", id)
+            .with(SecurityMockMvcRequestPostProcessors.csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(originalEmployeeDTO)))
+        .andExpect(status().isOk())
+        .andExpect(content().json(objectMapper.writeValueAsString(updatedEmployeeDTO)));
 
-    assertEquals(updatedEmployeeDTO, result);
-    verify(employeeService).updateEmployee(originalEmployeeDTO.getEmployeeId(),
-        originalEmployeeDTO);
+    verify(employeeService).updateEmployee(id, originalEmployeeDTO);
   }
 
   @Test
-  void testDeactivateEmployee() {
+  @WithMockUser(username = "admin")
+  void testDeactivateEmployee() throws Exception {
     UUID id = UUID.randomUUID();
-    doNothing().when(employeeService).deactivateEmployee(id);
-
-    employeeController.deactivateEmployee(id);
+    mockMvc.perform(delete("/v1/employees/{employeeId}", id)
+            .with(SecurityMockMvcRequestPostProcessors.csrf())
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
 
     verify(employeeService).deactivateEmployee(id);
   }
