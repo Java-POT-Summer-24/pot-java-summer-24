@@ -18,7 +18,9 @@ public class EmployeeService {
 
     public EmployeeDTO addEmployee(EmployeeDTO employeeDTO){
         return EmployeeMapper.INSTANCE
-                .employeeToEmployeeDTO(employeeRepository.save(EmployeeMapper.INSTANCE.employeeDTOToEmployee(employeeDTO)));
+                .employeeToEmployeeDTO(employeeRepository
+                    .save(EmployeeMapper.INSTANCE
+                        .employeeDTOToEmployee(employeeDTO)));
     }
 
     public EmployeeDTO getEmployee(UUID employeeId){
