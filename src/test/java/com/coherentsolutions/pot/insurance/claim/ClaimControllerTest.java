@@ -4,6 +4,9 @@ import com.coherentsolutions.pot.insurance.constants.ClaimStatus;
 import com.coherentsolutions.pot.insurance.controller.ClaimController;
 import com.coherentsolutions.pot.insurance.dto.ClaimDTO;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
+import com.coherentsolutions.pot.insurance.specifications.FilterAndSortCriteria;
+import com.coherentsolutions.pot.insurance.specifications.FilterCriteria;
+import com.coherentsolutions.pot.insurance.specifications.SortCriteria;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,9 +15,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.jeasy.random.EasyRandom;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -30,6 +37,18 @@ class ClaimControllerTest {
   private ClaimController claimController;
 
   @Test
+  void testGetAllClaims() {
+    List<ClaimDTO> claimsList = easyRandom.objects(ClaimDTO.class, 3).toList();
+    when(claimService.getAllClaims()).thenReturn(claimsList);
+
+    ResponseEntity<List<ClaimDTO>> response = claimController.getAllClaims();
+    List<ClaimDTO> result = response.getBody();
+
+    assertEquals(3, result.size());
+    verify(claimService).getAllClaims();
+  }
+
+  @Test
   void testAddClaim() {
     ClaimDTO newClaimDTO = easyRandom.nextObject(ClaimDTO.class);
     when(claimService.addClaim(any(ClaimDTO.class))).thenReturn(newClaimDTO);
@@ -42,16 +61,36 @@ class ClaimControllerTest {
   }
 
   @Test
-  void testGetAllClaims() {
+  void testGetFilteredSortedClaims() {
     List<ClaimDTO> claimsList = easyRandom.objects(ClaimDTO.class, 3).toList();
-    when(claimService.getAllClaims()).thenReturn(claimsList);
+    Page<ClaimDTO> pagedClaims = new PageImpl<>(claimsList);
 
-    ResponseEntity<List<ClaimDTO>> response = claimController.getAllClaims();
-    List<ClaimDTO> result = response.getBody();
+    FilterCriteria filterCriteria = new FilterCriteria();
+    SortCriteria sortCriteria = new SortCriteria();
+    sortCriteria.setField("dateOfService");
+    sortCriteria.setDirection(Sort.Direction.DESC);
 
-    assertEquals(3, result.size());
-    verify(claimService).getAllClaims();
+    FilterAndSortCriteria criteria = new FilterAndSortCriteria();
+    criteria.setFilterCriteria(filterCriteria);
+    criteria.setSortCriteria(sortCriteria);
+
+    int page = 0;
+    int size = 10;
+
+    when(claimService.getFilteredSortedClaims(any(FilterCriteria.class), any(SortCriteria.class), anyInt(), anyInt()))
+        .thenReturn(pagedClaims);
+
+    ResponseEntity<Page<ClaimDTO>> response = claimController.getFilteredSortedClaims(criteria, page, size);
+
+    assertNotNull(response);
+    assertNotNull(response.getBody());
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(3, response.getBody().getContent().size());
+    assertEquals(claimsList, response.getBody().getContent());
+
+    verify(claimService).getFilteredSortedClaims(any(FilterCriteria.class), any(SortCriteria.class), anyInt(), anyInt());
   }
+
 
   @Test
   void testGetClaimById() {

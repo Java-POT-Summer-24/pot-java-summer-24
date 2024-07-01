@@ -2,8 +2,13 @@ package com.coherentsolutions.pot.insurance.controller;
 
 import com.coherentsolutions.pot.insurance.dto.ClaimDTO;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
+import com.coherentsolutions.pot.insurance.specifications.FilterAndSortCriteria;
+import com.coherentsolutions.pot.insurance.specifications.FilterCriteria;
+import com.coherentsolutions.pot.insurance.specifications.SortCriteria;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +26,32 @@ public class ClaimController {
   public ResponseEntity<List<ClaimDTO>> getAllClaims() {
     return ResponseEntity.ok(claimService.getAllClaims());
   }
+
+  @PostMapping("/filtered")
+  public ResponseEntity<Page<ClaimDTO>> getFilteredSortedClaims(
+      @RequestBody FilterAndSortCriteria criteria,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+
+    FilterCriteria filterCriteria = criteria.getFilterCriteria();
+    SortCriteria sortCriteria = criteria.getSortCriteria();
+
+    // default sorting if no sort criteria are provided
+    if (sortCriteria == null) {
+      sortCriteria = new SortCriteria();
+      sortCriteria.setField("dateOfService");
+      sortCriteria.setDirection(Sort.Direction.DESC);
+    }
+
+    if (filterCriteria == null) {
+      filterCriteria = new FilterCriteria();
+    }
+
+    Page<ClaimDTO> claimsPage = claimService.getFilteredSortedClaims(filterCriteria, sortCriteria, page, size);
+
+    return ResponseEntity.ok(claimsPage);
+  }
+
 
   @GetMapping("/{id}")
   public ResponseEntity<ClaimDTO> getClaimById(@PathVariable UUID id) {

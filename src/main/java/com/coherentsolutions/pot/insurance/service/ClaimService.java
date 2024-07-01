@@ -6,8 +6,17 @@ import com.coherentsolutions.pot.insurance.entity.ClaimEntity;
 import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.mapper.ClaimMapper;
 import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
+import com.coherentsolutions.pot.insurance.specifications.ClaimSpecifications;
+import com.coherentsolutions.pot.insurance.specifications.FilterCriteria;
+import com.coherentsolutions.pot.insurance.specifications.SortCriteria;
 import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +28,39 @@ import java.util.stream.Collectors;
 public class ClaimService {
 
   private final ClaimRepository claimRepository;
+
+  public Page<ClaimDTO> getFilteredSortedClaims(FilterCriteria filterCriteria, SortCriteria sortCriteria, int page, int size) {
+    Specification<ClaimEntity> spec = buildSpecification(filterCriteria);
+    Sort sort = Sort.by(sortCriteria.getDirection(), sortCriteria.getField());
+    PageRequest pageRequest = PageRequest.of(page, size, sort);
+    Page<ClaimEntity> resultPage = claimRepository.findAll(spec, pageRequest);
+
+    //return an empty page if no results are found
+    if (resultPage.isEmpty()) {
+      return new PageImpl<>(Collections.emptyList(), pageRequest, 0);
+    }
+
+    return resultPage.map(ClaimMapper.INSTANCE::entityToDto);
+  }
+
+  private Specification<ClaimEntity> buildSpecification(FilterCriteria filterCriteria) {
+    Specification<ClaimEntity> spec = Specification.where(null);
+
+    if (filterCriteria.getClaimNumber() != null && !filterCriteria.getClaimNumber().isEmpty()) {
+      spec = spec.and(ClaimSpecifications.byClaimNumber(filterCriteria.getClaimNumber()));
+    }
+    if (filterCriteria.getConsumer() != null && !filterCriteria.getConsumer().isEmpty()) {
+      spec = spec.and(ClaimSpecifications.byConsumer(filterCriteria.getConsumer()));
+    }
+    if (filterCriteria.getEmployer() != null && !filterCriteria.getEmployer().isEmpty()) {
+      spec = spec.and(ClaimSpecifications.byEmployer(filterCriteria.getEmployer()));
+    }
+    if (filterCriteria.getStatus() != null) {
+      spec = spec.and(ClaimSpecifications.byStatus(filterCriteria.getStatus()));
+    }
+
+    return spec;
+  }
 
   public List<ClaimDTO> getAllClaims() {
     return claimRepository.findAll().stream()
