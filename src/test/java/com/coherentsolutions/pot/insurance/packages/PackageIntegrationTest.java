@@ -119,7 +119,7 @@ public class PackageIntegrationTest {
         .payrollFrequency(PackagePayrollFrequency.MONTHLY)
         .startDate(LocalDate.of(2024, 1, 1))
         .endDate(LocalDate.of(2025, 1, 1))
-        .type(PackageType.DENTAL)
+        .type(PackageType.STANDARD)
         .contributions(150.00);
   }
 }
