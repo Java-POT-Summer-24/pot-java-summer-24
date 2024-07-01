@@ -7,7 +7,6 @@ import com.coherentsolutions.pot.insurance.specifications.FilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.SortCriteria;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.api.annotations.ParameterObject;
@@ -43,19 +42,25 @@ public class ClaimController {
       @ParameterObject FilterAndSortCriteria criteria,
       @ParameterObject Pageable pageable) {
 
-    FilterCriteria filterCriteria = Optional.ofNullable(criteria.getFilterCriteria())
-        .orElse(new FilterCriteria());
-    SortCriteria sortCriteria = Optional.ofNullable(criteria.getSortCriteria())
-        .orElseGet(() -> {
-          SortCriteria defaultSort = new SortCriteria();
-          defaultSort.setField("dateOfService");
-          defaultSort.setDirection(Sort.Direction.DESC);
-          return defaultSort;
-        });
+    FilterCriteria filterCriteria;
+    SortCriteria sortCriteria;
 
-    int pageSize = pageable.getPageSize() == 20 ? 10 : pageable.getPageSize();
+    if (criteria == null || criteria.getFilterCriteria() == null) {
+      filterCriteria = new FilterCriteria();
+    } else {
+      filterCriteria = criteria.getFilterCriteria();
+    }
+
+    if (criteria == null || criteria.getSortCriteria() == null) {
+      sortCriteria = new SortCriteria();
+      sortCriteria.setField("dateOfService");
+      sortCriteria.setDirection(Sort.Direction.DESC);
+    } else {
+      sortCriteria = criteria.getSortCriteria();
+    }
+
     Sort sort = Sort.by(sortCriteria.getDirection(), sortCriteria.getField());
-    PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
+    PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), 10, sort);
 
     Page<ClaimDTO> claimsPage = claimService.getFilteredSortedClaims(filterCriteria, sortCriteria, pageRequest.getPageNumber(), pageRequest.getPageSize());
 
