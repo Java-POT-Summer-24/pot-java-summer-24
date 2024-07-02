@@ -15,7 +15,7 @@
             email VARCHAR(255) NOT NULL UNIQUE,
             date_of_birth DATE NOT NULL,
             ssn INTEGER NOT NULL UNIQUE,
-            phone_number INTEGER NOT NULL,
+            phone_number VARCHAR(255) NOT NULL,
             status VARCHAR(255) NOT NULL
             );
         </sql>
