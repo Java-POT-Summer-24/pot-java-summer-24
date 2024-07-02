@@ -67,3 +67,5 @@ Step 2: Run application
 1. Ensure Lombok is enabled in IntelliJ IDEA
 2. Run InsuranceApplication.java
 3. Go to http://localhost:8080
+
+poehali.lt
