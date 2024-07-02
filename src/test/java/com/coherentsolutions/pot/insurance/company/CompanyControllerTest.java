@@ -72,6 +72,7 @@ class CompanyControllerTest {
         when(companyService.updateCompany(any(CompanyDTO.class))).thenReturn(updatedCompanyDTO);
 
         mockMvc.perform(put("/v1/companies")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(originalCompanyDTO)))
                 .andExpect(status().isOk())
@@ -103,7 +104,7 @@ class CompanyControllerTest {
 
         when(companyService.deactivateCompany(id)).thenReturn(originalCompanyDTO);
 
-        mockMvc.perform(delete("/companies/{id}", id)
+        mockMvc.perform(delete("/v1/companies/{id}", id)
                         .with(SecurityMockMvcRequestPostProcessors.csrf()) // Adding CSRF token
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
