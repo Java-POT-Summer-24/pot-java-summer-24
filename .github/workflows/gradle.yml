@@ -1,8 +1,6 @@
 name: Insurance project CI/CD pipeline
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -28,14 +26,7 @@ jobs:
           gradle-version: '8.5'
 
       - name: Build with Gradle 8.5
-        run: gradle bootJar
+        run: gradle test
 
-      - name: Build & push Docker image
-        uses: mr-smithers-excellent/docker-build-push@v6
-        with:
-          image: savchiklx/insurance-project
-          tags: latest
-          registry: docker.io
-          dockerfile: Dockerfile
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build with Gradle 8.5
+        run: gradle bootJar
