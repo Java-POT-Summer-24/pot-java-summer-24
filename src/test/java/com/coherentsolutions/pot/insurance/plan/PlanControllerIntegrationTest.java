@@ -48,6 +48,7 @@ public class PlanControllerIntegrationTest {
   @WithMockUser(username = "admin")
   void testAddPlan() throws Exception {
     PlanDTO newPlanDTO = easyRandom.nextObject(PlanDTO.class);
+
     when(planService.addPlan(any(PlanDTO.class))).thenReturn(newPlanDTO);
 
     mockMvc.perform(post("/v1/plans")

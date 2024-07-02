@@ -2,6 +2,7 @@ package com.coherentsolutions.pot.insurance.dto;
 
 import com.coherentsolutions.pot.insurance.dto.enums.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,16 +21,16 @@ public class PlanDTO {
     @NotBlank(message = "Plan name is required")
     private String planName;
 
-    @NotBlank(message = "Status is required")
+    @NotNull(message = "Status is required")
     private PlanStatus status;
 
-    @NotBlank(message = "Plan type is required")
+    @NotNull(message = "Plan type is required")
     private PlanType planType;
 
-    @NotBlank(message = "Start date is required")
+    @NotNull(message = "Start date is required")
     private LocalDate startDate;
 
-    @NotBlank(message = "End date is required")
+    @NotNull(message = "End date is required")
     private LocalDate endDate;
 
 }
