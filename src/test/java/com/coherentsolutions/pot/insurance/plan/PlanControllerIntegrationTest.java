@@ -1,6 +1,7 @@
 package com.coherentsolutions.pot.insurance.plan;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -77,7 +78,7 @@ public class PlanControllerIntegrationTest {
   void testGetPlanById() throws Exception {
     PlanDTO planDTO = easyRandom.nextObject(PlanDTO.class);
     UUID id = UUID.randomUUID();
-    planDTO.setPlanId(id);
+    planDTO.setId(id);
     when(planService.getPlanById(id)).thenReturn(planDTO);
 
     mockMvc.perform(get("/v1/plans/{id}", id)
@@ -94,10 +95,10 @@ public class PlanControllerIntegrationTest {
     PlanDTO updatedPlanDTO = easyRandom.nextObject(PlanDTO.class);
 
     UUID planId = UUID.randomUUID();
-    originalPlanDTO.setPlanId(planId);
-    updatedPlanDTO.setPlanId(planId);
+    originalPlanDTO.setId(planId);
+    updatedPlanDTO.setId(planId);
 
-    when(planService.updatePlan(any(PlanDTO.class))).thenReturn(updatedPlanDTO);
+    when(planService.updatePlan(eq(planId), any(PlanDTO.class))).thenReturn(updatedPlanDTO);
 
     mockMvc.perform(put("/v1/plans/{id}", planId)
             .with(SecurityMockMvcRequestPostProcessors.csrf())
@@ -106,7 +107,7 @@ public class PlanControllerIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(content().json(objectMapper.writeValueAsString(updatedPlanDTO)));
 
-    verify(planService).updatePlan(originalPlanDTO);
+    verify(planService).updatePlan(eq(planId), any(PlanDTO.class));
   }
 
   @Test
@@ -114,7 +115,7 @@ public class PlanControllerIntegrationTest {
   void testDeactivatePlan() throws Exception {
     UUID id = UUID.randomUUID();
     PlanDTO originalPlanDTO = easyRandom.nextObject(PlanDTO.class);
-    originalPlanDTO.setPlanId(id);
+    originalPlanDTO.setId(id);
 
     when(planService.deactivatePlan(id)).thenReturn(originalPlanDTO);
 

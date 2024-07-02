@@ -32,8 +32,7 @@ public class PlanService {
                     .collect(Collectors.toList());
     }
 
-    public PlanDTO updatePlan(PlanDTO planDTO){
-            UUID planId = planDTO.getPlanId();
+    public PlanDTO updatePlan(UUID planId, PlanDTO planDTO){
             PlanEntity existingPlan = planRepository.findById(planId)
                     .orElseThrow(() -> new NotFoundException("Plan with ID " + planId + " not found"));
 

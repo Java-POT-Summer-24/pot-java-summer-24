@@ -38,8 +38,7 @@ public class PlanController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public PlanDTO updatePlan(@PathVariable UUID id, @Valid @RequestBody PlanDTO planDTO){
-        planDTO.setPlanId(id);
-        return planService.updatePlan(planDTO);
+        return planService.updatePlan(id, planDTO);
     }
 
     @DeleteMapping("/{id}")

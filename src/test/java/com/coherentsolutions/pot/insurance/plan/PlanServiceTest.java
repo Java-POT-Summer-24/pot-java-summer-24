@@ -54,13 +54,13 @@ class PlanServiceTest {
     void testGetPlanById() {
         PlanDTO PlanDTO = easyRandom.nextObject(PlanDTO.class);
         UUID id = UUID.randomUUID();
-        PlanDTO.setPlanId(id);
+        PlanDTO.setId(id);
         when(planService.getPlanById(id)).thenReturn(PlanDTO);
 
         PlanDTO result = planService.getPlanById(id);
 
         assert result != null;
-        assertEquals(PlanDTO.getPlanId(), result.getPlanId());
+        assertEquals(PlanDTO.getId(), result.getId());
         verify(planService).getPlanById(id);
     }
 
@@ -68,21 +68,23 @@ class PlanServiceTest {
     void testUpdatePlan() {
         PlanDTO originalPlanDTO = easyRandom.nextObject(PlanDTO.class);
         PlanDTO updatedPlanDTO = easyRandom.nextObject(PlanDTO.class);
-        updatedPlanDTO.setPlanId(originalPlanDTO.getPlanId());
+        updatedPlanDTO.setId(originalPlanDTO.getId());
 
-        when(planService.updatePlan(any(PlanDTO.class))).thenReturn(updatedPlanDTO);
+        UUID planId = originalPlanDTO.getId();
 
-        PlanDTO result = planService.updatePlan(originalPlanDTO);
+        when(planService.updatePlan(eq(planId), any(PlanDTO.class))).thenReturn(updatedPlanDTO);
+
+        PlanDTO result = planService.updatePlan(planId, originalPlanDTO);
 
         assertEquals(updatedPlanDTO, result);
-        verify(planService).updatePlan(originalPlanDTO);
+        verify(planService).updatePlan(eq(planId), eq(originalPlanDTO));
     }
 
     @Test
     void testDeactivatePlan() {
         UUID id = UUID.randomUUID();
         PlanDTO originalPlanDTO = easyRandom.nextObject(PlanDTO.class);
-        originalPlanDTO.setPlanId(id);
+        originalPlanDTO.setId(id);
         originalPlanDTO.setStatus(PlanStatus.DEACTIVATED);
 
         when(planService.deactivatePlan(id)).thenReturn(originalPlanDTO);

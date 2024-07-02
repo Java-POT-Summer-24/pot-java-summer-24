@@ -15,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlanDTO {
-    private UUID planId;
+    private UUID id;
 
     @NotBlank(message = "Plan name is required")
     private String planName;
