@@ -8,10 +8,10 @@
     <changeSet id="4" author="NormantasN">
         <comment>Insert sample data into plans table</comment>
         <sql>
-            INSERT INTO plan (id, name, status, type, payrollFrequency, startDate, endDate) VALUES
-                ('e7d6c7c3-f5a1-4a44-b4a7-c3d6b63d8e6f', 'Standard Package', 'Active', 'Medical', 'Monthly', '2024-01-01', '2024-12-31'),
-                ('3a1b5f87-14e6-4c67-91a4-2745dca967a5', 'VIP Package', 'Expired', 'Dental', 'Weekly', '2024-01-01', '2024-04-01'),
-                ('9c9aef75-89e8-4a4f-9b1e-c7a47e63f8f7', 'General Medical Insurance', 'Deactivated', 'Medical', 'Monthly', '2024-01-01', '2024-06-30');
+            INSERT INTO plan (id, name, status, type, startDate, endDate) VALUES
+                ('e7d6c7c3-f5a1-4a44-b4a7-c3d6b63d8e6f', 'Standard Package', 'Active', 'Medical', '2024-01-01', '2024-12-31'),
+                ('3a1b5f87-14e6-4c67-91a4-2745dca967a5', 'VIP Package', 'Expired', 'Dental', '2024-01-01', '2024-04-01'),
+                ('9c9aef75-89e8-4a4f-9b1e-c7a47e63f8f7', 'General Medical Insurance', 'Deactivated', 'Medical', '2024-01-01', '2024-06-30');
         </sql>
     </changeSet>
 
