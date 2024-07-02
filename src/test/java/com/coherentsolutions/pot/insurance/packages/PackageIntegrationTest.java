@@ -16,15 +16,20 @@ import com.coherentsolutions.pot.insurance.dto.PackageDTO;
 import com.coherentsolutions.pot.insurance.service.PackageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @WebMvcTest(controllers = PackageController.class)
 @TestPropertySource(properties = "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration")
@@ -38,6 +43,39 @@ public class PackageIntegrationTest {
 
   @MockBean
   private PackageService packageService;
+
+  @Test
+  void testGetFilteredSortedPackages() throws Exception {
+    List<PackageDTO> packages = List.of(
+        createBasicPackageDTO().name("Package A").build(),
+        createBasicPackageDTO().name("Package B").build(),
+        createBasicPackageDTO().name("Package C").build()
+    );
+    Page<PackageDTO> pagedPackages = new PageImpl<>(packages, PageRequest.of(0, 3), packages.size());
+
+    Mockito.when(packageService.getFilteredSortedPackages(
+        Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.anyInt())
+    ).thenReturn(pagedPackages);
+
+    String baseUrl = "/v1/packages/filtered";
+    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(baseUrl)
+        .queryParam("name", "Health")
+        .queryParam("status", "ACTIVE")
+        .queryParam("page", 0)
+        .queryParam("size", 3)
+        .queryParam("sortField", "name")
+        .queryParam("sortDir", "ASC");
+
+    mockMvc.perform(get(builder.toUriString())
+            .contentType(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content.length()").value(3))
+        .andExpect(jsonPath("$.content[0].name").value("Package A"))
+        .andExpect(jsonPath("$.content[1].name").value("Package B"))
+        .andExpect(jsonPath("$.content[2].name").value("Package C"));
+  }
+
 
   @Test
   void testAddPackage() throws Exception {
