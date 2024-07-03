@@ -23,10 +23,4 @@ public class ClaimSpecifications {
     return (root, query, cb) -> cb.equal(root.get("status"), status);
   }
 
-  public static Specification<ClaimEntity> buildSpecification(String claimNumber, String consumer, String employer, ClaimStatus status) {
-    return Specification.where(byClaimNumber(claimNumber))
-        .and(byConsumer(consumer))
-        .and(byEmployer(employer))
-        .and(byStatus(status));
-  }
 }

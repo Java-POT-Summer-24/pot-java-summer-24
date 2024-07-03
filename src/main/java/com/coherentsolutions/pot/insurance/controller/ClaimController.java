@@ -2,9 +2,7 @@ package com.coherentsolutions.pot.insurance.controller;
 
 import com.coherentsolutions.pot.insurance.dto.ClaimDTO;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
-import com.coherentsolutions.pot.insurance.specifications.FilterAndSortCriteria;
-import com.coherentsolutions.pot.insurance.specifications.FilterCriteria;
-import com.coherentsolutions.pot.insurance.specifications.SortCriteria;
+import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -12,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,27 +37,9 @@ public class ClaimController {
   @GetMapping("/filtered")
   @ResponseStatus(HttpStatus.OK)
   public Page<ClaimDTO> getFilteredSortedClaims(
-      @ParameterObject FilterAndSortCriteria criteria,
+      @ParameterObject ClaimFilterCriteria claimFilterCriteria,
       @ParameterObject Pageable pageable) {
-
-    FilterCriteria filterCriteria;
-    SortCriteria sortCriteria;
-
-    if (criteria == null || criteria.getFilterCriteria() == null) {
-      filterCriteria = new FilterCriteria();
-    } else {
-      filterCriteria = criteria.getFilterCriteria();
-    }
-
-    if (criteria == null || criteria.getSortCriteria() == null) {
-      sortCriteria = new SortCriteria();
-      sortCriteria.setField("dateOfService");
-      sortCriteria.setDirection(Sort.Direction.DESC);
-    } else {
-      sortCriteria = criteria.getSortCriteria();
-    }
-
-    return claimService.getFilteredSortedClaims(filterCriteria, sortCriteria, pageable.getPageNumber(), pageable.getPageSize());
+    return claimService.getFilteredSortedClaims(claimFilterCriteria, pageable);
   }
 
   @GetMapping("/{id}")

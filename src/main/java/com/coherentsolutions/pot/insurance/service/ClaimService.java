@@ -7,12 +7,12 @@ import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.mapper.ClaimMapper;
 import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
 import com.coherentsolutions.pot.insurance.specifications.ClaimSpecifications;
-import com.coherentsolutions.pot.insurance.specifications.FilterCriteria;
-import com.coherentsolutions.pot.insurance.specifications.SortCriteria;
+import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
 import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -27,28 +27,32 @@ public class ClaimService {
 
   private final ClaimRepository claimRepository;
 
-  public Page<ClaimDTO> getFilteredSortedClaims(FilterCriteria filterCriteria, SortCriteria sortCriteria, int page, int size) {
-    Specification<ClaimEntity> spec = buildSpecification(filterCriteria);
-    Sort sort = Sort.by(sortCriteria.getDirection(), sortCriteria.getField());
-    PageRequest pageRequest = PageRequest.of(page, size, sort);
+  public Page<ClaimDTO> getFilteredSortedClaims(ClaimFilterCriteria claimFilterCriteria, Pageable pageable) {
 
-    return claimRepository.findAll(spec, pageRequest).map(ClaimMapper.INSTANCE::entityToDto);
+    Sort defaultSort = Sort.by("dateOfService").descending();
+
+    if (!pageable.getSort().isSorted()) {
+      pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), defaultSort);
+    }
+
+    Specification<ClaimEntity> spec = buildSpecification(claimFilterCriteria);
+    return claimRepository.findAll(spec, pageable).map(ClaimMapper.INSTANCE::entityToDto);
   }
 
-  private Specification<ClaimEntity> buildSpecification(FilterCriteria filterCriteria) {
+  private Specification<ClaimEntity> buildSpecification(ClaimFilterCriteria claimFilterCriteria) {
     Specification<ClaimEntity> spec = Specification.where(null);
 
-    if (isNotEmpty(filterCriteria.getClaimNumber())) {
-      spec = spec.and(ClaimSpecifications.byClaimNumber(filterCriteria.getClaimNumber()));
+    if (isNotEmpty(claimFilterCriteria.getClaimNumber())) {
+      spec = spec.and(ClaimSpecifications.byClaimNumber(claimFilterCriteria.getClaimNumber()));
     }
-    if (isNotEmpty(filterCriteria.getConsumer())) {
-      spec = spec.and(ClaimSpecifications.byConsumer(filterCriteria.getConsumer()));
+    if (isNotEmpty(claimFilterCriteria.getConsumer())) {
+      spec = spec.and(ClaimSpecifications.byConsumer(claimFilterCriteria.getConsumer()));
     }
-    if (isNotEmpty(filterCriteria.getEmployer())) {
-      spec = spec.and(ClaimSpecifications.byEmployer(filterCriteria.getEmployer()));
+    if (isNotEmpty(claimFilterCriteria.getEmployer())) {
+      spec = spec.and(ClaimSpecifications.byEmployer(claimFilterCriteria.getEmployer()));
     }
-    if (filterCriteria.getStatus() != null) {
-      spec = spec.and(ClaimSpecifications.byStatus(filterCriteria.getStatus()));
+    if (claimFilterCriteria.getStatus() != null) {
+      spec = spec.and(ClaimSpecifications.byStatus(claimFilterCriteria.getStatus()));
     }
 
     return spec;

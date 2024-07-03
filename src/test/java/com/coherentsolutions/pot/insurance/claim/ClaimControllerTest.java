@@ -3,7 +3,6 @@ package com.coherentsolutions.pot.insurance.claim;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,9 +10,7 @@ import com.coherentsolutions.pot.insurance.constants.ClaimStatus;
 import com.coherentsolutions.pot.insurance.controller.ClaimController;
 import com.coherentsolutions.pot.insurance.dto.ClaimDTO;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
-import com.coherentsolutions.pot.insurance.specifications.FilterAndSortCriteria;
-import com.coherentsolutions.pot.insurance.specifications.FilterCriteria;
-import com.coherentsolutions.pot.insurance.specifications.SortCriteria;
+import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
 import java.util.List;
 import java.util.UUID;
 import org.jeasy.random.EasyRandom;
@@ -65,28 +62,19 @@ class ClaimControllerTest {
   void testGetFilteredSortedClaims() {
     List<ClaimDTO> claimsList = easyRandom.objects(ClaimDTO.class, 3).toList();
     Page<ClaimDTO> pagedClaims = new PageImpl<>(claimsList);
+    ClaimFilterCriteria claimFilterCriteria = new ClaimFilterCriteria();
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("dateOfService").descending());
 
-    FilterCriteria filterCriteria = new FilterCriteria();
-    SortCriteria sortCriteria = new SortCriteria();
-    sortCriteria.setField("dateOfService");
-    sortCriteria.setDirection(Sort.Direction.DESC);
-
-    FilterAndSortCriteria criteria = new FilterAndSortCriteria();
-    criteria.setFilterCriteria(filterCriteria);
-    criteria.setSortCriteria(sortCriteria);
-
-    Pageable pageable = PageRequest.of(0, 10, Sort.by(sortCriteria.getDirection(), sortCriteria.getField()));
-
-    when(claimService.getFilteredSortedClaims(any(FilterCriteria.class), any(SortCriteria.class), anyInt(), anyInt()))
+    when(claimService.getFilteredSortedClaims(any(ClaimFilterCriteria.class), any(Pageable.class)))
         .thenReturn(pagedClaims);
 
-    Page<ClaimDTO> result = claimController.getFilteredSortedClaims(criteria, pageable);
+    Page<ClaimDTO> result = claimController.getFilteredSortedClaims(claimFilterCriteria, pageable);
 
     assertNotNull(result);
     assertEquals(3, result.getContent().size());
     assertEquals(claimsList, result.getContent());
 
-    verify(claimService).getFilteredSortedClaims(any(FilterCriteria.class), any(SortCriteria.class), anyInt(), anyInt());
+    verify(claimService).getFilteredSortedClaims(claimFilterCriteria, pageable);
   }
 
   @Test

@@ -6,7 +6,7 @@ import org.springdoc.api.annotations.ParameterObject;
 
 @Data
 @ParameterObject
-public class FilterCriteria {
+public class ClaimFilterCriteria {
   private String claimNumber;
   private String consumer;
   private String employer;
