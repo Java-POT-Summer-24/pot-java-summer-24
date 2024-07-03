@@ -6,7 +6,10 @@ import com.coherentsolutions.pot.insurance.entity.PlanEntity;
 import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.mapper.PlanMapper;
 import com.coherentsolutions.pot.insurance.repository.PlanRepository;
+import com.coherentsolutions.pot.insurance.specifications.PlanFilterCriteria;
+import com.coherentsolutions.pot.insurance.specifications.PlanSpecifications;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -57,4 +60,27 @@ public class PlanService {
                     .orElseThrow(() -> new NotFoundException("Plan with id " + id + " not found"));
             return PlanMapper.INSTANCE.toPlanDto(plan);
     }
+
+  private Specification<PlanEntity> buildSpecification(PlanFilterCriteria planFilterCriteria) {
+    Specification<PlanEntity> spec = Specification.where(null);
+
+    if (isNotEmpty(planFilterCriteria.getPlanName())) {
+      spec = spec.and(PlanSpecifications.byName(planFilterCriteria.getPlanName()));
+    }
+
+    if (planFilterCriteria.getPlanType() != null) {
+      spec = spec.and(PlanSpecifications.byType(planFilterCriteria.getPlanType()));
+    }
+
+    if (planFilterCriteria.getStatus() != null) {
+      spec = spec.and(PlanSpecifications.byStatus(planFilterCriteria.getStatus()));
+    }
+
+    return spec;
+  }
+
+  private boolean isNotEmpty(String value) {
+    return value != null && !value.isEmpty();
+  }
+
 }
