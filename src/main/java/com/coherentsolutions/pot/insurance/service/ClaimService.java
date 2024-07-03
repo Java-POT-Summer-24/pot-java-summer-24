@@ -27,7 +27,8 @@ public class ClaimService {
 
   private final ClaimRepository claimRepository;
 
-  public Page<ClaimDTO> getFilteredSortedClaims(ClaimFilterCriteria claimFilterCriteria, Pageable pageable) {
+  public Page<ClaimDTO> getFilteredSortedClaims(ClaimFilterCriteria claimFilterCriteria,
+      Pageable pageable) {
 
     Sort defaultSort = Sort.by("dateOfService").descending();
 
@@ -38,30 +39,6 @@ public class ClaimService {
     Specification<ClaimEntity> spec = buildSpecification(claimFilterCriteria);
     return claimRepository.findAll(spec, pageable).map(ClaimMapper.INSTANCE::entityToDto);
   }
-
-  private Specification<ClaimEntity> buildSpecification(ClaimFilterCriteria claimFilterCriteria) {
-    Specification<ClaimEntity> spec = Specification.where(null);
-
-    if (isNotEmpty(claimFilterCriteria.getClaimNumber())) {
-      spec = spec.and(ClaimSpecifications.byClaimNumber(claimFilterCriteria.getClaimNumber()));
-    }
-    if (isNotEmpty(claimFilterCriteria.getConsumer())) {
-      spec = spec.and(ClaimSpecifications.byConsumer(claimFilterCriteria.getConsumer()));
-    }
-    if (isNotEmpty(claimFilterCriteria.getEmployer())) {
-      spec = spec.and(ClaimSpecifications.byEmployer(claimFilterCriteria.getEmployer()));
-    }
-    if (claimFilterCriteria.getStatus() != null) {
-      spec = spec.and(ClaimSpecifications.byStatus(claimFilterCriteria.getStatus()));
-    }
-
-    return spec;
-  }
-
-  private boolean isNotEmpty(String value) {
-    return value != null && !value.isEmpty();
-  }
-
 
   public List<ClaimDTO> getAllClaims() {
     return claimRepository.findAll().stream()
@@ -105,6 +82,30 @@ public class ClaimService {
         .orElseThrow(() -> new NotFoundException("Claim with ID " + id + " was not found"));
   }
 
+  private Specification<ClaimEntity> buildSpecification(ClaimFilterCriteria claimFilterCriteria) {
+    Specification<ClaimEntity> spec = Specification.where(null);
+
+    if (isNotEmpty(claimFilterCriteria.getClaimNumber())) {
+      spec = spec.and(ClaimSpecifications.byClaimNumber(claimFilterCriteria.getClaimNumber()));
+    }
+    if (isNotEmpty(claimFilterCriteria.getConsumer())) {
+      spec = spec.and(ClaimSpecifications.byConsumer(claimFilterCriteria.getConsumer()));
+    }
+    if (isNotEmpty(claimFilterCriteria.getEmployer())) {
+      spec = spec.and(ClaimSpecifications.byEmployer(claimFilterCriteria.getEmployer()));
+    }
+    if (claimFilterCriteria.getStatus() != null) {
+      spec = spec.and(ClaimSpecifications.byStatus(claimFilterCriteria.getStatus()));
+    }
+
+    return spec;
+  }
+
+  private boolean isNotEmpty(String value) {
+    return value != null && !value.isEmpty();
+  }
+}
+
   // Blueprint, will uncomment and modify when company and user implementations are available
     /*
     public List<ClaimDTO> getClaimsByCompany(String companyName) {
@@ -119,4 +120,3 @@ public class ClaimService {
             .collect(Collectors.toList());
     }
     */
-}
