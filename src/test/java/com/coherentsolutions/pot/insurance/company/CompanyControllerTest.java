@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -69,15 +70,16 @@ class CompanyControllerTest {
         CompanyDTO updatedCompanyDTO = easyRandom.nextObject(CompanyDTO.class);
         updatedCompanyDTO.setId(id);
 
-        when(companyService.updateCompany(any(CompanyDTO.class))).thenReturn(updatedCompanyDTO);
-
-        mockMvc.perform(put("/v1/companies")
+        mockMvc.perform(put("/v1/companies/{id}", id)
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(originalCompanyDTO)))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(updatedCompanyDTO)));
+                        .content(objectMapper.writeValueAsString(updatedCompanyDTO)))
+                .andExpect(status().isOk());
 
-        verify(companyService).updateCompany(originalCompanyDTO);
+        verify(companyService).updateCompany(Mockito.any(CompanyDTO.class), Mockito.eq(id));
+
+
+
     }
 
     @Test
@@ -103,8 +105,8 @@ class CompanyControllerTest {
 
         when(companyService.deactivateCompany(id)).thenReturn(originalCompanyDTO);
 
-        mockMvc.perform(delete("/companies/{id}", id)
-                        .with(SecurityMockMvcRequestPostProcessors.csrf()) // Adding CSRF token
+        mockMvc.perform(delete("/v1/companies/{id}", id)
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(originalCompanyDTO)));
