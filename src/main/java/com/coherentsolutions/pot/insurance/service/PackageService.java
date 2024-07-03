@@ -9,10 +9,10 @@ import com.coherentsolutions.pot.insurance.mapper.PackageMapper;
 import com.coherentsolutions.pot.insurance.repository.PackageRepository;
 import com.coherentsolutions.pot.insurance.specifications.PackageFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.PackageSpecifications;
-import com.coherentsolutions.pot.insurance.specifications.SortCriteria;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -27,31 +27,34 @@ public class PackageService {
 
   private final PackageRepository packageRepository;
 
-  public Page<PackageDTO> getFilteredSortedPackages(PackageFilterCriteria packageFilterCriteria, SortCriteria sortCriteria, int page, int size) {
-    Specification<PackageEntity> spec = buildSpecification(packageFilterCriteria);
-    Sort sort = Sort.by(sortCriteria.getDirection(), sortCriteria.getField());
-    PageRequest pageRequest = PageRequest.of(page, size, sort);
+  public Page<PackageDTO> getFilteredSortedPackages(PackageFilterCriteria criteria, Pageable pageable) {
+    Sort defaultSort = Sort.by("name").ascending();
 
-    return packageRepository.findAll(spec, pageRequest).map(PackageMapper.INSTANCE::entityToDto);
+    if (!pageable.getSort().isSorted()) {
+      pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), defaultSort);
+    }
+
+    Specification<PackageEntity> spec = buildSpecification(criteria);
+    return packageRepository.findAll(spec, pageable).map(PackageMapper.INSTANCE::entityToDto);
   }
 
-  private Specification<PackageEntity> buildSpecification(PackageFilterCriteria packageFilterCriteria) {
+  private Specification<PackageEntity> buildSpecification(PackageFilterCriteria criteria) {
     Specification<PackageEntity> spec = Specification.where(null);
 
-    if (isNotEmpty(packageFilterCriteria.getName())) {
-      spec = spec.and(PackageSpecifications.byName(packageFilterCriteria.getName()));
+    if (isNotEmpty(criteria.getName())) {
+      spec = spec.and(PackageSpecifications.byName(criteria.getName()));
     }
-    if (packageFilterCriteria.getStatus() != null) {
-      spec = spec.and(PackageSpecifications.byStatus(packageFilterCriteria.getStatus()));
+    if (criteria.getStatus() != null) {
+      spec = spec.and(PackageSpecifications.byStatus(criteria.getStatus()));
     }
-    if (packageFilterCriteria.getStartDate() != null) {
-      spec = spec.and(PackageSpecifications.byStartDate(packageFilterCriteria.getStartDate()));
+    if (criteria.getStartDate() != null) {
+      spec = spec.and(PackageSpecifications.byStartDate(criteria.getStartDate()));
     }
-    if (packageFilterCriteria.getEndDate() != null) {
-      spec = spec.and(PackageSpecifications.byEndDate(packageFilterCriteria.getEndDate()));
+    if (criteria.getEndDate() != null) {
+      spec = spec.and(PackageSpecifications.byEndDate(criteria.getEndDate()));
     }
-    if (packageFilterCriteria.getPayrollFrequency() != null) {
-      spec = spec.and(PackageSpecifications.byPayrollFrequency(packageFilterCriteria.getPayrollFrequency()));
+    if (criteria.getPayrollFrequency() != null) {
+      spec = spec.and(PackageSpecifications.byPayrollFrequency(criteria.getPayrollFrequency()));
     }
 
     return spec;

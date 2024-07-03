@@ -10,9 +10,7 @@ import static org.mockito.Mockito.when;
 import com.coherentsolutions.pot.insurance.controller.PackageController;
 import com.coherentsolutions.pot.insurance.dto.PackageDTO;
 import com.coherentsolutions.pot.insurance.service.PackageService;
-import com.coherentsolutions.pot.insurance.specifications.PackageFilterAndSortCriteria;
 import com.coherentsolutions.pot.insurance.specifications.PackageFilterCriteria;
-import com.coherentsolutions.pot.insurance.specifications.SortCriteria;
 import java.util.List;
 import java.util.UUID;
 import org.jeasy.random.EasyRandom;
@@ -104,25 +102,18 @@ class PackageControllerTest {
     Page<PackageDTO> pagedPackages = new PageImpl<>(packageList);
 
     PackageFilterCriteria filterCriteria = new PackageFilterCriteria();
-    SortCriteria sortCriteria = new SortCriteria();
-    sortCriteria.setField("name");  // Assuming 'name' is a sortable field for packages
-    sortCriteria.setDirection(Sort.Direction.ASC);
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
-    PackageFilterAndSortCriteria criteria = new PackageFilterAndSortCriteria();
-    criteria.setPackageFilterCriteria(filterCriteria);
-    criteria.setSortCriteria(sortCriteria);
-
-    Pageable pageable = PageRequest.of(0, 10, Sort.by(sortCriteria.getDirection(), sortCriteria.getField()));
-
-    when(packageService.getFilteredSortedPackages(any(PackageFilterCriteria.class), any(SortCriteria.class), anyInt(), anyInt()))
+    when(packageService.getFilteredSortedPackages(any(PackageFilterCriteria.class),
+        any(Pageable.class)))
         .thenReturn(pagedPackages);
 
-    Page<PackageDTO> result = packageController.getFilteredSortedPackages(criteria, pageable);
+    Page<PackageDTO> result = packageController.getFilteredSortedPackages(filterCriteria, pageable);
 
     assertNotNull(result);
     assertEquals(3, result.getContent().size());
     assertEquals(packageList, result.getContent());
 
-    verify(packageService).getFilteredSortedPackages(any(PackageFilterCriteria.class), any(SortCriteria.class), anyInt(), anyInt());
+    verify(packageService).getFilteredSortedPackages(filterCriteria, pageable);
   }
 }

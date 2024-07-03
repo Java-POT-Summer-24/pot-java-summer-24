@@ -2,9 +2,7 @@ package com.coherentsolutions.pot.insurance.controller;
 
 import com.coherentsolutions.pot.insurance.dto.PackageDTO;
 import com.coherentsolutions.pot.insurance.service.PackageService;
-import com.coherentsolutions.pot.insurance.specifications.PackageFilterAndSortCriteria;
 import com.coherentsolutions.pot.insurance.specifications.PackageFilterCriteria;
-import com.coherentsolutions.pot.insurance.specifications.SortCriteria;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -34,28 +32,9 @@ public class PackageController {
   @GetMapping("/filtered")
   @ResponseStatus(HttpStatus.OK)
   public Page<PackageDTO> getFilteredSortedPackages(
-      @ParameterObject PackageFilterAndSortCriteria criteria,
+      @ParameterObject PackageFilterCriteria criteria,
       @ParameterObject Pageable pageable) {
-
-    PackageFilterCriteria packageFilterCriteria;
-    SortCriteria sortCriteria;
-
-
-    if (criteria == null || criteria.getPackageFilterCriteria() == null) {
-      packageFilterCriteria = new PackageFilterCriteria();
-    } else {
-      packageFilterCriteria = criteria.getPackageFilterCriteria();
-    }
-
-    if (criteria == null || criteria.getSortCriteria() == null) {
-      sortCriteria = new SortCriteria();
-      sortCriteria.setField("name");
-      sortCriteria.setDirection(Sort.Direction.ASC);
-    } else {
-      sortCriteria = criteria.getSortCriteria();
-    }
-
-    return packageService.getFilteredSortedPackages(packageFilterCriteria, sortCriteria, pageable.getPageNumber(), pageable.getPageSize());
+    return packageService.getFilteredSortedPackages(criteria, pageable);
   }
 
   @GetMapping

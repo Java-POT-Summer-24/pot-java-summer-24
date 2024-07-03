@@ -29,7 +29,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @WebMvcTest(controllers = PackageController.class)
 @TestPropertySource(properties = "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration")
@@ -53,22 +52,16 @@ public class PackageIntegrationTest {
     );
     Page<PackageDTO> pagedPackages = new PageImpl<>(packages, PageRequest.of(0, 3), packages.size());
 
-    Mockito.when(packageService.getFilteredSortedPackages(
-        Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.anyInt())
-    ).thenReturn(pagedPackages);
+    Mockito.when(packageService.getFilteredSortedPackages(Mockito.any(), Mockito.any()))
+        .thenReturn(pagedPackages);
 
-    String baseUrl = "/v1/packages/filtered";
-    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(baseUrl)
-        .queryParam("name", "Health")
-        .queryParam("status", "ACTIVE")
-        .queryParam("page", 0)
-        .queryParam("size", 3)
-        .queryParam("sortField", "name")
-        .queryParam("sortDir", "ASC");
-
-    mockMvc.perform(get(builder.toUriString())
+    mockMvc.perform(get("/v1/packages/filtered")
+            .param("name", "Package A")
+            .param("status", "ACTIVE")
+            .param("page", "0")
+            .param("size", "3")
+            .param("sort", "name,asc")
             .contentType(MediaType.APPLICATION_JSON))
-        .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content.length()").value(3))
         .andExpect(jsonPath("$.content[0].name").value("Package A"))
