@@ -38,32 +38,6 @@ public class PackageService {
     return packageRepository.findAll(spec, pageable).map(PackageMapper.INSTANCE::entityToDto);
   }
 
-  private Specification<PackageEntity> buildSpecification(PackageFilterCriteria criteria) {
-    Specification<PackageEntity> spec = Specification.where(null);
-
-    if (isNotEmpty(criteria.getName())) {
-      spec = spec.and(PackageSpecifications.byName(criteria.getName()));
-    }
-    if (criteria.getStatus() != null) {
-      spec = spec.and(PackageSpecifications.byStatus(criteria.getStatus()));
-    }
-    if (criteria.getStartDate() != null) {
-      spec = spec.and(PackageSpecifications.byStartDate(criteria.getStartDate()));
-    }
-    if (criteria.getEndDate() != null) {
-      spec = spec.and(PackageSpecifications.byEndDate(criteria.getEndDate()));
-    }
-    if (criteria.getPayrollFrequency() != null) {
-      spec = spec.and(PackageSpecifications.byPayrollFrequency(criteria.getPayrollFrequency()));
-    }
-
-    return spec;
-  }
-
-  private boolean isNotEmpty(String value) {
-    return value != null && !value.isEmpty();
-  }
-
   public List<PackageDTO> getAllPackages() {
     return packageRepository.findAll().stream()
         .map(PackageMapper.INSTANCE::entityToDto)
@@ -104,4 +78,31 @@ public class PackageService {
         })
         .orElseThrow(() -> new NotFoundException("Package with ID " + id + " was not found"));
   }
+
+  private Specification<PackageEntity> buildSpecification(PackageFilterCriteria criteria) {
+    Specification<PackageEntity> spec = Specification.where(null);
+
+    if (isNotEmpty(criteria.getName())) {
+      spec = spec.and(PackageSpecifications.byName(criteria.getName()));
+    }
+    if (criteria.getStatus() != null) {
+      spec = spec.and(PackageSpecifications.byStatus(criteria.getStatus()));
+    }
+    if (criteria.getStartDate() != null) {
+      spec = spec.and(PackageSpecifications.byStartDate(criteria.getStartDate()));
+    }
+    if (criteria.getEndDate() != null) {
+      spec = spec.and(PackageSpecifications.byEndDate(criteria.getEndDate()));
+    }
+    if (criteria.getPayrollFrequency() != null) {
+      spec = spec.and(PackageSpecifications.byPayrollFrequency(criteria.getPayrollFrequency()));
+    }
+
+    return spec;
+  }
+
+  private boolean isNotEmpty(String value) {
+    return value != null && !value.isEmpty();
+  }
+
 }
