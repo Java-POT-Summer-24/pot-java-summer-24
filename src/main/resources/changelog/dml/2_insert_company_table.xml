@@ -5,12 +5,12 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="6" author="your.name">
+  <changeSet id="2" author="heorhii.popov">
     <sql>
-      INSERT INTO company (id, name, country_code, address, phone_number, email, website, status) VALUES
-      (RANDOM_UUID(), 'ISSoft', 'BY', '123 Main', '123-456-7890', 'contact@companya.com', 'http://www.companya.com', 'ACTIVE'),
-      (RANDOM_UUID(), 'Coherent Solutions', 'LT', '456 Elm', '987-654-3210', 'contact@companyb.com', 'http://www.companyb.com', 'ACTIVE'),
-      (RANDOM_UUID(), 'Google', 'US', '789 Oak', '555-555-5555', 'contact@companyc.com', 'http://www.companyc.com', 'ACTIVE');
+      INSERT INTO company (name, country_code, address, phone_number, email, website, status) VALUES
+      ('ISSoft', 'BY', '123 Main', '123-456-7890', 'contact@companya.com', 'http://www.companya.com', 'ACTIVE'),
+      ('Coherent Solutions', 'LT', '456 Elm', '987-654-3210', 'contact@companyb.com', 'http://www.companyb.com', 'ACTIVE'),
+      ('Google', 'US', '789 Oak', '555-555-5555', 'contact@companyc.com', 'http://www.companyc.com', 'ACTIVE');
     </sql>
   </changeSet>
 
