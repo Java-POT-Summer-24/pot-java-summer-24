@@ -69,6 +69,7 @@ class CompanyControllerTest {
         originalCompanyDTO.setId(id);
         CompanyDTO updatedCompanyDTO = easyRandom.nextObject(CompanyDTO.class);
         updatedCompanyDTO.setId(id);
+        when(companyService.updateCompany(any(CompanyDTO.class), eq(id))).thenReturn(updatedCompanyDTO);
 
         mockMvc.perform(put("/v1/companies/{id}", id)
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
