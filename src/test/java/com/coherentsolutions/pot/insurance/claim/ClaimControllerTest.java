@@ -12,8 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.jeasy.random.EasyRandom;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -34,8 +32,7 @@ class ClaimControllerTest {
     ClaimDTO newClaimDTO = easyRandom.nextObject(ClaimDTO.class);
     when(claimService.addClaim(any(ClaimDTO.class))).thenReturn(newClaimDTO);
 
-    ResponseEntity<ClaimDTO> response = claimController.addClaim(newClaimDTO);
-    ClaimDTO createdClaimDTO = response.getBody();
+    ClaimDTO createdClaimDTO = claimController.addClaim(newClaimDTO);
 
     assertEquals(newClaimDTO, createdClaimDTO);
     verify(claimService).addClaim(newClaimDTO);
@@ -46,8 +43,7 @@ class ClaimControllerTest {
     List<ClaimDTO> claimsList = easyRandom.objects(ClaimDTO.class, 3).toList();
     when(claimService.getAllClaims()).thenReturn(claimsList);
 
-    ResponseEntity<List<ClaimDTO>> response = claimController.getAllClaims();
-    List<ClaimDTO> result = response.getBody();
+    List<ClaimDTO> result = claimController.getAllClaims();
 
     assertEquals(3, result.size());
     verify(claimService).getAllClaims();
@@ -60,8 +56,7 @@ class ClaimControllerTest {
     claimDTO.setId(id);
     when(claimService.getClaimById(id)).thenReturn(claimDTO);
 
-    ResponseEntity<ClaimDTO> response = claimController.getClaimById(id);
-    ClaimDTO result = response.getBody();
+    ClaimDTO result = claimController.getClaimById(id);
 
     assertEquals(claimDTO.getId(), result.getId());
     verify(claimService).getClaimById(id);
@@ -75,8 +70,7 @@ class ClaimControllerTest {
 
     when(claimService.updateClaim(any(ClaimDTO.class))).thenReturn(updatedClaimDTO);
 
-    ResponseEntity<ClaimDTO> response = claimController.updateClaim(originalClaimDTO);
-    ClaimDTO result = response.getBody();
+    ClaimDTO result = claimController.updateClaim(originalClaimDTO);
 
     assertEquals(updatedClaimDTO, result);
     verify(claimService).updateClaim(originalClaimDTO);
@@ -91,12 +85,33 @@ class ClaimControllerTest {
 
     when(claimService.deactivateClaim(id)).thenReturn(originalClaimDTO);
 
-    ResponseEntity<ClaimDTO> response = claimController.deactivateClaim(id);
-    ClaimDTO resultClaimDTO = response.getBody();
+    ClaimDTO resultClaimDTO = claimController.deactivateClaim(id);
 
-    assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(ClaimStatus.DEACTIVATED, resultClaimDTO.getStatus());
-
     verify(claimService).deactivateClaim(id);
+  }
+
+  @Test
+  void testGetClaimsByConsumer() {
+    List<ClaimDTO> claimsList = easyRandom.objects(ClaimDTO.class, 3).toList();
+    String consumer = "janedoe";
+    when(claimService.getClaimsByConsumer(consumer)).thenReturn(claimsList);
+
+    List<ClaimDTO> result = claimController.getClaimsByConsumer(consumer);
+
+    assertEquals(3, result.size());
+    verify(claimService).getClaimsByConsumer(consumer);
+  }
+
+  @Test
+  void testGetClaimsByEmployer() {
+    List<ClaimDTO> claimsList = easyRandom.objects(ClaimDTO.class, 3).toList();
+    String employer = "ISSoft";
+    when(claimService.getClaimsByEmployer(employer)).thenReturn(claimsList);
+
+    List<ClaimDTO> result = claimController.getClaimsByEmployer(employer);
+
+    assertEquals(3, result.size());
+    verify(claimService).getClaimsByEmployer(employer);
   }
 }

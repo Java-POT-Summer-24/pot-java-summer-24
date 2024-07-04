@@ -11,11 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClaimRepository extends JpaRepository<ClaimEntity, UUID> {
 
-  @Query("SELECT c FROM ClaimEntity c WHERE c.consumer.userName = :consumer")
-  List<ClaimEntity> findByConsumer(@Param("consumer") String consumer);
+  List<ClaimEntity> findByConsumer_UserName(String consumer);
 
-  @Query("SELECT c FROM ClaimEntity c WHERE c.employer.name = :employer")
-  List<ClaimEntity> findByEmployer(@Param("employer") String employer);
+  List<ClaimEntity> findByEmployer_Name(String employer);
 
-  //prob optional
 }
