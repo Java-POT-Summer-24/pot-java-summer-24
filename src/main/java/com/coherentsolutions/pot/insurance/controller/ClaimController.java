@@ -42,14 +42,14 @@ public class ClaimController {
     return ResponseEntity.ok(claimService.deactivateClaim(id));
   }
 
-  /*@GetMapping("/company/{companyName}")
-  public ResponseEntity<List<ClaimDTO>> getClaimsByCompany(@PathVariable String name) {
-    return ResponseEntity.ok(claimService.getClaimsByCompany(name));
+  @GetMapping("/consumer")
+  public ResponseEntity<List<ClaimDTO>> getClaimsByConsumer(@RequestParam String consumer) {
+    return ResponseEntity.ok(claimService.getClaimsByConsumer(consumer));
   }
 
-  @GetMapping("/user/{userName}")
-  public ResponseEntity<List<ClaimDTO>> getClaimsByUser(@PathVariable String userName) {
-    return ResponseEntity.ok(claimService.getClaimsByUser(userName));
-  }*/
-  //also commented for now, as I don't have employer or consumer
+  @GetMapping("/employer")
+  public ResponseEntity<List<ClaimDTO>> getClaimsByEmployer(@RequestParam String employer) {
+    return ResponseEntity.ok(claimService.getClaimsByEmployer(employer));
+  }
+
 }

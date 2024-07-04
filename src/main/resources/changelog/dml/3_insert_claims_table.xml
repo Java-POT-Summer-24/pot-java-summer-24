@@ -9,11 +9,11 @@
     <comment>Insert sample data into claims table</comment>
     <sql>
       INSERT INTO claim (id, claim_number, consumer, employer, date_of_service, plan, amount, status)
-      VALUES ('e4278aa6-5f89-45fc-b6f2-d14d352cba1d', 'BY-8730AB3C', 'Ivanov P', 'ISSoft', '2023-06-01', 'DENTAL', 150.50, 'ACTIVE');
+      VALUES ('e4278aa6-5f89-45fc-b6f2-d14d352cba1d', 'BY-8730AB3C', 'johndoe', 'ISSoft', '2023-06-01', 'DENTAL', 150.50, 'ACTIVE');
       INSERT INTO claim (id, claim_number, consumer, employer, date_of_service, plan, amount, status)
-      VALUES ('a5278aa6-5f89-45fc-b6f2-d14d352cba1b', 'BY-7620FB4B', 'Petr Ivanov', 'ISSoft', '2023-06-02', 'MEDICAL', 200.00, 'APPROVED');
+      VALUES ('a5278aa6-5f89-45fc-b6f2-d14d352cba1b', 'BY-7620FB4B', 'johndoe', 'ISSoft', '2023-06-02', 'MEDICAL', 200.00, 'APPROVED');
       INSERT INTO claim (id, claim_number, consumer, employer, date_of_service, plan, amount, status)
-      VALUES ('4a673a34-1341-4801-8399-3e0084afbe06', 'BY-6519CB2A', 'Ivan Petrov', 'ISSoft', '2023-06-03', 'DENTAL', 300.75, 'DECLINED');
+      VALUES ('4a673a34-1341-4801-8399-3e0084afbe06', 'BY-6519CB2A', 'johndoe', 'ISSoft', '2023-06-03', 'DENTAL', 300.75, 'DECLINED');
     </sql>
   </changeSet>
 

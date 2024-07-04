@@ -61,19 +61,17 @@ public class ClaimService {
         })
         .orElseThrow(() -> new NotFoundException("Claim with ID " + id + " was not found"));
   }
+  public List<ClaimDTO> getClaimsByConsumer(String consumer) {
+    List<ClaimEntity> claims = claimRepository.findByConsumer(consumer);
+    return claims.stream()
+        .map(ClaimMapper.INSTANCE::entityToDto)
+        .collect(Collectors.toList());
+  }
 
-  // Blueprint, will uncomment and modify when company and user implementations are available
-    /*
-    public List<ClaimDTO> getClaimsByCompany(String companyName) {
-        return claimRepository.findByEmployer(companyName).stream()
-            .map(ClaimMapper.INSTANCE::claimToClaimDTO)
-            .collect(Collectors.toList());
-    }
-
-    public List<ClaimDTO> getClaimsByUser(String userName) {
-        return claimRepository.findByConsumer(userName).stream()
-            .map(ClaimMapper.INSTANCE::claimToClaimDTO)
-            .collect(Collectors.toList());
-    }
-    */
+  public List<ClaimDTO> getClaimsByEmployer(String employer) {
+    List<ClaimEntity> claims = claimRepository.findByEmployer(employer);
+    return claims.stream()
+        .map(ClaimMapper.INSTANCE::entityToDto)
+        .collect(Collectors.toList());
+  }
 }
