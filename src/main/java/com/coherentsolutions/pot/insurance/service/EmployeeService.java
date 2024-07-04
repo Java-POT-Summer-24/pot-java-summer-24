@@ -1,12 +1,23 @@
 package com.coherentsolutions.pot.insurance.service;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import com.coherentsolutions.pot.insurance.constants.EmployeeStatus;
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
+import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
 import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.mapper.EmployeeMapper;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
+import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
+import com.coherentsolutions.pot.insurance.specifications.EmployeeSpecifications;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +27,47 @@ import java.util.UUID;
 public class EmployeeService {
     private final EmployeeRepository employeeRepository;
 
+    private Specification<EmployeeEntity> buildSpecification(EmployeeFilterCriteria employeeFilterCriteria) {
+      Specification<EmployeeEntity> spec = Specification.where(null);
+
+      if(hasText(employeeFilterCriteria.getFirstName())) {
+        spec = spec.and(EmployeeSpecifications.byFirstName(employeeFilterCriteria.getFirstName()));
+      }
+
+      if(hasText(employeeFilterCriteria.getLastName())) {
+        spec = spec.and(EmployeeSpecifications.byLastName(employeeFilterCriteria.getLastName()));
+      }
+
+      if(hasText(employeeFilterCriteria.getUserName())) {
+        spec = spec.and(EmployeeSpecifications.byUserName(employeeFilterCriteria.getUserName()));
+      }
+
+      if(hasText(String.valueOf(employeeFilterCriteria.getDateOfBirth()))) {
+        spec = spec.and(EmployeeSpecifications.byDateOfBirth(employeeFilterCriteria.getDateOfBirth()));
+      }
+
+      if(hasText(String.valueOf(employeeFilterCriteria.getSsn()))) {
+        spec = spec.and(EmployeeSpecifications.bySsn(employeeFilterCriteria.getSsn()));
+      }
+
+      if(hasText(String.valueOf(employeeFilterCriteria.getStatus()))) {
+        spec = spec.and(EmployeeSpecifications.byStatus(employeeFilterCriteria.getStatus()));
+      }
+
+      return spec;
+    }
+
+    public Page<EmployeeDTO> filterAndSortEmployees(EmployeeFilterCriteria employeeFilterCriteria, Pageable pageable) {
+      Sort defaultSort = Sort.by("dateOfBirth").descending();
+
+      if (!pageable.getSort().isSorted()) {
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), defaultSort);
+      }
+
+      Specification<EmployeeEntity> spec = buildSpecification(employeeFilterCriteria);
+
+      return employeeRepository.findAll(spec, pageable).map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO);
+    }
     public EmployeeDTO addEmployee(EmployeeDTO employeeDTO){
         return EmployeeMapper.INSTANCE
                 .employeeToEmployeeDTO(employeeRepository
