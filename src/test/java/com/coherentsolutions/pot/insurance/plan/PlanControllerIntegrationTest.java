@@ -11,7 +11,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.coherentsolutions.pot.insurance.specifications.PlanFilterCriteria;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.jeasy.random.EasyRandom;
 import com.coherentsolutions.pot.insurance.controller.PlanController;
@@ -129,5 +133,21 @@ public class PlanControllerIntegrationTest {
     verify(planService).deactivatePlan(id);
   }
 
+  @Test
+  @WithMockUser(username = "admin")
+  public void testGetFilteredSortedPlans() throws Exception {
+    List<PlanDTO> plansList = easyRandom.objects(PlanDTO.class, 3).toList();
+    Page<PlanDTO> pagedPlans = new PageImpl<>(plansList);
+    when(planService.getFilteredSortedPlans(any(PlanFilterCriteria.class), any(Pageable.class)))
+        .thenReturn(pagedPlans);
+
+    mockMvc.perform(get("/v1/plans/filtered")
+            .param("page", "0")
+            .param("size", "10")
+            .param("sort", "planName,asc")
+            .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().json(objectMapper.writeValueAsString(pagedPlans)));
+  }
 
 }

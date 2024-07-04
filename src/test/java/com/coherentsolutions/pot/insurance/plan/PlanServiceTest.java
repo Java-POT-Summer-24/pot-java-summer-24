@@ -1,10 +1,10 @@
 package com.coherentsolutions.pot.insurance.plan;
 
-
 import com.coherentsolutions.pot.insurance.dto.PlanDTO;
 import com.coherentsolutions.pot.insurance.constants.PlanStatus;
 import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.service.PlanService;
+import com.coherentsolutions.pot.insurance.specifications.PlanFilterCriteria;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -12,8 +12,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.jeasy.random.EasyRandom;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -113,5 +119,26 @@ class PlanServiceTest {
     assertEquals("Plan with id " + id + " not found", exception.getMessage());
 
     verify(planService).deactivatePlan(id);
+  }
+
+  @Test
+  public void testGetFilteredSortedPlans() throws Exception {
+    List<PlanDTO> plansList = easyRandom.objects(PlanDTO.class, 3).toList();
+    Page<PlanDTO> pagedPlans = new PageImpl<>(plansList);
+
+    PlanFilterCriteria planFilterCriteria = new PlanFilterCriteria();
+
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("planName").ascending());
+
+    when(planService.getFilteredSortedPlans(any(PlanFilterCriteria.class),
+        any(Pageable.class))).thenReturn(pagedPlans);
+
+    Page<PlanDTO> result = planService.getFilteredSortedPlans(planFilterCriteria, pageable);
+
+    assertNotNull(result);
+    assertEquals(3, result.getContent().size());
+    assertEquals(plansList, result.getContent());
+
+    verify(planService).getFilteredSortedPlans(planFilterCriteria, pageable);
   }
 }
