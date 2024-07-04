@@ -2,7 +2,11 @@ package com.coherentsolutions.pot.insurance.controller;
 
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
 import com.coherentsolutions.pot.insurance.service.EmployeeService;
+import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.api.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
@@ -22,6 +26,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class EmployeeController {
     private final EmployeeService employeeService;
+
+    @GetMapping("/filter")
+    @ResponseStatus(HttpStatus.OK)
+    public Page<EmployeeDTO> filterAndSortEmployees(
+        @ParameterObject EmployeeFilterCriteria employeeFilterCriteria,
+        @ParameterObject Pageable pageable) {
+        return employeeService.filterAndSortEmployees(employeeFilterCriteria, pageable);
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
