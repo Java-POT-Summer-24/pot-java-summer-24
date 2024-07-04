@@ -1,7 +1,7 @@
 package com.coherentsolutions.pot.insurance.specifications;
 
-import com.coherentsolutions.pot.insurance.dto.enums.PlanStatus;
-import com.coherentsolutions.pot.insurance.dto.enums.PlanType;
+import com.coherentsolutions.pot.insurance.constants.PlanStatus;
+import com.coherentsolutions.pot.insurance.constants.PlanType;
 import com.coherentsolutions.pot.insurance.entity.PlanEntity;
 import org.springframework.data.jpa.domain.Specification;
 

@@ -11,6 +11,8 @@ import java.util.UUID;
 @Repository
 public interface PlanRepository extends JpaRepository<PlanEntity, UUID>,
     JpaSpecificationExecutor<PlanEntity> {
-    boolean existsById(UUID id);
-    Optional<PlanEntity> findById(UUID id);
+
+  boolean existsById(UUID id);
+
+  Optional<PlanEntity> findById(UUID id);
 }
