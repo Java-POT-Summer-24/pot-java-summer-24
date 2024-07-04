@@ -28,6 +28,7 @@ dependencies {
 	implementation 'org.projectlombok:lombok'
 	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+  implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.jeasy:easy-random-core:4.1.0'
 	testImplementation 'com.h2database:h2:2.2.224'
@@ -36,6 +37,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	runtimeOnly 'com.h2database:h2'
 	implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
+
 
 	// For future use
 	// implementation 'org.postgresql:postgresql:42.5.0'
