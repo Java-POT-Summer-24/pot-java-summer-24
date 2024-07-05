@@ -93,26 +93,26 @@ class ClaimControllerTest {
   }
 
   @Test
-  void testGetAllClaimsByEmployee() {
+  void testGetAllClaimsByEmployeeUserName() {
     List<ClaimDTO> claimsList = easyRandom.objects(ClaimDTO.class, 3).toList();
     String employee = "janedoe";
-    when(claimService.getAllClaimsByEmployee(employee)).thenReturn(claimsList);
+    when(claimService.getAllClaimsByEmployeeUserName(employee)).thenReturn(claimsList);
 
-    List<ClaimDTO> result = claimController.getAllClaimsByEmployee(employee);
+    List<ClaimDTO> result = claimController.getAllClaimsByEmployeeUserName(employee);
 
     assertEquals(3, result.size());
-    verify(claimService).getAllClaimsByEmployee(employee);
+    verify(claimService).getAllClaimsByEmployeeUserName(employee);
   }
 
   @Test
-  void testGetAllClaimsByCompany() {
+  void testGetAllClaimsByCompanyName() {
     List<ClaimDTO> claimsList = easyRandom.objects(ClaimDTO.class, 3).toList();
     String company = "ISSoft";
-    when(claimService.getAllClaimsByCompany(company)).thenReturn(claimsList);
+    when(claimService.getAllClaimsByCompanyName(company)).thenReturn(claimsList);
 
-    List<ClaimDTO> result = claimController.getAllClaimsByCompany(company);
+    List<ClaimDTO> result = claimController.getAllClaimsByCompanyName(company);
 
     assertEquals(3, result.size());
-    verify(claimService).getAllClaimsByCompany(company);
+    verify(claimService).getAllClaimsByCompanyName(company);
   }
 }

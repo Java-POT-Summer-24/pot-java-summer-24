@@ -152,7 +152,7 @@ public class ClaimIntegrationTest {
         .collect(Collectors.toList());
 
     Mockito.when(claimRepository.findAllByEmployeeUserName(employeeUsername)).thenReturn(claimsList);
-    Mockito.when(claimService.getAllClaimsByEmployee(employeeUsername)).thenReturn(claimDTOs);
+    Mockito.when(claimService.getAllClaimsByEmployeeUserName(employeeUsername)).thenReturn(claimDTOs);
 
     mockMvc.perform(get("/v1/claims/employees/{employee}", employeeUsername))
         .andDo(print())
@@ -179,7 +179,7 @@ public class ClaimIntegrationTest {
         .collect(Collectors.toList());
 
     Mockito.when(claimRepository.findAllByCompanyName(companyName)).thenReturn(claimsList);
-    Mockito.when(claimService.getAllClaimsByCompany(companyName)).thenReturn(claimDTOs);
+    Mockito.when(claimService.getAllClaimsByCompanyName(companyName)).thenReturn(claimDTOs);
 
     mockMvc.perform(get("/v1/claims/companies/{company}", companyName))
         .andDo(print())

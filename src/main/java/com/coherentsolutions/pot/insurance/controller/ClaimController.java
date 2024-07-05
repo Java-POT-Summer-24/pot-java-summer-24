@@ -46,16 +46,16 @@ public class ClaimController {
     return claimService.deactivateClaim(id);
   }
 
-  @GetMapping("/employees/{employee}")
+  @GetMapping("/employees/{employeeUserName}")
   @ResponseStatus(HttpStatus.OK)
-  public List<ClaimDTO> getAllClaimsByEmployee(@PathVariable String employee) {
-    return claimService.getAllClaimsByEmployee(employee);
+  public List<ClaimDTO> getAllClaimsByEmployeeUserName(@PathVariable String employeeUserName) {
+    return claimService.getAllClaimsByEmployeeUserName(employeeUserName);
   }
 
-  @GetMapping("/companies/{company}")
+  @GetMapping("/companies/{companyName}")
   @ResponseStatus(HttpStatus.OK)
-  public List<ClaimDTO> getAllClaimsByCompany(@PathVariable String company) {
-    return claimService.getAllClaimsByCompany(company);
+  public List<ClaimDTO> getAllClaimsByCompanyName(@PathVariable String companyName) {
+    return claimService.getAllClaimsByCompanyName(companyName);
   }
 
 }

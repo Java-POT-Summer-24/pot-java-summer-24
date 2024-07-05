@@ -74,14 +74,14 @@ public class ClaimService {
         .orElseThrow(() -> new NotFoundException("Claim with ID " + id + " was not found"));
   }
 
-  public List<ClaimDTO> getAllClaimsByEmployee(String employee) {
+  public List<ClaimDTO> getAllClaimsByEmployeeUserName(String employee) {
     List<ClaimEntity> claims = claimRepository.findAllByEmployeeUserName(employee);
     return claims.stream()
         .map(ClaimMapper.INSTANCE::entityToDto)
         .collect(Collectors.toList());
   }
 
-  public List<ClaimDTO> getAllClaimsByCompany(String company) {
+  public List<ClaimDTO> getAllClaimsByCompanyName(String company) {
     List<ClaimEntity> claims = claimRepository.findAllByCompanyName(company);
     return claims.stream()
         .map(ClaimMapper.INSTANCE::entityToDto)
