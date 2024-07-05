@@ -42,31 +42,23 @@ public class ClaimService {
     String generatedClaimNumber = ClaimNumberGenerator.generate();
     claimDTO.setClaimNumber(generatedClaimNumber);
 
-    EmployeeEntity consumer = employeeRepository.findByUserName(claimDTO.getConsumer())
-        .orElseThrow(() -> new NotFoundException("Employee with userName " + claimDTO.getConsumer() + " not found"));
-    CompanyEntity employer = companyRepository.findByName(claimDTO.getEmployer())
-        .orElseThrow(() -> new NotFoundException("Company with name " + claimDTO.getEmployer() + " not found"));
+    EmployeeEntity employee = employeeRepository.findByUserName(claimDTO.getEmployee())
+        .orElseThrow(() -> new NotFoundException("Employee with userName " + claimDTO.getEmployee() + " not found"));
+    CompanyEntity company = companyRepository.findByName(claimDTO.getCompany())
+        .orElseThrow(() -> new NotFoundException("Company with name " + claimDTO.getCompany() + " not found"));
 
     ClaimEntity claim = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
-    claim.setConsumer(consumer);
-    claim.setEmployer(employer);
+    claim.setEmployee(employee);
+    claim.setCompany(company);
     claim = claimRepository.save(claim);
     return ClaimMapper.INSTANCE.entityToDto(claim);
   }
 
-  public ClaimDTO updateClaim(ClaimDTO claimDTO) {
-    UUID claimId = claimDTO.getId();
+  public ClaimDTO updateClaim(UUID claimId, ClaimDTO claimDTO) {
     ClaimEntity existingClaim = claimRepository.findById(claimId)
         .orElseThrow(() -> new NotFoundException("Claim with ID " + claimId + " not found"));
 
-    EmployeeEntity consumer = employeeRepository.findByUserName(claimDTO.getConsumer())
-        .orElseThrow(() -> new NotFoundException("Employee with userName " + claimDTO.getConsumer() + " not found"));
-    CompanyEntity employer = companyRepository.findByName(claimDTO.getEmployer())
-        .orElseThrow(() -> new NotFoundException("Company with name " + claimDTO.getEmployer() + " not found"));
-
     ClaimMapper.INSTANCE.updateClaimFromDTO(claimDTO, existingClaim);
-    existingClaim.setConsumer(consumer);
-    existingClaim.setEmployer(employer);
     existingClaim = claimRepository.save(existingClaim);
 
     return ClaimMapper.INSTANCE.entityToDto(existingClaim);
@@ -82,15 +74,15 @@ public class ClaimService {
         .orElseThrow(() -> new NotFoundException("Claim with ID " + id + " was not found"));
   }
 
-  public List<ClaimDTO> getClaimsByConsumer(String consumer) {
-    List<ClaimEntity> claims = claimRepository.findByConsumer_UserName(consumer);
+  public List<ClaimDTO> getAllClaimsByEmployee(String employee) {
+    List<ClaimEntity> claims = claimRepository.findAllByEmployeeUserName(employee);
     return claims.stream()
         .map(ClaimMapper.INSTANCE::entityToDto)
         .collect(Collectors.toList());
   }
 
-  public List<ClaimDTO> getClaimsByEmployer(String employer) {
-    List<ClaimEntity> claims = claimRepository.findByEmployer_Name(employer);
+  public List<ClaimDTO> getAllClaimsByCompany(String company) {
+    List<ClaimEntity> claims = claimRepository.findAllByCompanyName(company);
     return claims.stream()
         .map(ClaimMapper.INSTANCE::entityToDto)
         .collect(Collectors.toList());

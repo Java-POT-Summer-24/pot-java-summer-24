@@ -64,16 +64,17 @@ class ClaimControllerTest {
 
   @Test
   void testUpdateClaim() {
+    UUID claimId = UUID.randomUUID();
     ClaimDTO originalClaimDTO = easyRandom.nextObject(ClaimDTO.class);
     ClaimDTO updatedClaimDTO = easyRandom.nextObject(ClaimDTO.class);
-    updatedClaimDTO.setId(originalClaimDTO.getId());
+    updatedClaimDTO.setId(claimId);
 
-    when(claimService.updateClaim(any(ClaimDTO.class))).thenReturn(updatedClaimDTO);
+    when(claimService.updateClaim(eq(claimId), any(ClaimDTO.class))).thenReturn(updatedClaimDTO);
 
-    ClaimDTO result = claimController.updateClaim(originalClaimDTO);
+    ClaimDTO result = claimController.updateClaim(claimId, originalClaimDTO);
 
     assertEquals(updatedClaimDTO, result);
-    verify(claimService).updateClaim(originalClaimDTO);
+    verify(claimService).updateClaim(eq(claimId), any(ClaimDTO.class));
   }
 
   @Test
@@ -92,26 +93,26 @@ class ClaimControllerTest {
   }
 
   @Test
-  void testGetClaimsByConsumer() {
+  void testGetAllClaimsByEmployee() {
     List<ClaimDTO> claimsList = easyRandom.objects(ClaimDTO.class, 3).toList();
-    String consumer = "janedoe";
-    when(claimService.getClaimsByConsumer(consumer)).thenReturn(claimsList);
+    String employee = "janedoe";
+    when(claimService.getAllClaimsByEmployee(employee)).thenReturn(claimsList);
 
-    List<ClaimDTO> result = claimController.getClaimsByConsumer(consumer);
+    List<ClaimDTO> result = claimController.getAllClaimsByEmployee(employee);
 
     assertEquals(3, result.size());
-    verify(claimService).getClaimsByConsumer(consumer);
+    verify(claimService).getAllClaimsByEmployee(employee);
   }
 
   @Test
-  void testGetClaimsByEmployer() {
+  void testGetAllClaimsByCompany() {
     List<ClaimDTO> claimsList = easyRandom.objects(ClaimDTO.class, 3).toList();
-    String employer = "ISSoft";
-    when(claimService.getClaimsByEmployer(employer)).thenReturn(claimsList);
+    String company = "ISSoft";
+    when(claimService.getAllClaimsByCompany(company)).thenReturn(claimsList);
 
-    List<ClaimDTO> result = claimController.getClaimsByEmployer(employer);
+    List<ClaimDTO> result = claimController.getAllClaimsByCompany(company);
 
     assertEquals(3, result.size());
-    verify(claimService).getClaimsByEmployer(employer);
+    verify(claimService).getAllClaimsByCompany(company);
   }
 }

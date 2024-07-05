@@ -27,12 +27,12 @@ public class ClaimEntity extends BaseEntity {
   private String claimNumber;
 
   @ManyToOne
-  @JoinColumn(name = "consumer", referencedColumnName = "userName")
-  private EmployeeEntity consumer;
+  @JoinColumn(name = "employee", referencedColumnName = "userName")
+  private EmployeeEntity employee;
 
   @ManyToOne
-  @JoinColumn(name = "employer", referencedColumnName = "name")
-  private CompanyEntity employer;
+  @JoinColumn(name = "company", referencedColumnName = "name")
+  private CompanyEntity company;
 
   private LocalDate dateOfService;
 

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="3_1_1" author="heorhii.popov">
+    <comment>Update column names in 'claim' table and adjust foreign keys.</comment>
+
+    <sql>
+      ALTER TABLE claim RENAME COLUMN consumer TO employee;
+      ALTER TABLE claim RENAME COLUMN employer TO company;
+    </sql>
+
+    <sql>
+      ALTER TABLE claim DROP CONSTRAINT fk_claim_consumer;
+      ALTER TABLE claim DROP CONSTRAINT fk_claim_company;
+    </sql>
+
+    <sql>
+      ALTER TABLE claim
+      ADD CONSTRAINT fk_claim_employee
+      FOREIGN KEY (employee)
+      REFERENCES employee(user_name)
+      ON DELETE NO ACTION;
+
+      ALTER TABLE claim
+      ADD CONSTRAINT fk_claim_company
+      FOREIGN KEY (company)
+      REFERENCES company(name)
+      ON DELETE NO ACTION;
+    </sql>
+  </changeSet>
+</databaseChangeLog>

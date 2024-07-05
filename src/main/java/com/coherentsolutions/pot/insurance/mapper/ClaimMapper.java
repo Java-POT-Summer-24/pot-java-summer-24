@@ -15,18 +15,18 @@ public interface ClaimMapper {
 
   ClaimMapper INSTANCE = Mappers.getMapper(ClaimMapper.class);
 
-  @Mapping(source = "consumer.userName", target = "consumer")
-  @Mapping(source = "employer.name", target = "employer")
+  @Mapping(source = "employee.userName", target = "employee")
+  @Mapping(source = "company.name", target = "company")
   ClaimDTO entityToDto(ClaimEntity claim);
 
-  @Mapping(source = "consumer", target = "consumer", qualifiedByName = "stringToEmployee")
-  @Mapping(source = "employer", target = "employer", qualifiedByName = "stringToCompany")
+  @Mapping(source = "employee", target = "employee", qualifiedByName = "stringToEmployee")
+  @Mapping(source = "company", target = "company", qualifiedByName = "stringToCompany")
   ClaimEntity dtoToEntity(ClaimDTO claimDTO);
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "claimNumber", ignore = true)
-  @Mapping(source = "consumer", target = "consumer", qualifiedByName = "stringToEmployee")
-  @Mapping(source = "employer", target = "employer", qualifiedByName = "stringToCompany")
+  @Mapping(target = "employee", ignore = true)
+  @Mapping(target = "company", ignore = true)
   void updateClaimFromDTO(ClaimDTO dto, @MappingTarget ClaimEntity entity);
 
   @Named("stringToEmployee")

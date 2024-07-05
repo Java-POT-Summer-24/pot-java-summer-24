@@ -34,10 +34,10 @@ public class ClaimController {
     return claimService.addClaim(claimDTO);
   }
 
-  @PutMapping
+  @PutMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public ClaimDTO updateClaim(@Valid @RequestBody ClaimDTO claimDTO) {
-    return claimService.updateClaim(claimDTO);
+  public ClaimDTO updateClaim(@PathVariable UUID id, @Valid @RequestBody ClaimDTO claimDTO) {
+    return claimService.updateClaim(id, claimDTO);
   }
 
   @DeleteMapping("/{id}")
@@ -46,16 +46,16 @@ public class ClaimController {
     return claimService.deactivateClaim(id);
   }
 
-  @GetMapping("/consumer/{consumer}")
+  @GetMapping("/employees/{employee}")
   @ResponseStatus(HttpStatus.OK)
-  public List<ClaimDTO> getClaimsByConsumer(@PathVariable String consumer) {
-    return claimService.getClaimsByConsumer(consumer);
+  public List<ClaimDTO> getAllClaimsByEmployee(@PathVariable String employee) {
+    return claimService.getAllClaimsByEmployee(employee);
   }
 
-  @GetMapping("/employer/{employer}")
+  @GetMapping("/companies/{company}")
   @ResponseStatus(HttpStatus.OK)
-  public List<ClaimDTO> getClaimsByEmployer(@PathVariable String employer) {
-    return claimService.getClaimsByEmployer(employer);
+  public List<ClaimDTO> getAllClaimsByCompany(@PathVariable String company) {
+    return claimService.getAllClaimsByCompany(company);
   }
 
 }
