@@ -47,14 +47,12 @@ public class ClaimIntegrationTest {
   @MockBean
   private ClaimRepository claimRepository;
 
-  private final ClaimMapper mapper = ClaimMapper.INSTANCE;
-
   private final EasyRandom easyRandom = new EasyRandom();
 
   @Test
   void testAddClaim() throws Exception {
     ClaimDTO claimDTO = easyRandom.nextObject(ClaimDTO.class);
-    ClaimEntity claimEntity = mapper.dtoToEntity(claimDTO);
+    ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
 
     Mockito.when(claimRepository.save(Mockito.any())).thenReturn(claimEntity);
     Mockito.when(claimService.addClaim(Mockito.any())).thenReturn(claimDTO);
@@ -89,7 +87,7 @@ public class ClaimIntegrationTest {
     UUID claimId = UUID.randomUUID();
     ClaimDTO claimDTO = easyRandom.nextObject(ClaimDTO.class);
     claimDTO.setId(claimId);
-    ClaimEntity claimEntity = mapper.dtoToEntity(claimDTO);
+    ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
 
     Mockito.when(claimRepository.findById(claimId)).thenReturn(java.util.Optional.of(claimEntity));
     Mockito.when(claimService.getClaimById(claimId)).thenReturn(claimDTO);
@@ -103,7 +101,7 @@ public class ClaimIntegrationTest {
   @Test
   void testUpdateClaim() throws Exception {
     ClaimDTO originalClaimDTO = easyRandom.nextObject(ClaimDTO.class);
-    ClaimEntity claimEntity = mapper.dtoToEntity(originalClaimDTO);
+    ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(originalClaimDTO);
 
     Mockito.when(claimRepository.findById(originalClaimDTO.getId()))
         .thenReturn(java.util.Optional.of(claimEntity));
@@ -123,7 +121,7 @@ public class ClaimIntegrationTest {
   void testDeactivateClaim() throws Exception {
     ClaimDTO claimDTO = easyRandom.nextObject(ClaimDTO.class);
     claimDTO.setStatus(ClaimStatus.DEACTIVATED);
-    ClaimEntity claimEntity = mapper.dtoToEntity(claimDTO);
+    ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
 
     Mockito.when(claimRepository.findById(claimDTO.getId()))
         .thenReturn(java.util.Optional.of(claimEntity));
@@ -147,7 +145,7 @@ public class ClaimIntegrationTest {
         }).collect(Collectors.toList());
 
     List<ClaimDTO> claimDTOs = claimsList.stream()
-        .map(mapper::entityToDto)
+        .map(ClaimMapper.INSTANCE::entityToDto)
         .collect(Collectors.toList());
 
     Mockito.when(claimRepository.findByConsumer_UserName(consumerUsername)).thenReturn(claimsList);
@@ -174,7 +172,7 @@ public class ClaimIntegrationTest {
         }).collect(Collectors.toList());
 
     List<ClaimDTO> claimDTOs = claimsList.stream()
-        .map(mapper::entityToDto)
+        .map(ClaimMapper.INSTANCE::entityToDto)
         .collect(Collectors.toList());
 
     Mockito.when(claimRepository.findByEmployer_Name(employerName)).thenReturn(claimsList);
