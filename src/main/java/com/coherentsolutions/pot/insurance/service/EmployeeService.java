@@ -10,6 +10,7 @@ import com.coherentsolutions.pot.insurance.mapper.EmployeeMapper;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeSpecifications;
+import com.coherentsolutions.pot.insurance.util.ValidationUtil;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,43 +32,27 @@ public class EmployeeService {
     private Specification<EmployeeEntity> buildSpecification(EmployeeFilterCriteria employeeFilterCriteria) {
       Specification<EmployeeEntity> spec = Specification.where(null);
 
-      if(isNotEmpty(employeeFilterCriteria.getFirstName())) {
+      if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getFirstName())) {
         spec = spec.and(EmployeeSpecifications.byFirstName(employeeFilterCriteria.getFirstName()));
       }
-
-      if(isNotEmpty(employeeFilterCriteria.getLastName())) {
+      if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getLastName())) {
         spec = spec.and(EmployeeSpecifications.byLastName(employeeFilterCriteria.getLastName()));
       }
-
-      if(isNotEmpty(employeeFilterCriteria.getUserName())) {
+      if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getUserName())) {
         spec = spec.and(EmployeeSpecifications.byUserName(employeeFilterCriteria.getUserName()));
       }
-
-      if(isNotEmpty(employeeFilterCriteria.getDateOfBirth())) {
+      if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getDateOfBirth())) {
         spec = spec.and(EmployeeSpecifications.byDateOfBirth(employeeFilterCriteria.getDateOfBirth()));
       }
-
-      if(isNotEmpty(employeeFilterCriteria.getSsn())) {
+      if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getSsn())) {
         spec = spec.and(EmployeeSpecifications.bySsn(employeeFilterCriteria.getSsn()));
       }
-
-      if(isNotEmpty(employeeFilterCriteria.getStatus())) {
+      if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getStatus())) {
         spec = spec.and(EmployeeSpecifications.byStatus(employeeFilterCriteria.getStatus()));
       }
 
       return spec;
     }
-
-  private boolean isNotEmpty(String value) {
-    return value != null && !value.isEmpty();
-  }
-  private boolean isNotEmpty(Integer value) { return value != null; }
-  private boolean isNotEmpty(LocalDate value) {
-    return value != null;
-  }
-  private boolean isNotEmpty(EmployeeStatus value) {
-    return value != null;
-  }
 
   public Page<EmployeeDTO> filterAndSortEmployees(EmployeeFilterCriteria employeeFilterCriteria, Pageable pageable) {
       Sort defaultSort = Sort.by("dateOfBirth").descending();
