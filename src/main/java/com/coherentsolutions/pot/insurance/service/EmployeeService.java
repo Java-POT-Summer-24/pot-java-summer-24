@@ -10,6 +10,7 @@ import com.coherentsolutions.pot.insurance.mapper.EmployeeMapper;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeSpecifications;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,34 +31,45 @@ public class EmployeeService {
     private Specification<EmployeeEntity> buildSpecification(EmployeeFilterCriteria employeeFilterCriteria) {
       Specification<EmployeeEntity> spec = Specification.where(null);
 
-      if(hasText(employeeFilterCriteria.getFirstName())) {
+      if(isNotEmpty(employeeFilterCriteria.getFirstName())) {
         spec = spec.and(EmployeeSpecifications.byFirstName(employeeFilterCriteria.getFirstName()));
       }
 
-      if(hasText(employeeFilterCriteria.getLastName())) {
+      if(isNotEmpty(employeeFilterCriteria.getLastName())) {
         spec = spec.and(EmployeeSpecifications.byLastName(employeeFilterCriteria.getLastName()));
       }
 
-      if(hasText(employeeFilterCriteria.getUserName())) {
+      if(isNotEmpty(employeeFilterCriteria.getUserName())) {
         spec = spec.and(EmployeeSpecifications.byUserName(employeeFilterCriteria.getUserName()));
       }
 
-      if(hasText(String.valueOf(employeeFilterCriteria.getDateOfBirth()))) {
+      if(isNotEmpty(employeeFilterCriteria.getDateOfBirth())) {
         spec = spec.and(EmployeeSpecifications.byDateOfBirth(employeeFilterCriteria.getDateOfBirth()));
       }
 
-      if(hasText(String.valueOf(employeeFilterCriteria.getSsn()))) {
+      if(isNotEmpty(employeeFilterCriteria.getSsn())) {
         spec = spec.and(EmployeeSpecifications.bySsn(employeeFilterCriteria.getSsn()));
       }
 
-      if(hasText(String.valueOf(employeeFilterCriteria.getStatus()))) {
+      if(isNotEmpty(employeeFilterCriteria.getStatus())) {
         spec = spec.and(EmployeeSpecifications.byStatus(employeeFilterCriteria.getStatus()));
       }
 
       return spec;
     }
 
-    public Page<EmployeeDTO> filterAndSortEmployees(EmployeeFilterCriteria employeeFilterCriteria, Pageable pageable) {
+  private boolean isNotEmpty(String value) {
+    return value != null && !value.isEmpty();
+  }
+  private boolean isNotEmpty(Integer value) { return value != null; }
+  private boolean isNotEmpty(LocalDate value) {
+    return value != null;
+  }
+  private boolean isNotEmpty(EmployeeStatus value) {
+    return value != null;
+  }
+
+  public Page<EmployeeDTO> filterAndSortEmployees(EmployeeFilterCriteria employeeFilterCriteria, Pageable pageable) {
       Sort defaultSort = Sort.by("dateOfBirth").descending();
 
       if (!pageable.getSort().isSorted()) {

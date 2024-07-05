@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmployeeController {
     private final EmployeeService employeeService;
 
-    @GetMapping("/filter")
+    @GetMapping("/filtered")
     @ResponseStatus(HttpStatus.OK)
     public Page<EmployeeDTO> filterAndSortEmployees(
         @ParameterObject EmployeeFilterCriteria employeeFilterCriteria,
