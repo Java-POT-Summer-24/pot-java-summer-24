@@ -4,6 +4,8 @@ import com.coherentsolutions.pot.insurance.controller.EmployeeController;
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
 import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.service.EmployeeService;
+import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
@@ -11,11 +13,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import java.util.UUID;
@@ -133,5 +139,36 @@ class EmployeeControllerTest {
         .andExpect(status().isNotFound());
 
     verify(employeeService).getEmployee(id);
+  }
+
+  @Test
+  @WithMockUser(username = "admin")
+  void testFilterAndSortEmployees() throws Exception {
+    EmployeeDTO employeeDTO1 = easyRandom.nextObject(EmployeeDTO.class);
+    EmployeeDTO employeeDTO2 = easyRandom.nextObject(EmployeeDTO.class);
+    List<EmployeeDTO> employeeDTOList = List.of(employeeDTO1, employeeDTO2);
+    Page<EmployeeDTO> employeeDTOPage = new PageImpl<>(employeeDTOList);
+
+    when(employeeService.filterAndSortEmployees(any(EmployeeFilterCriteria.class), any(Pageable.class)))
+        .thenReturn(employeeDTOPage);
+
+    String responseContent = mockMvc.perform(get("/v1/employees/filtered")
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(SecurityMockMvcRequestPostProcessors.user("admin"))
+            .param("page", "0")
+            .param("size", "10")
+            .param("sort", "firstName,asc"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn().getResponse().getContentAsString();
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode jsonResponse = objectMapper.readTree(responseContent);
+
+    assertEquals(2, jsonResponse.get("content").size());
+    assertEquals(employeeDTO1.getId().toString(), jsonResponse.get("content").get(0).get("id").asText());
+    assertEquals(employeeDTO2.getId().toString(), jsonResponse.get("content").get(1).get("id").asText());
+
+    verify(employeeService).filterAndSortEmployees(any(EmployeeFilterCriteria.class), any(Pageable.class));
   }
 }
