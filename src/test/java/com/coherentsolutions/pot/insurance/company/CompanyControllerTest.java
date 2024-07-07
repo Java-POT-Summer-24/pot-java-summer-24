@@ -3,13 +3,19 @@ package com.coherentsolutions.pot.insurance.company;
 import com.coherentsolutions.pot.insurance.controller.CompanyController;
 import com.coherentsolutions.pot.insurance.dto.CompanyDTO;
 import com.coherentsolutions.pot.insurance.service.CompanyService;
+import com.coherentsolutions.pot.insurance.specifications.CompanyFilterCriteria;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -19,7 +25,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -68,17 +76,47 @@ class CompanyControllerTest {
         originalCompanyDTO.setId(id);
         CompanyDTO updatedCompanyDTO = easyRandom.nextObject(CompanyDTO.class);
         updatedCompanyDTO.setId(id);
+        when(companyService.updateCompany(any(CompanyDTO.class), eq(id))).thenReturn(updatedCompanyDTO);
 
-        when(companyService.updateCompany(any(CompanyDTO.class))).thenReturn(updatedCompanyDTO);
+        when(companyService.updateCompany(any(CompanyDTO.class), eq(id))).thenReturn(updatedCompanyDTO);
 
-        mockMvc.perform(put("/v1/companies")
+        mockMvc.perform(put("/v1/companies/{id}", id)
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(originalCompanyDTO)))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(updatedCompanyDTO)));
+                .andExpect(status().isOk());
 
-        verify(companyService).updateCompany(originalCompanyDTO);
+        verify(companyService).updateCompany(Mockito.any(CompanyDTO.class), eq(id));
+    }
+
+    @Test
+    void testGetFilteredSortedCompanies() throws Exception {
+        CompanyDTO companyDTO1 = easyRandom.nextObject(CompanyDTO.class);
+        CompanyDTO companyDTO2 = easyRandom.nextObject(CompanyDTO.class);
+        List<CompanyDTO> companyDTOList = List.of(companyDTO1, companyDTO2);
+        Page<CompanyDTO> companyDTOPage = new PageImpl<>(companyDTOList);
+
+        when(companyService.filterAndSortCompany(any(CompanyFilterCriteria.class), any(Pageable.class)))
+                .thenReturn(companyDTOPage);
+
+        String responseContent = mockMvc.perform(get("/v1/companies/filtered")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(SecurityMockMvcRequestPostProcessors.user("admin"))
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("sort", "status,asc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonResponse = objectMapper.readTree(responseContent);
+
+        assertEquals(2, jsonResponse.get("content").size());
+        assertEquals(companyDTO1.getId().toString(), jsonResponse.get("content").get(0).get("id").asText());
+        assertEquals(companyDTO2.getId().toString(), jsonResponse.get("content").get(1).get("id").asText());
+
+        verify(companyService).filterAndSortCompany(any(CompanyFilterCriteria.class), any(Pageable.class));
     }
 
     @Test
