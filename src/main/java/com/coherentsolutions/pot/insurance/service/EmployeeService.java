@@ -25,84 +25,92 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
-    private final EmployeeRepository employeeRepository;
 
-    private Specification<EmployeeEntity> buildSpecification(EmployeeFilterCriteria employeeFilterCriteria) {
-      Specification<EmployeeEntity> spec = Specification.where(null);
+  private final EmployeeRepository employeeRepository;
 
-      if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getFirstName())) {
-        spec = spec.and(EmployeeSpecifications.byFirstName(employeeFilterCriteria.getFirstName()));
-      }
-      if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getLastName())) {
-        spec = spec.and(EmployeeSpecifications.byLastName(employeeFilterCriteria.getLastName()));
-      }
-      if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getUserName())) {
-        spec = spec.and(EmployeeSpecifications.byUserName(employeeFilterCriteria.getUserName()));
-      }
-      if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getDateOfBirth())) {
-        spec = spec.and(EmployeeSpecifications.byDateOfBirth(employeeFilterCriteria.getDateOfBirth()));
-      }
-      if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getSsn())) {
-        spec = spec.and(EmployeeSpecifications.bySsn(employeeFilterCriteria.getSsn()));
-      }
-      if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getStatus())) {
-        spec = spec.and(EmployeeSpecifications.byStatus(employeeFilterCriteria.getStatus()));
-      }
+  public Page<EmployeeDTO> getFilteredSortedEmployees(EmployeeFilterCriteria employeeFilterCriteria,
+      Pageable pageable) {
+    Sort defaultSort = Sort.by("dateOfBirth").descending();
 
-      return spec;
+    if (!pageable.getSort().isSorted()) {
+      pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), defaultSort);
     }
 
-  public Page<EmployeeDTO> getFilteredSortedEmployees(EmployeeFilterCriteria employeeFilterCriteria, Pageable pageable) {
-      Sort defaultSort = Sort.by("dateOfBirth").descending();
+    Specification<EmployeeEntity> spec = buildSpecification(employeeFilterCriteria);
 
-      if (!pageable.getSort().isSorted()) {
-        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), defaultSort);
-      }
+    return employeeRepository.findAll(spec, pageable)
+        .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO);
+  }
 
-      Specification<EmployeeEntity> spec = buildSpecification(employeeFilterCriteria);
+  public EmployeeDTO addEmployee(EmployeeDTO employeeDTO) {
+    return EmployeeMapper.INSTANCE
+        .employeeToEmployeeDTO(employeeRepository
+            .save(EmployeeMapper.INSTANCE
+                .employeeDTOToEmployee(employeeDTO)));
+  }
 
-      return employeeRepository.findAll(spec, pageable).map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO);
+  public EmployeeDTO getEmployee(UUID employeeId) {
+    return employeeRepository.findById(employeeId)
+        .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO)
+        .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
+  }
+
+  public List<EmployeeDTO> getAllEmployees() {
+    return employeeRepository.findAll().stream()
+        .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO)
+        .toList();
+  }
+
+  public EmployeeDTO updateEmployee(UUID employeeId, EmployeeDTO updatedEmployeeDTO) {
+    return employeeRepository.findById(employeeId)
+        .map(employee -> {
+          if (employee.getStatus() == EmployeeStatus.INACTIVE) {
+            throw new NotFoundException(
+                "Cannot update. Employee with id: " + employeeId + " is inactive");
+          }
+          EmployeeMapper.INSTANCE.updateEmployeeFromDTO(updatedEmployeeDTO, employee);
+          return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employeeRepository.save(employee));
+        })
+        .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
+  }
+
+  public void deactivateEmployee(UUID employeeId) {
+    employeeRepository.findById(employeeId)
+        .map(employee -> {
+          if (employee.getStatus() == EmployeeStatus.INACTIVE) {
+            throw new NotFoundException(
+                "Cannot delete. Employee with id: " + employeeId + " is already inactive");
+          }
+          employee.setStatus(EmployeeStatus.INACTIVE);
+          return employeeRepository.save(employee);
+        })
+        .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
+  }
+
+  private Specification<EmployeeEntity> buildSpecification(
+      EmployeeFilterCriteria employeeFilterCriteria) {
+    Specification<EmployeeEntity> spec = Specification.where(null);
+
+    if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getFirstName())) {
+      spec = spec.and(EmployeeSpecifications.byFirstName(employeeFilterCriteria.getFirstName()));
     }
-    public EmployeeDTO addEmployee(EmployeeDTO employeeDTO){
-        return EmployeeMapper.INSTANCE
-                .employeeToEmployeeDTO(employeeRepository
-                    .save(EmployeeMapper.INSTANCE
-                        .employeeDTOToEmployee(employeeDTO)));
+    if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getLastName())) {
+      spec = spec.and(EmployeeSpecifications.byLastName(employeeFilterCriteria.getLastName()));
+    }
+    if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getUserName())) {
+      spec = spec.and(EmployeeSpecifications.byUserName(employeeFilterCriteria.getUserName()));
+    }
+    if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getDateOfBirth())) {
+      spec = spec.and(
+          EmployeeSpecifications.byDateOfBirth(employeeFilterCriteria.getDateOfBirth()));
+    }
+    if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getSsn())) {
+      spec = spec.and(EmployeeSpecifications.bySsn(employeeFilterCriteria.getSsn()));
+    }
+    if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getStatus())) {
+      spec = spec.and(EmployeeSpecifications.byStatus(employeeFilterCriteria.getStatus()));
     }
 
-    public EmployeeDTO getEmployee(UUID employeeId){
-        return employeeRepository.findById(employeeId)
-                .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO)
-                .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
-    }
-
-    public List<EmployeeDTO> getAllEmployees(){
-        return employeeRepository.findAll().stream()
-                .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO)
-                .toList();
-    }
-
-    public EmployeeDTO updateEmployee(UUID employeeId, EmployeeDTO updatedEmployeeDTO){
-        return employeeRepository.findById(employeeId)
-                .map(employee -> {
-                    if (employee.getStatus() == EmployeeStatus.INACTIVE) {
-                        throw new NotFoundException("Cannot update. Employee with id: " + employeeId + " is inactive");
-                    }
-                    EmployeeMapper.INSTANCE.updateEmployeeFromDTO(updatedEmployeeDTO, employee);
-                    return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employeeRepository.save(employee));
-                })
-                .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
-    }
-
-    public void deactivateEmployee(UUID employeeId){
-        employeeRepository.findById(employeeId)
-                .map(employee -> {
-                    if (employee.getStatus() == EmployeeStatus.INACTIVE) {
-                        throw new NotFoundException("Cannot delete. Employee with id: " + employeeId + " is already inactive");
-                    }
-                    employee.setStatus(EmployeeStatus.INACTIVE);
-                    return employeeRepository.save(employee);
-                })
-                .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
-    }
+    return spec;
+  }
 }
