@@ -1,5 +1,6 @@
 package com.coherentsolutions.pot.insurance.plan;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -9,10 +10,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.coherentsolutions.pot.insurance.constants.PlanStatus;
+import com.coherentsolutions.pot.insurance.entity.PlanEntity;
+import com.coherentsolutions.pot.insurance.mapper.PlanMapper;
+import com.coherentsolutions.pot.insurance.repository.PlanRepository;
 import com.coherentsolutions.pot.insurance.specifications.PlanFilterCriteria;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +51,9 @@ public class PlanControllerIntegrationTest {
   private ObjectMapper objectMapper;
 
   @MockBean
+  private PlanRepository planRepository;
+
+  @MockBean
   private PlanService planService;
 
   private final EasyRandom easyRandom = new EasyRandom();
@@ -52,7 +62,9 @@ public class PlanControllerIntegrationTest {
   @WithMockUser(username = "admin")
   void testAddPlan() throws Exception {
     PlanDTO newPlanDTO = easyRandom.nextObject(PlanDTO.class);
+    PlanEntity planEntity = PlanMapper.INSTANCE.toPlanEntity(newPlanDTO);
 
+    when(planRepository.save(any(PlanEntity.class))).thenReturn(planEntity);
     when(planService.addPlan(any(PlanDTO.class))).thenReturn(newPlanDTO);
 
     mockMvc.perform(post("/v1/plans")
@@ -60,20 +72,29 @@ public class PlanControllerIntegrationTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(newPlanDTO)))
         .andExpect(status().isCreated())
-        .andExpect(content().json(objectMapper.writeValueAsString(newPlanDTO)));
+        .andExpect(content().json(objectMapper.writeValueAsString(newPlanDTO)))
+        .andExpect(jsonPath("$.planName").value(newPlanDTO.getPlanName()));
+
     verify(planService).addPlan(newPlanDTO);
   }
 
   @Test
   @WithMockUser(username = "admin")
   void testGetAllPlans() throws Exception {
-    List<PlanDTO> plansList = easyRandom.objects(PlanDTO.class, 3).toList();
-    when(planService.getAllPlans()).thenReturn(plansList);
+    List<PlanDTO> planDTOs = easyRandom.objects(PlanDTO.class, 3).toList();
+    List<PlanEntity> planEntities = planDTOs.stream()
+        .map(PlanMapper.INSTANCE::toPlanEntity)
+        .toList();
+
+    when(planRepository.findAll()).thenReturn(planEntities);
+    when(planService.getAllPlans()).thenReturn(planDTOs);
 
     mockMvc.perform(get("/v1/plans")
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(content().json(objectMapper.writeValueAsString(plansList)));
+        .andExpect(jsonPath("$").isArray())
+        .andExpect(jsonPath("$.length()").value(3))
+        .andExpect(content().json(objectMapper.writeValueAsString(planDTOs)));
 
     verify(planService).getAllPlans();
   }
@@ -84,12 +105,16 @@ public class PlanControllerIntegrationTest {
     PlanDTO planDTO = easyRandom.nextObject(PlanDTO.class);
     UUID id = UUID.randomUUID();
     planDTO.setId(id);
+    PlanEntity planEntity = PlanMapper.INSTANCE.toPlanEntity(planDTO);
+
+    when(planRepository.findById(id)).thenReturn(Optional.of(planEntity));
     when(planService.getPlanById(id)).thenReturn(planDTO);
 
     mockMvc.perform(get("/v1/plans/{id}", id)
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().json(objectMapper.writeValueAsString(planDTO)));
+
     verify(planService).getPlanById(id);
   }
 
@@ -98,11 +123,14 @@ public class PlanControllerIntegrationTest {
   void testUpdatePlan() throws Exception {
     PlanDTO originalPlanDTO = easyRandom.nextObject(PlanDTO.class);
     PlanDTO updatedPlanDTO = easyRandom.nextObject(PlanDTO.class);
+    PlanEntity planEntity = PlanMapper.INSTANCE.toPlanEntity(originalPlanDTO);
 
     UUID planId = UUID.randomUUID();
     originalPlanDTO.setId(planId);
     updatedPlanDTO.setId(planId);
 
+    when(planRepository.findById(eq(planId))).thenReturn(Optional.of(planEntity));
+    when(planRepository.save(any(PlanEntity.class))).thenReturn(planEntity);
     when(planService.updatePlan(eq(planId), any(PlanDTO.class))).thenReturn(updatedPlanDTO);
 
     mockMvc.perform(put("/v1/plans/{id}", planId)
@@ -110,7 +138,11 @@ public class PlanControllerIntegrationTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(originalPlanDTO)))
         .andExpect(status().isOk())
-        .andExpect(content().json(objectMapper.writeValueAsString(updatedPlanDTO)));
+        .andExpect(content().json(objectMapper.writeValueAsString(updatedPlanDTO)))
+        .andExpect(jsonPath("$.id").value(planId.toString()))
+        .andExpect(jsonPath("$.planName").value(updatedPlanDTO.getPlanName()))
+        .andExpect(jsonPath("$.status").value(updatedPlanDTO.getStatus().name()))
+        .andExpect(jsonPath("$.planType").value(updatedPlanDTO.getPlanType().name()));
 
     verify(planService).updatePlan(eq(planId), any(PlanDTO.class));
   }
@@ -119,16 +151,21 @@ public class PlanControllerIntegrationTest {
   @WithMockUser(username = "admin")
   void testDeactivatePlan() throws Exception {
     UUID id = UUID.randomUUID();
-    PlanDTO originalPlanDTO = easyRandom.nextObject(PlanDTO.class);
-    originalPlanDTO.setId(id);
+    PlanDTO planDTO = easyRandom.nextObject(PlanDTO.class);
+    planDTO.setId(id);
+    planDTO.setStatus(PlanStatus.DEACTIVATED);
+    PlanEntity planEntity = PlanMapper.INSTANCE.toPlanEntity(planDTO);
 
-    when(planService.deactivatePlan(id)).thenReturn(originalPlanDTO);
+    when(planRepository.findById(id)).thenReturn(Optional.of(planEntity));
+    when(planRepository.save(any(PlanEntity.class))).thenReturn(planEntity);
+    when(planService.deactivatePlan(id)).thenReturn(planDTO);
 
     mockMvc.perform(delete("/v1/plans/{id}", id)
             .with(SecurityMockMvcRequestPostProcessors.csrf())
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(content().json(objectMapper.writeValueAsString(originalPlanDTO)));
+        .andExpect(content().json(objectMapper.writeValueAsString(planDTO)))
+        .andExpect(jsonPath("$.status").value("DEACTIVATED"));
 
     verify(planService).deactivatePlan(id);
   }
@@ -136,8 +173,9 @@ public class PlanControllerIntegrationTest {
   @Test
   @WithMockUser(username = "admin")
   public void testGetFilteredSortedPlans() throws Exception {
-    List<PlanDTO> plansList = easyRandom.objects(PlanDTO.class, 3).toList();
-    Page<PlanDTO> pagedPlans = new PageImpl<>(plansList);
+    List<PlanDTO> planDTOs = easyRandom.objects(PlanDTO.class, 3).toList();
+    Page<PlanDTO> pagedPlans = new PageImpl<>(planDTOs);
+
     when(planService.getFilteredSortedPlans(any(PlanFilterCriteria.class), any(Pageable.class)))
         .thenReturn(pagedPlans);
 
@@ -147,7 +185,16 @@ public class PlanControllerIntegrationTest {
             .param("sort", "planName,asc")
             .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(content().json(objectMapper.writeValueAsString(pagedPlans)));
+        .andExpect(content().json(objectMapper.writeValueAsString(pagedPlans)))
+        .andExpect(jsonPath("$.content", hasSize(3)))
+        .andExpect(jsonPath("$.content[0].id").value(planDTOs.get(0).getId().toString()))
+        .andExpect(jsonPath("$.content[0].planName").value(planDTOs.get(0).getPlanName()))
+        .andExpect(jsonPath("$.content[1].id").value(planDTOs.get(1).getId().toString()))
+        .andExpect(jsonPath("$.content[1].planName").value(planDTOs.get(1).getPlanName()))
+        .andExpect(jsonPath("$.content[2].id").value(planDTOs.get(2).getId().toString()))
+        .andExpect(jsonPath("$.content[2].planName").value(planDTOs.get(2).getPlanName()));
+
+    verify(planService).getFilteredSortedPlans(any(PlanFilterCriteria.class), any(Pageable.class));
   }
 
 }
