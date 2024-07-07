@@ -29,10 +29,10 @@ public class EmployeeController {
 
     @GetMapping("/filtered")
     @ResponseStatus(HttpStatus.OK)
-    public Page<EmployeeDTO> filterAndSortEmployees(
+    public Page<EmployeeDTO> getFilteredSortedEmployees(
         @ParameterObject EmployeeFilterCriteria employeeFilterCriteria,
         @ParameterObject Pageable pageable) {
-        return employeeService.filterAndSortEmployees(employeeFilterCriteria, pageable);
+        return employeeService.getFilteredSortedEmployees(employeeFilterCriteria, pageable);
     }
 
     @PostMapping

@@ -149,7 +149,7 @@ class EmployeeControllerTest {
     List<EmployeeDTO> employeeDTOList = List.of(employeeDTO1, employeeDTO2);
     Page<EmployeeDTO> employeeDTOPage = new PageImpl<>(employeeDTOList);
 
-    when(employeeService.filterAndSortEmployees(any(EmployeeFilterCriteria.class), any(Pageable.class)))
+    when(employeeService.getFilteredSortedEmployees(any(EmployeeFilterCriteria.class), any(Pageable.class)))
         .thenReturn(employeeDTOPage);
 
     String responseContent = mockMvc.perform(get("/v1/employees/filtered")
@@ -169,6 +169,6 @@ class EmployeeControllerTest {
     assertEquals(employeeDTO1.getId().toString(), jsonResponse.get("content").get(0).get("id").asText());
     assertEquals(employeeDTO2.getId().toString(), jsonResponse.get("content").get(1).get("id").asText());
 
-    verify(employeeService).filterAndSortEmployees(any(EmployeeFilterCriteria.class), any(Pageable.class));
+    verify(employeeService).getFilteredSortedEmployees(any(EmployeeFilterCriteria.class), any(Pageable.class));
   }
 }

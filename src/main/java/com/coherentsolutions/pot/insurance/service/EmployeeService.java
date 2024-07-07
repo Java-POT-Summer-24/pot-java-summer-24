@@ -11,7 +11,6 @@ import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeSpecifications;
 import com.coherentsolutions.pot.insurance.util.ValidationUtil;
-import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StreamUtils;
 
 import java.util.List;
 import java.util.UUID;
@@ -54,7 +52,7 @@ public class EmployeeService {
       return spec;
     }
 
-  public Page<EmployeeDTO> filterAndSortEmployees(EmployeeFilterCriteria employeeFilterCriteria, Pageable pageable) {
+  public Page<EmployeeDTO> getFilteredSortedEmployees(EmployeeFilterCriteria employeeFilterCriteria, Pageable pageable) {
       Sort defaultSort = Sort.by("dateOfBirth").descending();
 
       if (!pageable.getSort().isSorted()) {
