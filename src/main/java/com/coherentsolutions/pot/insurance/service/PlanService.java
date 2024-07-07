@@ -29,7 +29,6 @@ public class PlanService {
   public PlanDTO addPlan(PlanDTO planDTO) {
     PlanEntity plan = PlanMapper.INSTANCE.toPlanEntity(planDTO);
     PlanEntity createdPlan = planRepository.save(plan);
-
     return PlanMapper.INSTANCE.toPlanDto(createdPlan);
   }
 
