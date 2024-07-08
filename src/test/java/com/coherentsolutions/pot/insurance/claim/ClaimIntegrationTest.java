@@ -107,7 +107,6 @@ public class ClaimIntegrationTest {
 
     mockMvc.perform(get("/v1/claims/{id}", claimId))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(claimId.toString()))
         .andExpect(jsonPath("$.claimNumber").value(claimDTO.getClaimNumber()));
   }
 

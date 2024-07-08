@@ -17,7 +17,6 @@ import com.coherentsolutions.pot.insurance.repository.CompanyRepository;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
 import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
-import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
