@@ -11,13 +11,17 @@
     <include file="changelog/ddl/1_create_example_table.xml"/>
     <include file="changelog/dml/1_insert_example_table.xml"/>
     <include file="changelog/ddl/2_create_company_table.xml"/>
+    <include file="changelog/dml/2_insert_company_table.xml"/>
+    <include file="changelog/ddl/2_1_set_company_name_unique.xml"/>
     <include file="changelog/ddl/3_create_claims_table.xml"/>
-    <include file="changelog/dml/3_insert_claims_table.xml"/>
     <include file="changelog/ddl/4_create_packages_table.xml"/>
     <include file="changelog/dml/4_insert_packages_table.xml"/>
     <include file="/changelog/ddl/5_create_plans_table.xml"/>
     <include file="/changelog/dml/5_insert_plans_table.xml"/>
     <include file="changelog/ddl/6_create_employees_table.xml"/>
     <include file="changelog/dml/6_insert_employees_table.xml"/>
+    <include file="changelog/ddl/3_1_define_claims_relationships.xml"/>
+    <include file="changelog/ddl/3_1_1_update_claim_table_and_relationships.xml"/>
+    <include file="changelog/dml/3_insert_claims_table.xml"/>
 
 </databaseChangeLog>

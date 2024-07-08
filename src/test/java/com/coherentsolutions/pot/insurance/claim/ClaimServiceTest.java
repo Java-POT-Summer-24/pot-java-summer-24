@@ -9,11 +9,16 @@ import static org.mockito.Mockito.when;
 import com.coherentsolutions.pot.insurance.constants.ClaimStatus;
 import com.coherentsolutions.pot.insurance.dto.ClaimDTO;
 import com.coherentsolutions.pot.insurance.entity.ClaimEntity;
+import com.coherentsolutions.pot.insurance.entity.CompanyEntity;
+import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
 import com.coherentsolutions.pot.insurance.mapper.ClaimMapper;
 import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
+import com.coherentsolutions.pot.insurance.repository.CompanyRepository;
+import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
 import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
@@ -36,6 +41,12 @@ class ClaimServiceTest {
   @Mock
   private ClaimRepository claimRepository;
 
+  @Mock
+  private EmployeeRepository employeeRepository;
+
+  @Mock
+  private CompanyRepository companyRepository;
+
   @InjectMocks
   private ClaimService claimService;
 
@@ -44,7 +55,13 @@ class ClaimServiceTest {
     ClaimDTO newClaimDTO = easyRandom.nextObject(ClaimDTO.class);
     ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(newClaimDTO);
     claimEntity.setId(UUID.randomUUID());
+    EmployeeEntity employeeEntity = new EmployeeEntity();
+    employeeEntity.setUserName(newClaimDTO.getEmployee());
+    CompanyEntity companyEntity = new CompanyEntity();
+    companyEntity.setName(newClaimDTO.getCompany());
 
+    when(employeeRepository.findByUserName(newClaimDTO.getEmployee())).thenReturn(Optional.of(employeeEntity));
+    when(companyRepository.findByName(newClaimDTO.getCompany())).thenReturn(Optional.of(companyEntity));
     when(claimRepository.save(any(ClaimEntity.class))).thenReturn(claimEntity);
 
     ClaimDTO createdClaimDTO = claimService.addClaim(newClaimDTO);
@@ -103,12 +120,43 @@ class ClaimServiceTest {
     claimEntity.setStatus(ClaimStatus.APPROVED);
 
     when(claimRepository.findById(id)).thenReturn(java.util.Optional.of(claimEntity));
-    when(claimRepository.save(any(ClaimEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(claimRepository.save(any(ClaimEntity.class))).thenAnswer(
+        invocation -> invocation.getArgument(0));
 
     ClaimDTO result = claimService.deactivateClaim(id);
 
     assertEquals(ClaimStatus.DEACTIVATED, result.getStatus());
     verify(claimRepository).save(claimEntity);
+  }
+
+  @Test
+  void testGetAllClaimsByEmployeeUserName() {
+    List<ClaimEntity> claimEntities = easyRandom.objects(ClaimEntity.class, 3).toList();
+    List<ClaimDTO> claimsList = claimEntities.stream().map(ClaimMapper.INSTANCE::entityToDto).toList();
+    String employee = "janedoe";
+
+    when(claimRepository.findAllByEmployeeUserName(employee)).thenReturn(claimEntities);
+
+    List<ClaimDTO> result = claimService.getAllClaimsByEmployeeUserName(employee);
+
+    assertEquals(3, result.size());
+    assertEquals(claimsList, result);
+    verify(claimRepository).findAllByEmployeeUserName(employee);
+  }
+
+  @Test
+  void testGetAllClaimsByCompanyName() {
+    List<ClaimEntity> claimEntities = easyRandom.objects(ClaimEntity.class, 3).toList();
+    List<ClaimDTO> claimsList = claimEntities.stream().map(ClaimMapper.INSTANCE::entityToDto).toList();
+    String company = "ISSoft";
+
+    when(claimRepository.findAllByCompanyName(company)).thenReturn(claimEntities);
+
+    List<ClaimDTO> result = claimService.getAllClaimsByCompanyName(company);
+
+    assertEquals(3, result.size());
+    assertEquals(claimsList, result);
+    verify(claimRepository).findAllByCompanyName(company);
   }
 
   @Test

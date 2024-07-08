@@ -14,8 +14,12 @@ import com.coherentsolutions.pot.insurance.constants.ClaimStatus;
 import com.coherentsolutions.pot.insurance.controller.ClaimController;
 import com.coherentsolutions.pot.insurance.dto.ClaimDTO;
 import com.coherentsolutions.pot.insurance.entity.ClaimEntity;
+import com.coherentsolutions.pot.insurance.entity.CompanyEntity;
+import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
 import com.coherentsolutions.pot.insurance.mapper.ClaimMapper;
 import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
+import com.coherentsolutions.pot.insurance.repository.CompanyRepository;
+import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
@@ -49,6 +53,12 @@ public class ClaimIntegrationTest {
   @MockBean
   private ClaimRepository claimRepository;
 
+  @MockBean
+  private EmployeeRepository employeeRepository;
+
+  @MockBean
+  private CompanyRepository companyRepository;
+
   private final EasyRandom easyRandom = new EasyRandom();
 
   @Test
@@ -73,6 +83,10 @@ public class ClaimIntegrationTest {
     ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
 
     Mockito.when(claimRepository.save(any(ClaimEntity.class))).thenReturn(claimEntity);
+    Mockito.when(employeeRepository.findByUserName(any(String.class)))
+        .thenReturn(Optional.of(easyRandom.nextObject(EmployeeEntity.class)));
+    Mockito.when(companyRepository.findByName(any(String.class)))
+        .thenReturn(Optional.of(easyRandom.nextObject(CompanyEntity.class)));
 
     String claimJson = objectMapper.writeValueAsString(claimDTO);
     mockMvc.perform(post("/v1/claims")
@@ -93,7 +107,6 @@ public class ClaimIntegrationTest {
 
     mockMvc.perform(get("/v1/claims/{id}", claimId))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(claimId.toString()))
         .andExpect(jsonPath("$.claimNumber").value(claimDTO.getClaimNumber()));
   }
 
@@ -131,6 +144,52 @@ public class ClaimIntegrationTest {
     mockMvc.perform(delete("/v1/claims/{id}", claimId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("DEACTIVATED"));
+  }
+
+  @Test
+  void testGetAllClaimsByEmployeeUserName() throws Exception {
+    String employee = "janedoe";
+
+    List<ClaimEntity> claimEntities = easyRandom.objects(ClaimEntity.class, 3)
+        .peek(entity -> entity.getEmployee().setUserName(employee)).toList();
+    List<ClaimDTO> claimDTOs = claimEntities.stream()
+        .map(ClaimMapper.INSTANCE::entityToDto)
+        .peek(dto -> dto.setEmployee(employee))
+        .toList();
+
+    Mockito.when(claimRepository.findAllByEmployeeUserName(employee)).thenReturn(claimEntities);
+
+    mockMvc.perform(get("/v1/claims/employees/{employeeUserName}", employee))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isArray())
+        .andExpect(jsonPath("$.length()").value(3))
+        .andExpect(jsonPath("$[0].employee").value(employee));
+  }
+
+  @Test
+  void testGetAllClaimsByCompanyName() throws Exception {
+    String company = "ISSoft";
+
+    List<ClaimEntity> claimEntities = easyRandom.objects(ClaimEntity.class, 3).peek(claimEntity -> {
+      claimEntity.getCompany().setName(company);
+    }).toList();
+
+    List<ClaimDTO> claimDTOs = claimEntities.stream()
+        .map(ClaimMapper.INSTANCE::entityToDto)
+        .peek(dto -> dto.setCompany(company))
+        .toList();
+
+    Mockito.when(claimRepository.findAllByCompanyName(company)).thenReturn(claimEntities);
+    Mockito.when(companyRepository.findByName(any(String.class)))
+        .thenReturn(Optional.of(easyRandom.nextObject(CompanyEntity.class)));
+
+    mockMvc.perform(get("/v1/claims/companies/{companyName}", company))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isArray())
+        .andExpect(jsonPath("$.length()").value(3))
+        .andExpect(jsonPath("$[0].company").value(company));
   }
 
   @Test

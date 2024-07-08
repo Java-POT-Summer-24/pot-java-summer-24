@@ -3,11 +3,15 @@ package com.coherentsolutions.pot.insurance.service;
 import com.coherentsolutions.pot.insurance.constants.ClaimStatus;
 import com.coherentsolutions.pot.insurance.dto.ClaimDTO;
 import com.coherentsolutions.pot.insurance.entity.ClaimEntity;
+import com.coherentsolutions.pot.insurance.entity.CompanyEntity;
+import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
 import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.mapper.ClaimMapper;
 import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
-import com.coherentsolutions.pot.insurance.specifications.ClaimSpecifications;
+import com.coherentsolutions.pot.insurance.repository.CompanyRepository;
+import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
+import com.coherentsolutions.pot.insurance.specifications.ClaimSpecifications;
 import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +30,8 @@ import java.util.stream.Collectors;
 public class ClaimService {
 
   private final ClaimRepository claimRepository;
+  private final EmployeeRepository employeeRepository;
+  private final CompanyRepository companyRepository;
 
   public Page<ClaimDTO> getFilteredSortedClaims(ClaimFilterCriteria claimFilterCriteria,
       Pageable pageable) {
@@ -56,7 +62,14 @@ public class ClaimService {
     String generatedClaimNumber = ClaimNumberGenerator.generate();
     claimDTO.setClaimNumber(generatedClaimNumber);
 
+    EmployeeEntity employee = employeeRepository.findByUserName(claimDTO.getEmployee())
+        .orElseThrow(() -> new NotFoundException("Employee with userName " + claimDTO.getEmployee() + " not found"));
+    CompanyEntity company = companyRepository.findByName(claimDTO.getCompany())
+        .orElseThrow(() -> new NotFoundException("Company with name " + claimDTO.getCompany() + " not found"));
+
     ClaimEntity claim = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
+    claim.setEmployee(employee);
+    claim.setCompany(company);
     claim = claimRepository.save(claim);
     return ClaimMapper.INSTANCE.entityToDto(claim);
   }
@@ -79,6 +92,20 @@ public class ClaimService {
           return ClaimMapper.INSTANCE.entityToDto(claim);
         })
         .orElseThrow(() -> new NotFoundException("Claim with ID " + id + " was not found"));
+  }
+
+  public List<ClaimDTO> getAllClaimsByEmployeeUserName(String employeeUserName) {
+    List<ClaimEntity> claims = claimRepository.findAllByEmployeeUserName(employeeUserName);
+    return claims.stream()
+        .map(ClaimMapper.INSTANCE::entityToDto)
+        .collect(Collectors.toList());
+  }
+
+  public List<ClaimDTO> getAllClaimsByCompanyName(String companyName) {
+    List<ClaimEntity> claims = claimRepository.findAllByCompanyName(companyName);
+    return claims.stream()
+        .map(ClaimMapper.INSTANCE::entityToDto)
+        .collect(Collectors.toList());
   }
 
   private Specification<ClaimEntity> buildSpecification(ClaimFilterCriteria claimFilterCriteria) {
@@ -104,18 +131,3 @@ public class ClaimService {
     return value != null && !value.isEmpty();
   }
 }
-
-  // Blueprint, will uncomment and modify when company and user implementations are available
-    /*
-    public List<ClaimDTO> getClaimsByCompany(String companyName) {
-        return claimRepository.findByEmployer(companyName).stream()
-            .map(ClaimMapper.INSTANCE::claimToClaimDTO)
-            .collect(Collectors.toList());
-    }
-
-    public List<ClaimDTO> getClaimsByUser(String userName) {
-        return claimRepository.findByConsumer(userName).stream()
-            .map(ClaimMapper.INSTANCE::claimToClaimDTO)
-            .collect(Collectors.toList());
-    }
-    */
