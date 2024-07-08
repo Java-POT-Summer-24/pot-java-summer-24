@@ -39,32 +39,6 @@ public class CompanyService {
         return companyRepository.findAll(spec, pageable).map(CompanyMapper.INSTANCE::toDTO);
     }
 
-    private Specification<CompanyEntity> buildSpecification(CompanyFilterCriteria companyFilterCriteria) {
-        Specification<CompanyEntity> spec = Specification.where(null);
-
-        if (isNotEmpty(companyFilterCriteria.getName())) {
-            spec = spec.and(CompanySpecifications.byName(companyFilterCriteria.getName()));
-        }
-        if (isNotEmpty(companyFilterCriteria.getWebsite())) {
-            spec = spec.and(CompanySpecifications.byWebsite(companyFilterCriteria.getWebsite()));
-        }
-        if (isNotEmpty(companyFilterCriteria.getCountryCode())) {
-            spec = spec.and(CompanySpecifications.byCountryCode(companyFilterCriteria.getCountryCode()));
-        }
-        if (isNotEmpty(companyFilterCriteria.getEmail())) {
-            spec = spec.and(CompanySpecifications.byEmail(companyFilterCriteria.getEmail()));
-        }
-        if (companyFilterCriteria.getStatus() != null) {
-            spec = spec.and(CompanySpecifications.byStatus(companyFilterCriteria.getStatus()));
-        }
-
-        return spec;
-    }
-
-    private boolean isNotEmpty(String value) {
-        return value != null && !value.isEmpty();
-    }
-
     public CompanyDTO addCompany(CompanyDTO companyDto) {
         CompanyEntity company = CompanyMapper.INSTANCE.toEntity(companyDto);
         CompanyEntity createCompany = companyRepository.save(company);
@@ -96,6 +70,32 @@ public class CompanyService {
                     return CompanyMapper.INSTANCE.toDTO(company);
                 })
                 .orElseThrow(() -> new NotFoundException("Company with ID " + id + " was not found"));
+    }
+
+    private Specification<CompanyEntity> buildSpecification(CompanyFilterCriteria companyFilterCriteria) {
+        Specification<CompanyEntity> spec = Specification.where(null);
+
+        if (isNotEmpty(companyFilterCriteria.getName())) {
+            spec = spec.and(CompanySpecifications.byName(companyFilterCriteria.getName()));
+        }
+        if (isNotEmpty(companyFilterCriteria.getWebsite())) {
+            spec = spec.and(CompanySpecifications.byWebsite(companyFilterCriteria.getWebsite()));
+        }
+        if (isNotEmpty(companyFilterCriteria.getCountryCode())) {
+            spec = spec.and(CompanySpecifications.byCountryCode(companyFilterCriteria.getCountryCode()));
+        }
+        if (isNotEmpty(companyFilterCriteria.getEmail())) {
+            spec = spec.and(CompanySpecifications.byEmail(companyFilterCriteria.getEmail()));
+        }
+        if (companyFilterCriteria.getStatus() != null) {
+            spec = spec.and(CompanySpecifications.byStatus(companyFilterCriteria.getStatus()));
+        }
+
+        return spec;
+    }
+
+    private boolean isNotEmpty(String value) {
+        return value != null && !value.isEmpty();
     }
 }
 
