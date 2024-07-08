@@ -60,10 +60,9 @@ public class PackageService {
     return PackageMapper.INSTANCE.entityToDto(packageEntity);
   }
 
-  public PackageDTO updatePackage(PackageDTO packageDTO) {
-    UUID packageId = packageDTO.getId();
-    PackageEntity existingPackage = packageRepository.findById(packageId)
-        .orElseThrow(() -> new NotFoundException("Package with ID " + packageId + " not found"));
+  public PackageDTO updatePackage(UUID id, PackageDTO packageDTO) {
+    PackageEntity existingPackage = packageRepository.findById(id)
+        .orElseThrow(() -> new NotFoundException("Package with ID " + id + " not found"));
     PackageMapper.INSTANCE.updatePackageFromDTO(packageDTO, existingPackage);
     existingPackage = packageRepository.save(existingPackage);
     return PackageMapper.INSTANCE.entityToDto(existingPackage);

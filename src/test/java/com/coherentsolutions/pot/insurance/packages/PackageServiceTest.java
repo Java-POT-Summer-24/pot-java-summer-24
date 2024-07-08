@@ -3,7 +3,7 @@ package com.coherentsolutions.pot.insurance.packages;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,7 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 @ExtendWith(MockitoExtension.class)
-class PackageControllerTest {
+class PackageServiceTest {
 
   private final EasyRandom easyRandom = new EasyRandom();
 
@@ -72,16 +72,18 @@ class PackageControllerTest {
 
   @Test
   void testUpdatePackage() {
+    UUID packageId = UUID.randomUUID();
     PackageDTO originalPackageDTO = easyRandom.nextObject(PackageDTO.class);
+    originalPackageDTO.setId(packageId);
     PackageDTO updatedPackageDTO = easyRandom.nextObject(PackageDTO.class);
-    updatedPackageDTO.setId(originalPackageDTO.getId());
+    updatedPackageDTO.setId(packageId);
 
-    when(packageService.updatePackage(any(PackageDTO.class))).thenReturn(updatedPackageDTO);
+    when(packageService.updatePackage(eq(packageId), any(PackageDTO.class))).thenReturn(updatedPackageDTO);
 
-    PackageDTO result = packageController.updatePackage(updatedPackageDTO);
+    PackageDTO result = packageController.updatePackage(packageId, updatedPackageDTO);
 
     assertEquals(updatedPackageDTO, result);
-    verify(packageService).updatePackage(updatedPackageDTO);
+    verify(packageService).updatePackage(packageId, updatedPackageDTO);
   }
 
   @Test

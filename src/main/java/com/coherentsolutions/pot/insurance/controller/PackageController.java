@@ -55,10 +55,10 @@ public class PackageController {
     return packageService.addPackage(packageDTO);
   }
 
-  @PutMapping
+  @PutMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public PackageDTO updatePackage(@Valid @RequestBody PackageDTO packageDTO) {
-    return packageService.updatePackage(packageDTO);
+  public PackageDTO updatePackage(@PathVariable UUID id, @Valid @RequestBody PackageDTO packageDTO) {
+    return packageService.updatePackage(id, packageDTO);
   }
 
   @DeleteMapping("/{id}")
