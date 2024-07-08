@@ -3,12 +3,14 @@ package com.coherentsolutions.pot.insurance.packages;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.coherentsolutions.pot.insurance.controller.PackageController;
+import com.coherentsolutions.pot.insurance.constants.PackageStatus;
 import com.coherentsolutions.pot.insurance.dto.PackageDTO;
+import com.coherentsolutions.pot.insurance.entity.PackageEntity;
+import com.coherentsolutions.pot.insurance.mapper.PackageMapper;
+import com.coherentsolutions.pot.insurance.repository.PackageRepository;
 import com.coherentsolutions.pot.insurance.service.PackageService;
 import com.coherentsolutions.pot.insurance.specifications.PackageFilterCriteria;
 import java.util.List;
@@ -24,6 +26,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 @ExtendWith(MockitoExtension.class)
 class PackageServiceTest {
@@ -31,43 +34,49 @@ class PackageServiceTest {
   private final EasyRandom easyRandom = new EasyRandom();
 
   @Mock
-  private PackageService packageService;
+  private PackageRepository packageRepository;
 
   @InjectMocks
-  private PackageController packageController;
+  private PackageService packageService;
 
   @Test
   void testAddPackage() {
     PackageDTO newPackageDTO = easyRandom.nextObject(PackageDTO.class);
-    when(packageService.addPackage(any(PackageDTO.class))).thenReturn(newPackageDTO);
+    PackageEntity packageEntity = PackageMapper.INSTANCE.dtoToEntity(newPackageDTO);
+    packageEntity.setId(UUID.randomUUID());
 
-    PackageDTO createdPackageDTO = packageController.addPackage(newPackageDTO);
+    when(packageRepository.save(any(PackageEntity.class))).thenReturn(packageEntity);
 
-    assertEquals(newPackageDTO, createdPackageDTO);
-    verify(packageService).addPackage(newPackageDTO);
+    PackageDTO createdPackageDTO = packageService.addPackage(newPackageDTO);
+
+    assertEquals(packageEntity.getId(), createdPackageDTO.getId());
+    assertEquals(newPackageDTO.getName(), createdPackageDTO.getName());
+    verify(packageRepository).save(any(PackageEntity.class));
   }
 
   @Test
   void testGetAllPackages() {
-    List<PackageDTO> packageList = easyRandom.objects(PackageDTO.class, 3).toList();
-    when(packageService.getAllPackages()).thenReturn(packageList);
+    List<PackageEntity> packageEntities = easyRandom.objects(PackageEntity.class, 3).toList();
+    when(packageRepository.findAll()).thenReturn(packageEntities);
 
-    List<PackageDTO> result = packageController.getAllPackages();
+    List<PackageDTO> result = packageService.getAllPackages();
 
-    assertEquals(3, result.size());
-    verify(packageService).getAllPackages();
+    assertEquals(packageEntities.size(), result.size());
+    verify(packageRepository).findAll();
   }
 
   @Test
   void testGetPackageById() {
-    PackageDTO packageDTO = easyRandom.nextObject(PackageDTO.class);
     UUID id = UUID.randomUUID();
-    when(packageService.getPackageById(id)).thenReturn(packageDTO);
+    PackageEntity packageEntity = easyRandom.nextObject(PackageEntity.class);
+    packageEntity.setId(id);
+    when(packageRepository.findById(id)).thenReturn(java.util.Optional.of(packageEntity));
 
-    PackageDTO result = packageController.getPackageById(id);
+    PackageDTO result = packageService.getPackageById(id);
 
-    assertEquals(packageDTO, result);
-    verify(packageService).getPackageById(id);
+    assertNotNull(result);
+    assertEquals(id, result.getId());
+    verify(packageRepository).findById(id);
   }
 
   @Test
@@ -75,47 +84,49 @@ class PackageServiceTest {
     UUID packageId = UUID.randomUUID();
     PackageDTO originalPackageDTO = easyRandom.nextObject(PackageDTO.class);
     originalPackageDTO.setId(packageId);
-    PackageDTO updatedPackageDTO = easyRandom.nextObject(PackageDTO.class);
-    updatedPackageDTO.setId(packageId);
+    PackageEntity packageEntity = PackageMapper.INSTANCE.dtoToEntity(originalPackageDTO);
 
-    when(packageService.updatePackage(eq(packageId), any(PackageDTO.class))).thenReturn(updatedPackageDTO);
+    when(packageRepository.findById(packageId)).thenReturn(java.util.Optional.of(packageEntity));
+    when(packageRepository.save(any(PackageEntity.class))).thenReturn(packageEntity);
 
-    PackageDTO result = packageController.updatePackage(packageId, updatedPackageDTO);
+    PackageDTO updatedPackageDTO = packageService.updatePackage(packageId, originalPackageDTO);
 
-    assertEquals(updatedPackageDTO, result);
-    verify(packageService).updatePackage(packageId, updatedPackageDTO);
+    assertEquals(originalPackageDTO.getName(), updatedPackageDTO.getName());
+    verify(packageRepository).save(packageEntity);
   }
 
   @Test
   void testDeactivatePackage() {
     UUID id = UUID.randomUUID();
-    PackageDTO deactivatedPackageDTO = easyRandom.nextObject(PackageDTO.class);
-    when(packageService.deactivatePackage(id)).thenReturn(deactivatedPackageDTO);
+    PackageEntity packageEntity = easyRandom.nextObject(PackageEntity.class);
+    packageEntity.setId(id);
+    packageEntity.setStatus(PackageStatus.ACTIVE);
 
-    PackageDTO result = packageController.deactivatePackage(id);
+    when(packageRepository.findById(id)).thenReturn(java.util.Optional.of(packageEntity));
+    when(packageRepository.save(any(PackageEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-    assertEquals(deactivatedPackageDTO, result);
-    verify(packageService).deactivatePackage(id);
+    PackageDTO result = packageService.deactivatePackage(id);
+
+    assertEquals(PackageStatus.DEACTIVATED, result.getStatus());
+    verify(packageRepository).save(packageEntity);
   }
 
   @Test
   void testGetFilteredSortedPackages() {
-    List<PackageDTO> packageList = easyRandom.objects(PackageDTO.class, 3).toList();
-    Page<PackageDTO> pagedPackages = new PageImpl<>(packageList);
+    List<PackageEntity> packageEntities = easyRandom.objects(PackageEntity.class, 3).toList();
+    Page<PackageEntity> pagedEntities = new PageImpl<>(packageEntities);
 
     PackageFilterCriteria filterCriteria = new PackageFilterCriteria();
-    Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
+    Pageable pageable = PageRequest.of(0, 3, Sort.by("name").ascending());
 
-    when(packageService.getFilteredSortedPackages(any(PackageFilterCriteria.class),
-        any(Pageable.class)))
-        .thenReturn(pagedPackages);
+    when(packageRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(pagedEntities);
 
-    Page<PackageDTO> result = packageController.getFilteredSortedPackages(filterCriteria, pageable);
+    Page<PackageDTO> result = packageService.getFilteredSortedPackages(filterCriteria, pageable);
 
     assertNotNull(result);
     assertEquals(3, result.getContent().size());
-    assertEquals(packageList, result.getContent());
+    assertEquals(packageEntities.stream().map(PackageMapper.INSTANCE::entityToDto).toList(), result.getContent());
 
-    verify(packageService).getFilteredSortedPackages(filterCriteria, pageable);
+    verify(packageRepository).findAll(any(Specification.class), any(Pageable.class));
   }
 }
