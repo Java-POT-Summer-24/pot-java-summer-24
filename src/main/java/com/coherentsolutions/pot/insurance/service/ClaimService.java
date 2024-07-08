@@ -61,8 +61,7 @@ public class ClaimService {
     return ClaimMapper.INSTANCE.entityToDto(claim);
   }
 
-  public ClaimDTO updateClaim(ClaimDTO claimDTO) {
-    UUID claimId = claimDTO.getId();
+  public ClaimDTO updateClaim(UUID claimId, ClaimDTO claimDTO) {
     ClaimEntity existingClaim = claimRepository.findById(claimId)
         .orElseThrow(() -> new NotFoundException("Claim with ID " + claimId + " not found"));
 

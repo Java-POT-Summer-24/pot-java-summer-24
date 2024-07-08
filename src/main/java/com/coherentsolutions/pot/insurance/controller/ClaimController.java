@@ -54,10 +54,10 @@ public class ClaimController {
     return claimService.addClaim(claimDTO);
   }
 
-  @PutMapping
+  @PutMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public ClaimDTO updateClaim(@Valid @RequestBody ClaimDTO claimDTO) {
-    return claimService.updateClaim(claimDTO);
+  public ClaimDTO updateClaim(@PathVariable UUID id, @Valid @RequestBody ClaimDTO claimDTO) {
+    return claimService.updateClaim(id, claimDTO);
   }
 
   @DeleteMapping("/{id}")
@@ -65,17 +65,4 @@ public class ClaimController {
   public ClaimDTO deactivateClaim(@PathVariable UUID id) {
     return claimService.deactivateClaim(id);
   }
-
-  /*@GetMapping("/company/{companyName}")
-  @ResponseStatus(HttpStatus.OK)
-  public List<ClaimDTO> getClaimsByCompany(@PathVariable String name) {
-    return claimService.getClaimsByCompany(name);
-  }
-
-  @GetMapping("/user/{userName}")
-  @ResponseStatus(HttpStatus.OK)
-  public List<ClaimDTO> getClaimsByUser(@PathVariable String userName) {
-    return claimService.getClaimsByUser(userName);
-  }*/
-  //also commented for now, as I don't have employer or consumer
 }
