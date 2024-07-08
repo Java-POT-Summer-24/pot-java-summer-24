@@ -18,11 +18,13 @@ import com.coherentsolutions.pot.insurance.entity.CompanyEntity;
 import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
 import com.coherentsolutions.pot.insurance.mapper.ClaimMapper;
 import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
+import com.coherentsolutions.pot.insurance.repository.CompanyRepository;
+import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,7 +35,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(controllers = ClaimController.class)
+@WebMvcTest({ClaimController.class, ClaimService.class})
 @TestPropertySource(properties = "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration")
 public class ClaimIntegrationTest {
 
@@ -44,20 +46,42 @@ public class ClaimIntegrationTest {
   private ObjectMapper objectMapper;
 
   @MockBean
-  private ClaimService claimService;
-
-  @MockBean
   private ClaimRepository claimRepository;
 
+  @MockBean
+  private EmployeeRepository employeeRepository;
+
+  @MockBean
+  private CompanyRepository companyRepository;
+
   private final EasyRandom easyRandom = new EasyRandom();
+
+  @Test
+  void testGetAllClaims() throws Exception {
+    List<ClaimEntity> claimEntities = easyRandom.objects(ClaimEntity.class, 3).toList();
+    List<ClaimDTO> claimDTOs = claimEntities.stream()
+        .map(ClaimMapper.INSTANCE::entityToDto)
+        .toList();
+
+    Mockito.when(claimRepository.findAll()).thenReturn(claimEntities);
+
+    mockMvc.perform(get("/v1/claims"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isArray())
+        .andExpect(jsonPath("$.length()").value(3))
+        .andExpect(jsonPath("$[0].claimNumber").value(claimDTOs.get(0).getClaimNumber()));
+  }
 
   @Test
   void testAddClaim() throws Exception {
     ClaimDTO claimDTO = easyRandom.nextObject(ClaimDTO.class);
     ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
 
-    Mockito.when(claimRepository.save(any())).thenReturn(claimEntity);
-    Mockito.when(claimService.addClaim(any())).thenReturn(claimDTO);
+    Mockito.when(claimRepository.save(any(ClaimEntity.class))).thenReturn(claimEntity);
+    Mockito.when(employeeRepository.findByUserName(any(String.class)))
+        .thenReturn(Optional.of(easyRandom.nextObject(EmployeeEntity.class)));
+    Mockito.when(companyRepository.findByName(any(String.class)))
+        .thenReturn(Optional.of(easyRandom.nextObject(CompanyEntity.class)));
 
     String claimJson = objectMapper.writeValueAsString(claimDTO);
     mockMvc.perform(post("/v1/claims")
@@ -68,36 +92,17 @@ public class ClaimIntegrationTest {
   }
 
   @Test
-  void testGetAllClaims() throws Exception {
-    List<ClaimEntity> claimsList = easyRandom.objects(ClaimEntity.class, 3).toList();
-    List<ClaimDTO> claimDTOs = claimsList.stream()
-        .map(ClaimMapper.INSTANCE::entityToDto)
-        .collect(Collectors.toList());
-
-    Mockito.when(claimRepository.findAll()).thenReturn(claimsList);
-    Mockito.when(claimService.getAllClaims()).thenReturn(claimDTOs);
-
-    mockMvc.perform(get("/v1/claims"))
-        .andDo(print())
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$").isArray())
-        .andExpect(jsonPath("$.length()").value(3));
-  }
-
-  @Test
   void testGetClaimById() throws Exception {
     UUID claimId = UUID.randomUUID();
     ClaimDTO claimDTO = easyRandom.nextObject(ClaimDTO.class);
     claimDTO.setId(claimId);
     ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
 
-    Mockito.when(claimRepository.findById(claimId)).thenReturn(java.util.Optional.of(claimEntity));
-    Mockito.when(claimService.getClaimById(claimId)).thenReturn(claimDTO);
+    Mockito.when(claimRepository.findById(claimId)).thenReturn(Optional.of(claimEntity));
 
     mockMvc.perform(get("/v1/claims/{id}", claimId))
-        .andDo(print())
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(claimId.toString()));
+        .andExpect(jsonPath("$.claimNumber").value(claimDTO.getClaimNumber()));
   }
 
   @Test
@@ -107,9 +112,8 @@ public class ClaimIntegrationTest {
     originalClaimDTO.setId(claimId);
     ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(originalClaimDTO);
 
-    Mockito.when(claimRepository.findById(claimId)).thenReturn(java.util.Optional.of(claimEntity));
-    Mockito.when(claimRepository.save(any())).thenReturn(claimEntity);
-    Mockito.when(claimService.updateClaim(eq(claimId), any(ClaimDTO.class))).thenReturn(originalClaimDTO);
+    Mockito.when(claimRepository.findById(eq(claimId))).thenReturn(Optional.of(claimEntity));
+    Mockito.when(claimRepository.save(any(ClaimEntity.class))).thenReturn(claimEntity);
 
     String claimJson = objectMapper.writeValueAsString(originalClaimDTO);
     mockMvc.perform(put("/v1/claims/{id}", claimId)
@@ -122,69 +126,64 @@ public class ClaimIntegrationTest {
 
   @Test
   void testDeactivateClaim() throws Exception {
+    UUID claimId = UUID.randomUUID();
     ClaimDTO claimDTO = easyRandom.nextObject(ClaimDTO.class);
+    claimDTO.setId(claimId);
     claimDTO.setStatus(ClaimStatus.DEACTIVATED);
     ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
 
-    Mockito.when(claimRepository.findById(claimDTO.getId()))
-        .thenReturn(java.util.Optional.of(claimEntity));
-    Mockito.when(claimRepository.save(any())).thenReturn(claimEntity);
-    Mockito.when(claimService.deactivateClaim(claimDTO.getId())).thenReturn(claimDTO);
+    Mockito.when(claimRepository.findById(claimId))
+        .thenReturn(Optional.of(claimEntity));
+    Mockito.when(claimRepository.save(any(ClaimEntity.class))).thenReturn(claimEntity);
 
-    mockMvc.perform(delete("/v1/claims/{id}", claimDTO.getId()))
+    mockMvc.perform(delete("/v1/claims/{id}", claimId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("DEACTIVATED"));
   }
 
   @Test
-  void testGetAllClaimsByEmployee() throws Exception {
-    String employeeUsername = "janedoe";
-    List<ClaimEntity> claimsList = easyRandom.objects(ClaimEntity.class, 3)
-        .map(claim -> {
-          EmployeeEntity employee = new EmployeeEntity();
-          employee.setUserName(employeeUsername);
-          claim.setEmployee(employee);
-          return claim;
-        }).collect(Collectors.toList());
+  void testGetAllClaimsByEmployeeUserName() throws Exception {
+    String employee = "janedoe";
 
-    List<ClaimDTO> claimDTOs = claimsList.stream()
+    List<ClaimEntity> claimEntities = easyRandom.objects(ClaimEntity.class, 3)
+        .peek(entity -> entity.getEmployee().setUserName(employee)).toList();
+    List<ClaimDTO> claimDTOs = claimEntities.stream()
         .map(ClaimMapper.INSTANCE::entityToDto)
-        .collect(Collectors.toList());
+        .peek(dto -> dto.setEmployee(employee))
+        .toList();
 
-    Mockito.when(claimRepository.findAllByEmployeeUserName(employeeUsername)).thenReturn(claimsList);
-    Mockito.when(claimService.getAllClaimsByEmployeeUserName(employeeUsername)).thenReturn(claimDTOs);
+    Mockito.when(claimRepository.findAllByEmployeeUserName(employee)).thenReturn(claimEntities);
 
-    mockMvc.perform(get("/v1/claims/employees/{employee}", employeeUsername))
+    mockMvc.perform(get("/v1/claims/employees/{employeeUserName}", employee))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(3))
-        .andExpect(jsonPath("$[0].employee").value(employeeUsername));
+        .andExpect(jsonPath("$[0].employee").value(employee));
   }
 
   @Test
-  void testGetAllClaimsByCompany() throws Exception {
-    String companyName = "Coherent Solutions";
-    List<ClaimEntity> claimsList = easyRandom.objects(ClaimEntity.class, 3)
-        .map(claim -> {
-          if (claim.getCompany() == null) {
-            claim.setCompany(new CompanyEntity());
-          }
-          claim.getCompany().setName(companyName);
-          return claim;
-        }).collect(Collectors.toList());
+  void testGetAllClaimsByCompanyName() throws Exception {
+    String company = "ISSoft";
 
-    List<ClaimDTO> claimDTOs = claimsList.stream()
+    List<ClaimEntity> claimEntities = easyRandom.objects(ClaimEntity.class, 3).peek(claimEntity -> {
+      claimEntity.getCompany().setName(company);
+    }).toList();
+
+    List<ClaimDTO> claimDTOs = claimEntities.stream()
         .map(ClaimMapper.INSTANCE::entityToDto)
-        .collect(Collectors.toList());
+        .peek(dto -> dto.setCompany(company))
+        .toList();
 
-    Mockito.when(claimRepository.findAllByCompanyName(companyName)).thenReturn(claimsList);
-    Mockito.when(claimService.getAllClaimsByCompanyName(companyName)).thenReturn(claimDTOs);
+    Mockito.when(claimRepository.findAllByCompanyName(company)).thenReturn(claimEntities);
+    Mockito.when(companyRepository.findByName(any(String.class)))
+        .thenReturn(Optional.of(easyRandom.nextObject(CompanyEntity.class)));
 
-    mockMvc.perform(get("/v1/claims/companies/{company}", companyName))
+    mockMvc.perform(get("/v1/claims/companies/{companyName}", company))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
-        .andExpect(jsonPath("$.length()").value(3));
+        .andExpect(jsonPath("$.length()").value(3))
+        .andExpect(jsonPath("$[0].company").value(company));
   }
 }

@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClaimRepository extends JpaRepository<ClaimEntity, UUID> {
 
-  List<ClaimEntity> findAllByEmployeeUserName(String employee);
+  List<ClaimEntity> findAllByEmployeeUserName(String employeeUserName);
 
-  List<ClaimEntity> findAllByCompanyName(String company);
+  List<ClaimEntity> findAllByCompanyName(String companyName);
 
 }
