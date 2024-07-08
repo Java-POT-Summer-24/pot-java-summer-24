@@ -37,7 +37,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest({PlanController.class, PlanService.class})
 @TestPropertySource(properties = "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration")
-public class PlanControllerIntegrationTest {
+public class PlanIntegrationTest {
 
   @Autowired
   private MockMvc mockMvc;
