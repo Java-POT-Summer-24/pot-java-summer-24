@@ -31,6 +31,11 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -102,6 +107,7 @@ public class ClaimIntegrationTest {
 
     mockMvc.perform(get("/v1/claims/{id}", claimId))
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(claimId.toString()))
         .andExpect(jsonPath("$.claimNumber").value(claimDTO.getClaimNumber()));
   }
 
@@ -186,4 +192,32 @@ public class ClaimIntegrationTest {
         .andExpect(jsonPath("$.length()").value(3))
         .andExpect(jsonPath("$[0].company").value(company));
   }
+
+  @Test
+  void testGetFilteredSortedClaims() throws Exception {
+    List<ClaimEntity> claimEntities = easyRandom.objects(ClaimEntity.class, 3).toList();
+    List<ClaimDTO> claimDTOs = claimEntities.stream()
+        .map(ClaimMapper.INSTANCE::entityToDto)
+        .toList();
+
+    Page<ClaimDTO> pagedClaims = new PageImpl<>(claimDTOs, PageRequest.of(0, 3), claimDTOs.size());
+
+    Mockito.when(claimRepository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(claimEntities));
+
+    mockMvc.perform(get("/v1/claims/filtered")
+            .param("claimNumber", "12345")
+            .param("status", "ACTIVE")
+            .param("page", "0")
+            .param("size", "3")
+            .param("sort", "dateOfService,desc")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content.length()").value(3))
+        .andExpect(jsonPath("$.content[0].claimNumber").value(claimDTOs.get(0).getClaimNumber()))
+        .andExpect(jsonPath("$.content[1].claimNumber").value(claimDTOs.get(1).getClaimNumber()))
+        .andExpect(jsonPath("$.content[2].claimNumber").value(claimDTOs.get(2).getClaimNumber()));
+  }
 }
+

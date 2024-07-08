@@ -10,8 +10,15 @@ import com.coherentsolutions.pot.insurance.mapper.ClaimMapper;
 import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
 import com.coherentsolutions.pot.insurance.repository.CompanyRepository;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
+import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
+import com.coherentsolutions.pot.insurance.specifications.ClaimSpecifications;
 import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,6 +32,19 @@ public class ClaimService {
   private final ClaimRepository claimRepository;
   private final EmployeeRepository employeeRepository;
   private final CompanyRepository companyRepository;
+
+  public Page<ClaimDTO> getFilteredSortedClaims(ClaimFilterCriteria claimFilterCriteria,
+      Pageable pageable) {
+
+    Sort defaultSort = Sort.by("dateOfService").descending();
+
+    if (!pageable.getSort().isSorted()) {
+      pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), defaultSort);
+    }
+
+    Specification<ClaimEntity> spec = buildSpecification(claimFilterCriteria);
+    return claimRepository.findAll(spec, pageable).map(ClaimMapper.INSTANCE::entityToDto);
+  }
 
   public List<ClaimDTO> getAllClaims() {
     return claimRepository.findAll().stream()
@@ -74,17 +94,40 @@ public class ClaimService {
         .orElseThrow(() -> new NotFoundException("Claim with ID " + id + " was not found"));
   }
 
-  public List<ClaimDTO> getAllClaimsByEmployeeUserName(String employee) {
-    List<ClaimEntity> claims = claimRepository.findAllByEmployeeUserName(employee);
+  public List<ClaimDTO> getAllClaimsByEmployeeUserName(String employeeUserName) {
+    List<ClaimEntity> claims = claimRepository.findAllByEmployeeUserName(employeeUserName);
     return claims.stream()
         .map(ClaimMapper.INSTANCE::entityToDto)
         .collect(Collectors.toList());
   }
 
-  public List<ClaimDTO> getAllClaimsByCompanyName(String company) {
-    List<ClaimEntity> claims = claimRepository.findAllByCompanyName(company);
+  public List<ClaimDTO> getAllClaimsByCompanyName(String companyName) {
+    List<ClaimEntity> claims = claimRepository.findAllByCompanyName(companyName);
     return claims.stream()
         .map(ClaimMapper.INSTANCE::entityToDto)
         .collect(Collectors.toList());
+  }
+
+  private Specification<ClaimEntity> buildSpecification(ClaimFilterCriteria claimFilterCriteria) {
+    Specification<ClaimEntity> spec = Specification.where(null);
+
+    if (isNotEmpty(claimFilterCriteria.getClaimNumber())) {
+      spec = spec.and(ClaimSpecifications.byClaimNumber(claimFilterCriteria.getClaimNumber()));
+    }
+    if (isNotEmpty(claimFilterCriteria.getConsumer())) {
+      spec = spec.and(ClaimSpecifications.byConsumer(claimFilterCriteria.getConsumer()));
+    }
+    if (isNotEmpty(claimFilterCriteria.getEmployer())) {
+      spec = spec.and(ClaimSpecifications.byEmployer(claimFilterCriteria.getEmployer()));
+    }
+    if (claimFilterCriteria.getStatus() != null) {
+      spec = spec.and(ClaimSpecifications.byStatus(claimFilterCriteria.getStatus()));
+    }
+
+    return spec;
+  }
+
+  private boolean isNotEmpty(String value) {
+    return value != null && !value.isEmpty();
   }
 }
