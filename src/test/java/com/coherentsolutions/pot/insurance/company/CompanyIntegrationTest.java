@@ -73,7 +73,7 @@ class CompanyIntegrationTest {
 
         mockMvc.perform(get("/v1/companies/filtered")
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
-//                        .param("name", "Package A")
+                        .param("name", "Company A")
                         .param("status", "ACTIVE")
                         .param("page", "0")
                         .param("size", "3")
