@@ -32,9 +32,9 @@ public class CompanyController {
         return companyService.getAllCompanies();
     }
 
-    @PutMapping
-    public CompanyDTO updateCompany(@RequestBody CompanyDTO company) {
-        return companyService.updateCompany(company);
+    @PutMapping("/{id}")
+    public CompanyDTO updateCompany(@RequestBody CompanyDTO company, @PathVariable UUID id) {
+        return companyService.updateCompany(company, id);
     }
 
     @DeleteMapping("/{id}")
