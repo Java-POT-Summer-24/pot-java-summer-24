@@ -1,7 +1,7 @@
 package com.coherentsolutions.pot.insurance.entity;
 
-import com.coherentsolutions.pot.insurance.dto.enums.PlanStatus;
-import com.coherentsolutions.pot.insurance.dto.enums.PlanType;
+import com.coherentsolutions.pot.insurance.constants.PlanStatus;
+import com.coherentsolutions.pot.insurance.constants.PlanType;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,17 +24,17 @@ import lombok.NoArgsConstructor;
 @Entity
 public class PlanEntity extends BaseEntity {
 
-    private String planName;
+  private String planName;
 
-    @Enumerated(EnumType.STRING)
-    private PlanType planType;
+  @Enumerated(EnumType.STRING)
+  private PlanType planType;
 
-    @Temporal(TemporalType.DATE)
-    private LocalDate startDate;
+  @Temporal(TemporalType.DATE)
+  private LocalDate startDate;
 
-    @Temporal(TemporalType.DATE)
-    private LocalDate endDate;
+  @Temporal(TemporalType.DATE)
+  private LocalDate endDate;
 
-    @Enumerated(EnumType.STRING)
-    private PlanStatus status;
+  @Enumerated(EnumType.STRING)
+  private PlanStatus status;
 }
