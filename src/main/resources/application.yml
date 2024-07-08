@@ -1,3 +1,4 @@
+spring.application.name: insurance
 # H2 Database Configuration (for development/testing)
 # Comment the following lines to use PostgreSQL instead of H2
 
@@ -52,4 +53,5 @@ server:
 #    change-log: classpath:changelog/changelog-master.xml
 #  server:
 #    port: 8080
+
 

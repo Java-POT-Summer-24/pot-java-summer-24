@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ErrorResponse {
+
   private int status;
   private String message;
   private Map<String, String> errors;
@@ -17,3 +18,4 @@ public class ErrorResponse {
     this.errors = Map.of("detail", detail);
   }
 }
+
