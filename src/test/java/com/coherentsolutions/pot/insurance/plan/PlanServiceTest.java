@@ -1,116 +1,144 @@
 package com.coherentsolutions.pot.insurance.plan;
 
-
 import com.coherentsolutions.pot.insurance.dto.PlanDTO;
-import com.coherentsolutions.pot.insurance.dto.enums.PlanStatus;
+import com.coherentsolutions.pot.insurance.constants.PlanStatus;
+import com.coherentsolutions.pot.insurance.entity.PlanEntity;
 import com.coherentsolutions.pot.insurance.exception.NotFoundException;
+import com.coherentsolutions.pot.insurance.mapper.PlanMapper;
+import com.coherentsolutions.pot.insurance.repository.PlanRepository;
 import com.coherentsolutions.pot.insurance.service.PlanService;
+import com.coherentsolutions.pot.insurance.specifications.PlanFilterCriteria;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.jeasy.random.EasyRandom;
 import java.util.List;
 import java.util.UUID;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class PlanServiceTest {
 
-    private final EasyRandom easyRandom = new EasyRandom();
+  private final EasyRandom easyRandom = new EasyRandom();
 
-    @Mock
-    private PlanService planService;
+  @InjectMocks
+  private PlanService planService;
+  @Mock
+  private PlanRepository planRepository;
 
-    @Test
-    void testAddPlan() {
-        PlanDTO newPlanDTO = easyRandom.nextObject(PlanDTO.class);
+  @Test
+  void testAddPlan() {
+    PlanDTO newPlanDTO = easyRandom.nextObject(PlanDTO.class);
+    PlanEntity planEntity = PlanMapper.INSTANCE.toPlanEntity(newPlanDTO);
 
-        when(planService.addPlan(any(PlanDTO.class))).thenReturn(newPlanDTO);
+    when(planRepository.save(any(PlanEntity.class))).thenReturn(planEntity);
+    PlanDTO createdPlanDTO = planService.addPlan(newPlanDTO);
 
-        PlanDTO createdPlanDTO = planService.addPlan(newPlanDTO);
+    assertEquals(planEntity.getId(), createdPlanDTO.getId());
+    assertEquals(newPlanDTO.getPlanName(), createdPlanDTO.getPlanName());
+    verify(planRepository).save(any(PlanEntity.class));
+  }
 
-        assertEquals(newPlanDTO, createdPlanDTO);
-        verify(planService).addPlan(newPlanDTO);
-    }
+  @Test
+  void testGetAllPlans() {
+    List<PlanEntity> planEntities = easyRandom.objects(PlanEntity.class, 3).toList();
 
-    @Test
-    void testGetAllPlans() {
-        List<PlanDTO> plansList = easyRandom.objects(PlanDTO.class, 3).toList();
-        when(planService.getAllPlans()).thenReturn(plansList);
+    when(planRepository.findAll()).thenReturn(planEntities);
 
-        List<PlanDTO> result = planService.getAllPlans();
+    List<PlanDTO> result = planService.getAllPlans();
 
-        assert result != null;
-        assertEquals(3, result.size());
-        verify(planService).getAllPlans();
-    }
+    assertEquals(planEntities.size(), result.size());
+    verify(planRepository).findAll();
+  }
 
-    @Test
-    void testGetPlanById() {
-        PlanDTO PlanDTO = easyRandom.nextObject(PlanDTO.class);
-        UUID id = UUID.randomUUID();
-        PlanDTO.setId(id);
-        when(planService.getPlanById(id)).thenReturn(PlanDTO);
+  @Test
+  void testGetPlanById() {
+    PlanEntity planEntity = easyRandom.nextObject(PlanEntity.class);
+    UUID id = planEntity.getId();
+    when(planRepository.findById(id)).thenReturn(Optional.of(planEntity));
 
-        PlanDTO result = planService.getPlanById(id);
+    PlanDTO result = planService.getPlanById(id);
 
-        assert result != null;
-        assertEquals(PlanDTO.getId(), result.getId());
-        verify(planService).getPlanById(id);
-    }
+    assertNotNull(result);
+    assertEquals(id, result.getId());
+    verify(planRepository).findById(id);
+  }
 
-    @Test
-    void testUpdatePlan() {
-        PlanDTO originalPlanDTO = easyRandom.nextObject(PlanDTO.class);
-        PlanDTO updatedPlanDTO = easyRandom.nextObject(PlanDTO.class);
-        updatedPlanDTO.setId(originalPlanDTO.getId());
+  @Test
+  void testUpdatePlan() {
+    PlanDTO originalPlanDTO = easyRandom.nextObject(PlanDTO.class);
+    PlanEntity planEntity = PlanMapper.INSTANCE.toPlanEntity(originalPlanDTO);
+    UUID planId = originalPlanDTO.getId();
 
-        UUID planId = originalPlanDTO.getId();
+    when(planRepository.findById(planId)).thenReturn(Optional.of(planEntity));
+    when(planRepository.save(any(PlanEntity.class))).thenReturn(planEntity);
 
-        when(planService.updatePlan(eq(planId), any(PlanDTO.class))).thenReturn(updatedPlanDTO);
+    PlanDTO updatedPlanDTO = planService.updatePlan(planId, originalPlanDTO);
 
-        PlanDTO result = planService.updatePlan(planId, originalPlanDTO);
+    assertEquals(originalPlanDTO.getPlanName(), updatedPlanDTO.getPlanName());
+    verify(planRepository).save(planEntity);
+  }
 
-        assertEquals(updatedPlanDTO, result);
-        verify(planService).updatePlan(eq(planId), eq(originalPlanDTO));
-    }
+  @Test
+  void testDeactivatePlan() {
+    PlanEntity planEntity = easyRandom.nextObject(PlanEntity.class);
+    planEntity.setStatus(PlanStatus.ACTIVE);
+    UUID id = planEntity.getId();
 
-    @Test
-    void testDeactivatePlan() {
-        UUID id = UUID.randomUUID();
-        PlanDTO originalPlanDTO = easyRandom.nextObject(PlanDTO.class);
-        originalPlanDTO.setId(id);
-        originalPlanDTO.setStatus(PlanStatus.DEACTIVATED);
+    when(planRepository.findById(id)).thenReturn(Optional.of(planEntity));
+    when(planRepository.save(any(PlanEntity.class))).thenAnswer(
+        invocation -> invocation.getArgument(0));
 
-        when(planService.deactivatePlan(id)).thenReturn(originalPlanDTO);
+    PlanDTO result = planService.deactivatePlan(id);
 
-        PlanDTO resultPlanDTO = planService.deactivatePlan(id);
+    assertEquals(PlanStatus.DEACTIVATED, result.getStatus());
+    verify(planRepository).save(planEntity);
+  }
 
-        assert resultPlanDTO != null;
-        assertEquals(PlanStatus.DEACTIVATED, resultPlanDTO.getStatus());
+  @Test
+  void testDeactivateNonExistingPlan() {
+    UUID id = UUID.randomUUID();
 
-        verify(planService).deactivatePlan(id);
-    }
+    NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+      planService.deactivatePlan(id);
+    });
 
-    @Test
-    void testDeactivateNonExistingPlan() {
-        UUID id = UUID.randomUUID();
+    assertEquals("Plan with id " + id + " not found", exception.getMessage());
+  }
 
-        // Mock NotFoundException scenario
-        when(planService.deactivatePlan(id)).thenThrow(new NotFoundException("Plan with id " + id + " not found"));
+  @Test
+  public void testGetFilteredSortedPlans() {
+    List<PlanEntity> planEntities = easyRandom.objects(PlanEntity.class, 3).toList();
+    Page<PlanEntity> pagedEntities = new PageImpl<>(planEntities);
 
-        // Assert that NotFoundException is thrown
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            planService.deactivatePlan(id);
-        });
+    PlanFilterCriteria filterCriteria = new PlanFilterCriteria();
+    Pageable pageable = PageRequest.of(0, 3, Sort.by("planName").ascending());
 
-        assertEquals("Plan with id " + id + " not found", exception.getMessage());
+    when(planRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(
+        pagedEntities);
 
-        verify(planService).deactivatePlan(id);
-    }
+    Page<PlanDTO> result = planService.getFilteredSortedPlans(filterCriteria, pageable);
+
+    assertNotNull(result);
+    assertEquals(3, result.getContent().size());
+    assertEquals(planEntities.stream().map(PlanMapper.INSTANCE::toPlanDto).toList(),
+        result.getContent());
+
+    verify(planRepository).findAll(any(Specification.class), any(Pageable.class));
+  }
 }

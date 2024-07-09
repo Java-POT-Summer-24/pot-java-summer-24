@@ -5,15 +5,14 @@ import com.coherentsolutions.pot.insurance.constants.ClaimStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -22,17 +21,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ClaimEntity {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private UUID id;
+@EqualsAndHashCode(callSuper = true)
+public class ClaimEntity extends BaseEntity {
 
   private String claimNumber;
 
-  private String consumer;
+  @ManyToOne
+  @JoinColumn(name = "employee", referencedColumnName = "userName")
+  private EmployeeEntity employee;
 
-  private String employer;
+  @ManyToOne
+  @JoinColumn(name = "company", referencedColumnName = "name")
+  private CompanyEntity company;
 
   private LocalDate dateOfService;
 

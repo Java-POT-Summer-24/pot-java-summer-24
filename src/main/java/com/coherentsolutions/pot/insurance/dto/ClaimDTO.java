@@ -23,11 +23,9 @@ public class ClaimDTO {
 
   private String claimNumber;
 
-  @NotBlank(message = "Consumer is required")
-  private String consumer;
+  private String employee;
 
-  @NotBlank(message = "Employer is required")
-  private String employer;
+  private String company;
 
   @NotNull(message = "Date of service is required")
   private LocalDate dateOfService;

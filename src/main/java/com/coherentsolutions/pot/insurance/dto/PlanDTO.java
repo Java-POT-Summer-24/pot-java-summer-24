@@ -1,6 +1,7 @@
 package com.coherentsolutions.pot.insurance.dto;
 
-import com.coherentsolutions.pot.insurance.dto.enums.*;
+import com.coherentsolutions.pot.insurance.constants.PlanStatus;
+import com.coherentsolutions.pot.insurance.constants.PlanType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -16,21 +17,22 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlanDTO {
-    private UUID id;
 
-    @NotBlank(message = "Plan name is required")
-    private String planName;
+  private UUID id;
 
-    @NotNull(message = "Status is required")
-    private PlanStatus status;
+  @NotBlank(message = "Plan name is required")
+  private String planName;
 
-    @NotNull(message = "Plan type is required")
-    private PlanType planType;
+  @NotNull(message = "Status is required")
+  private PlanStatus status;
 
-    @NotNull(message = "Start date is required")
-    private LocalDate startDate;
+  @NotNull(message = "Plan type is required")
+  private PlanType planType;
 
-    @NotNull(message = "End date is required")
-    private LocalDate endDate;
+  @NotNull(message = "Start date is required")
+  private LocalDate startDate;
+
+  @NotNull(message = "End date is required")
+  private LocalDate endDate;
 
 }
