@@ -42,11 +42,11 @@ public class EmployeeService {
         .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO);
   }
 
-  public EmployeeDTO addEmployee(EmployeeDTO employeeDTO) {
-    return EmployeeMapper.INSTANCE
-        .employeeToEmployeeDTO(employeeRepository
-            .save(EmployeeMapper.INSTANCE
-                .employeeDTOToEmployee(employeeDTO)));
+  public EmployeeDTO addEmployee(EmployeeDTO employeeDTO){
+    EmployeeEntity employee = EmployeeMapper.INSTANCE.employeeDTOToEmployee(employeeDTO);
+    EmployeeEntity createdEmployee = employeeRepository.save(employee);
+
+    return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(createdEmployee);
   }
 
   public EmployeeDTO getEmployee(UUID employeeId) {
