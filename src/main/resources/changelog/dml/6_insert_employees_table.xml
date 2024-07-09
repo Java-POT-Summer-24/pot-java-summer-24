@@ -9,7 +9,7 @@
     <sql>
       INSERT INTO employee (id, first_name, last_name, user_name, email, date_of_birth, ssn, phone_number, status)
       VALUES
-      (RANDOM_UUID(), 'John', 'Doe', 'johndoe', 'john.doe@example.com', '1980-01-01', '123456789', '1234567890', 'ACTIVE'),
+      ('d5e38eb0-58a3-4a0f-878c-72eac1877d5e', 'John', 'Doe', 'johndoe', 'john.doe@example.com', '1980-01-01', '123456789', '1234567890', 'ACTIVE'),
       (RANDOM_UUID(), 'Jane', 'Doe', 'janedoe', 'jane.doe@example.com', '1985-01-01', '987654321', '9876543210', 'INACTIVE');
     </sql>
   </changeSet>

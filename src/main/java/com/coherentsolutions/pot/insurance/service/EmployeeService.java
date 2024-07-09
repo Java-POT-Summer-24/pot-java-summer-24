@@ -74,18 +74,20 @@ public class EmployeeService {
         .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
   }
 
-  public void deactivateEmployee(UUID employeeId) {
-    employeeRepository.findById(employeeId)
+  public EmployeeDTO deactivateEmployee(UUID employeeId) {
+    return employeeRepository.findById(employeeId)
         .map(employee -> {
           if (employee.getStatus() == EmployeeStatus.INACTIVE) {
             throw new NotFoundException(
-                "Cannot delete. Employee with id: " + employeeId + " is already inactive");
+                "Cannot deactivate. Employee with id: " + employeeId + " is already inactive");
           }
           employee.setStatus(EmployeeStatus.INACTIVE);
-          return employeeRepository.save(employee);
+          employee = employeeRepository.save(employee);
+          return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employee);
         })
-        .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
+        .orElseThrow(() -> new NotFoundException("Employee with ID " + employeeId + " was not found"));
   }
+
 
   private Specification<EmployeeEntity> buildSpecification(
       EmployeeFilterCriteria employeeFilterCriteria) {
