@@ -69,3 +69,9 @@ Step 2: Run application
 3. Go to http://localhost:8080
 
 poehali.lt   
+
+#### Manual to setup redis server:
+
+1. Download redis from official website: https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/
+2. Write "redis-server" to console. 
+3. To check all keys in redis open terminal, and write "redis-cli", then "KEYS *"

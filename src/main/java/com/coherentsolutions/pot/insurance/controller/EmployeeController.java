@@ -3,6 +3,10 @@ package com.coherentsolutions.pot.insurance.controller;
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
 import com.coherentsolutions.pot.insurance.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
@@ -25,30 +29,41 @@ public class EmployeeController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @CacheEvict(value = "employeesList", allEntries = true)
     public EmployeeDTO addEmployee(@RequestBody EmployeeDTO employeeDTO){
         return employeeService.addEmployee(employeeDTO);
     }
 
     @GetMapping("/{employeeId}")
     @ResponseStatus(HttpStatus.OK)
+    @Cacheable(value = "employee", key = "#employeeId")
     public EmployeeDTO getEmployee(@PathVariable UUID employeeId){
         return employeeService.getEmployee(employeeId);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @Cacheable(value = "employeesList")
     public List<EmployeeDTO> getAllEmployees(){
         return employeeService.getAllEmployees();
     }
 
     @PutMapping("/{employeeId}")
     @ResponseStatus(HttpStatus.OK)
+    @Caching(
+            evict = {@CacheEvict(value = "employeesList", allEntries = true)},
+            put = {@CachePut(value = "employee", key = "#employeeId")}
+    )
     public EmployeeDTO updateEmployee(@PathVariable UUID employeeId, @RequestBody EmployeeDTO updatedEmployeeDTO){
         return employeeService.updateEmployee(employeeId, updatedEmployeeDTO);
     }
 
     @DeleteMapping("/{employeeId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Caching(
+            evict = {@CacheEvict(value = "employeesList", allEntries = true)},
+            put = {@CachePut(value = "employee", key = "#employeeId")}
+    )
     public void deactivateEmployee(@PathVariable UUID employeeId){
         employeeService.deactivateEmployee(employeeId);
     }
