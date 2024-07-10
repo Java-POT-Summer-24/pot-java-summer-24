@@ -10,16 +10,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.coherentsolutions.pot.insurance.constants.EmployeeStatus;
 import com.coherentsolutions.pot.insurance.controller.EmployeeController;
-import com.coherentsolutions.pot.insurance.service.EmployeeService;
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
+import com.coherentsolutions.pot.insurance.service.EmployeeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
