@@ -39,10 +39,6 @@ public class EmployeeIntegrationTest {
   private ObjectMapper objectMapper;
   @MockBean
   private EmployeeService employeeService;
-  @BeforeEach
-  void setUp() {
-    MockitoAnnotations.openMocks(this);
-  }
 
   @Test
   void testGetFilteredSortedEmployees() throws Exception {
