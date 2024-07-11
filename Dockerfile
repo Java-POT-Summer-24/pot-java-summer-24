@@ -1,7 +1,7 @@
 FROM openjdk:21
 
-EXPOSE 8080
-
 COPY build/libs/insurance-project.jar insurance-project.jar
+
+EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "/insurance-project.jar"]

@@ -7,9 +7,9 @@
 
     <changeSet id="4" author="NormantasN">
         <sql>
-          CREATE TABLE PLAN_ENTITY
+          CREATE TABLE plan
           (
-            id         UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
+            id         UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
             plan_name  VARCHAR(255) NOT NULL,
             status     VARCHAR(255) NOT NULL,
             plan_type  VARCHAR(255) NOT NULL,
