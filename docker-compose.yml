@@ -9,10 +9,25 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
+    profiles:
+      - prod
 
-  insurance-app:
+  insurance-app-dev:
     build: .
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    ports:
+      - "8081:8080"
+    profiles:
+      - dev
+
+  insurance-app-prod:
+    build: .
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
     depends_on:
       - insurance-db
     ports:
       - "8080:8080"
+    profiles:
+      - prod
