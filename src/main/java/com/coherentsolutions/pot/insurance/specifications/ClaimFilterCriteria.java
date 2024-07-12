@@ -8,7 +8,7 @@ import org.springdoc.api.annotations.ParameterObject;
 @ParameterObject
 public class ClaimFilterCriteria {
   private String claimNumber;
-  private String consumer;
-  private String employer;
+  private String employee;
+  private String company;
   private ClaimStatus status;
 }
