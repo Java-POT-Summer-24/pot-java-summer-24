@@ -38,9 +38,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	runtimeOnly 'com.h2database:h2'
 	implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
-
-
-	// For future use
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.postgresql:postgresql:42.5.0'
 }
 
