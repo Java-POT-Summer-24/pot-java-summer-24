@@ -39,7 +39,7 @@ dependencies {
 	runtimeOnly 'com.h2database:h2'
 	implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
 
-
+	implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
 	// For future use
 	// implementation 'org.postgresql:postgresql:42.5.0'
 }
