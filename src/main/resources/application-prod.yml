@@ -19,8 +19,3 @@ spring:
     web:
       pageable:
         default-page-size: 10
-server:
-  error:
-    include-message: always
-    include-binding-errors: always
-    port: 8080

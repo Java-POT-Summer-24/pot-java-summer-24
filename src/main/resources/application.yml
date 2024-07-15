@@ -2,3 +2,8 @@ spring:
   profiles:
     active: dev # development profile - dev (by default)
                 # change to production profile - prod
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
+    port: 8080
