@@ -1,7 +1,5 @@
 package com.coherentsolutions.pot.insurance.service;
 
-import static org.springframework.util.StringUtils.hasText;
-
 import com.coherentsolutions.pot.insurance.constants.EmployeeStatus;
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
 import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
@@ -10,7 +8,10 @@ import com.coherentsolutions.pot.insurance.mapper.EmployeeMapper;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeSpecifications;
+import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import com.coherentsolutions.pot.insurance.util.ValidationUtil;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,14 +20,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
 
   private final EmployeeRepository employeeRepository;
+  private final NotificationClient notificationClient;
 
   public Page<EmployeeDTO> getFilteredSortedEmployees(EmployeeFilterCriteria employeeFilterCriteria,
       Pageable pageable) {
@@ -42,7 +41,7 @@ public class EmployeeService {
         .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO);
   }
 
-  public EmployeeDTO addEmployee(EmployeeDTO employeeDTO){
+  public EmployeeDTO addEmployee(EmployeeDTO employeeDTO) {
     EmployeeEntity employee = EmployeeMapper.INSTANCE.employeeDTOToEmployee(employeeDTO);
     EmployeeEntity createdEmployee = employeeRepository.save(employee);
 
@@ -62,32 +61,42 @@ public class EmployeeService {
   }
 
   public EmployeeDTO updateEmployee(UUID employeeId, EmployeeDTO updatedEmployeeDTO) {
-    return employeeRepository.findById(employeeId)
-        .map(employee -> {
-          if (employee.getStatus() == EmployeeStatus.INACTIVE) {
-            throw new NotFoundException(
-                "Cannot update. Employee with id: " + employeeId + " is inactive");
-          }
-          EmployeeMapper.INSTANCE.updateEmployeeFromDTO(updatedEmployeeDTO, employee);
-          return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employeeRepository.save(employee));
-        })
-        .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
+    return employeeRepository.findById(employeeId).map(employee -> {
+      if (employee.getStatus() == EmployeeStatus.INACTIVE) {
+        throw new NotFoundException(
+            "Cannot update. Employee with id: " + employeeId + " is inactive");
+      }
+      EmployeeMapper.INSTANCE.updateEmployeeFromDTO(updatedEmployeeDTO, employee);
+      return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employeeRepository.save(employee));
+    }).orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
   }
 
   public EmployeeDTO deactivateEmployee(UUID employeeId) {
-    return employeeRepository.findById(employeeId)
-        .map(employee -> {
-          if (employee.getStatus() == EmployeeStatus.INACTIVE) {
-            throw new NotFoundException(
-                "Cannot deactivate. Employee with id: " + employeeId + " is already inactive");
-          }
-          employee.setStatus(EmployeeStatus.INACTIVE);
-          employee = employeeRepository.save(employee);
-          return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employee);
-        })
-        .orElseThrow(() -> new NotFoundException("Employee with ID " + employeeId + " was not found"));
-  }
+    return employeeRepository.findById(employeeId).map(employee -> {
+      if (employee.getStatus() == EmployeeStatus.INACTIVE) {
+        throw new NotFoundException(
+            "Cannot deactivate. Employee with id: " + employeeId + " is already inactive");
+      }
+      employee.setStatus(EmployeeStatus.INACTIVE);
+      employee = employeeRepository.save(employee);
 
+      // Send notification
+      String message = """
+          Dear %s,
+
+          Your account has been deactivated.
+
+          Best regards,
+          Your Company
+          """.formatted(employee.getFirstName());
+
+      notificationClient.sendDeactivationNotification(employee.getEmail(), "Account Deactivated",
+          message);
+
+      return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employee);
+    }).orElseThrow(
+        () -> new NotFoundException("Employee with ID " + employeeId + " was not found"));
+  }
 
   private Specification<EmployeeEntity> buildSpecification(
       EmployeeFilterCriteria employeeFilterCriteria) {

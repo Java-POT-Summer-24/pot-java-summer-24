@@ -21,12 +21,14 @@ import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
 import com.coherentsolutions.pot.insurance.repository.CompanyRepository;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
+import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -63,6 +65,9 @@ public class ClaimIntegrationTest {
 
   @MockBean
   private CompanyRepository companyRepository;
+
+  @MockBean
+  private NotificationClient notificationClient;
 
   private final EasyRandom easyRandom = new EasyRandom();
 
@@ -153,13 +158,13 @@ public class ClaimIntegrationTest {
 
   @Test
   void testGetAllClaimsByEmployeeUserName() throws Exception {
-    String employee = "janedoe";
+    String employee = "johndoe";
 
     List<ClaimEntity> claimEntities = easyRandom.objects(ClaimEntity.class, 3)
         .peek(entity -> entity.getEmployee().setUserName(employee)).toList();
     List<ClaimDTO> claimDTOs = claimEntities.stream()
         .map(ClaimMapper.INSTANCE::entityToDto)
-        .peek(dto -> dto.setEmployee(employee))
+        .peek(dto -> dto.setEmployeeUserName(employee))
         .toList();
 
     Mockito.when(claimRepository.findAllByEmployeeUserName(employee)).thenReturn(claimEntities);
@@ -169,7 +174,7 @@ public class ClaimIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(3))
-        .andExpect(jsonPath("$[0].employee").value(employee));
+        .andExpect(jsonPath("$[0].employeeUserName").value(employee));
   }
 
   @Test
