@@ -29,12 +29,30 @@ spring:
     web:
       pageable:
         default-page-size: 10
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: ${KEYCLOAK_RESOURCE}
+            client-secret: ${KEYCLOAK_CREDENTIALS_SECRET}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_AUTH_SERVER_URL}
+            user-name-attribute: preferred_username
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_AUTH_SERVER_URL}
+
 
 server:
+  port: 8081
   error:
     include-message: always
     include-binding-errors: always
-    port: 8080
 
 # Including server.error configurations to see detailed error messages in API responses.
 

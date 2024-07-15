@@ -2,11 +2,15 @@ package com.coherentsolutions.pot.insurance.controller;
 
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
 import com.coherentsolutions.pot.insurance.service.EmployeeService;
+import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springdoc.api.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
@@ -26,6 +30,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class EmployeeController {
     private final EmployeeService employeeService;
+
+    @GetMapping("/filtered")
+    @ResponseStatus(HttpStatus.OK)
+    public Page<EmployeeDTO> getFilteredSortedEmployees(
+        @ParameterObject EmployeeFilterCriteria employeeFilterCriteria,
+        @ParameterObject Pageable pageable) {
+        return employeeService.getFilteredSortedEmployees(employeeFilterCriteria, pageable);
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -59,12 +71,12 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/{employeeId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @Caching(
             evict = {@CacheEvict(value = "employeesList", allEntries = true)},
             put = {@CachePut(value = "employee", key = "#employeeId")}
     )
-    public void deactivateEmployee(@PathVariable UUID employeeId){
-        employeeService.deactivateEmployee(employeeId);
+    public EmployeeDTO deactivateEmployee(@PathVariable UUID employeeId) {
+        return employeeService.deactivateEmployee(employeeId);
     }
 }
