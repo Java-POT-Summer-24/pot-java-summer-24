@@ -1,10 +1,10 @@
-package com.coherentsolutions.pot.insurance.microservice;
+package com.coherentsolutions.pot.insurance;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MicroserviceApplicationTests {
+class NotificationsMicroserviceApplicationTests {
 
 	@Test
 	void contextLoads() {
