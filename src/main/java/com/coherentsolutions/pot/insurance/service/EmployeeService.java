@@ -1,7 +1,5 @@
 package com.coherentsolutions.pot.insurance.service;
 
-import static org.springframework.util.StringUtils.hasText;
-
 import com.coherentsolutions.pot.insurance.constants.EmployeeStatus;
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
 import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
@@ -18,8 +16,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -27,6 +29,10 @@ import java.util.UUID;
 public class EmployeeService {
 
   private final EmployeeRepository employeeRepository;
+
+  private final WebClient webClient = WebClient.create();
+
+  private static final String NOTIFICATION_SERVICE_URL = "http://localhost:8081/v1/mail/send";
 
   public Page<EmployeeDTO> getFilteredSortedEmployees(EmployeeFilterCriteria employeeFilterCriteria,
       Pageable pageable) {
@@ -83,11 +89,27 @@ public class EmployeeService {
           }
           employee.setStatus(EmployeeStatus.INACTIVE);
           employee = employeeRepository.save(employee);
+
+          // Send notification
+          sendDeactivationNotification(employee);
+
           return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employee);
         })
         .orElseThrow(() -> new NotFoundException("Employee with ID " + employeeId + " was not found"));
   }
 
+  private void sendDeactivationNotification(EmployeeEntity employee) {
+    Map<String, String> notificationPayload = new HashMap<>();
+    notificationPayload.put("subject", "Account Deactivated");
+    notificationPayload.put("message", "Dear " + employee.getFirstName() + ",\n\nYour account has been deactivated.\n\nBest regards,\nYour Company");
+
+    webClient.post()
+        .uri(NOTIFICATION_SERVICE_URL + "/" + employee.getEmail())
+        .body(Mono.just(notificationPayload), Map.class)
+        .retrieve()
+        .bodyToMono(String.class)
+        .block();
+  }
 
   private Specification<EmployeeEntity> buildSpecification(
       EmployeeFilterCriteria employeeFilterCriteria) {
