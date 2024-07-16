@@ -20,8 +20,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -32,6 +36,10 @@ public class ClaimService {
   private final ClaimRepository claimRepository;
   private final EmployeeRepository employeeRepository;
   private final CompanyRepository companyRepository;
+
+  private final WebClient webClient = WebClient.create();
+
+  private static final String NOTIFICATION_SERVICE_URL = "http://localhost:8081/v1/mail/send";
 
   public Page<ClaimDTO> getFilteredSortedClaims(ClaimFilterCriteria claimFilterCriteria,
       Pageable pageable) {
@@ -89,9 +97,26 @@ public class ClaimService {
         .map(claim -> {
           claim.setStatus(ClaimStatus.DEACTIVATED);
           claim = claimRepository.save(claim);
+
+          // Send notification
+          sendDeactivationNotification(claim);
+
           return ClaimMapper.INSTANCE.entityToDto(claim);
         })
         .orElseThrow(() -> new NotFoundException("Claim with ID " + id + " was not found"));
+  }
+
+  private void sendDeactivationNotification(ClaimEntity claim) {
+    Map<String, String> notificationPayload = new HashMap<>();
+    notificationPayload.put("subject", "Claim Deactivated");
+    notificationPayload.put("message", "Dear " + claim.getEmployee().getFirstName() + ",\n\nThe claim with number " + claim.getClaimNumber() + " has been deactivated.\n\nBest regards,\nYour Company");
+
+    webClient.post()
+        .uri(NOTIFICATION_SERVICE_URL + "/" + claim.getEmployee().getEmail())
+        .body(Mono.just(notificationPayload), Map.class)
+        .retrieve()
+        .bodyToMono(String.class)
+        .block();
   }
 
   public List<ClaimDTO> getAllClaimsByEmployeeUserName(String employeeUserName) {
