@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="4" author="NormantasN">
-        <sql>
-          CREATE TABLE plan
-          (
-            id         UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
-            plan_name  VARCHAR(255) NOT NULL,
-            status     VARCHAR(255) NOT NULL,
-            plan_type  VARCHAR(255) NOT NULL,
-            start_date DATE         NOT NULL,
-            end_date   DATE         NOT NULL
-          );
-        </sql>
-    </changeSet>
+  <changeSet id="4" author="NormantasN">
+    <sql>
+      CREATE TABLE PLAN_ENTITY
+      (
+        id         UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
+        plan_name  VARCHAR(255) NOT NULL,
+        status     VARCHAR(255) NOT NULL,
+        plan_type  VARCHAR(255) NOT NULL,
+        start_date DATE         NOT NULL,
+        end_date   DATE         NOT NULL
+      );
+    </sql>
+  </changeSet>
+
+  <changeSet id="5" author="NormantasN">
+    <renameTable oldTableName="PLAN_ENTITY" newTableName="plan"/>
+  </changeSet>
 
 </databaseChangeLog>
