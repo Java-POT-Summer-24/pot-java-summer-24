@@ -39,6 +39,10 @@ public class ClaimEntity extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private ClaimPlan plan;
 
+  @ManyToOne
+  @JoinColumn(name = "plan_id", referencedColumnName = "id")
+  private PlanEntity planId;
+
   private double amount;
 
   @Enumerated(EnumType.STRING)
