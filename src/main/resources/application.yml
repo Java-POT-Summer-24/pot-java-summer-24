@@ -23,6 +23,7 @@ spring:
           issuer-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080/realms/myrealm}
   liquibase:
     change-log: classpath:changelog/changelog-master.xml
+
   data:
     web:
       pageable:
