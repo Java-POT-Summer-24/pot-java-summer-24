@@ -12,13 +12,13 @@ services:
     profiles:
       - prod
 
-  redis:
+  redis-cache:
     image: redis:latest
     ports:
       - "6379:6379"
     environment:
-      - REDIS_PASSWORD=yourpassword
-    command: [ "redis-server", "--requirepass", "yourpassword" ]
+      - REDIS_PASSWORD=password
+    command: [ "redis-server", "--requirepass", "password" ]
     profiles:
       - dev
       - prod
@@ -29,11 +29,11 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: yourpassword
+      REDIS_PASSWORD: password
     ports:
-      - "8081:8080"
+      - "8081:8081"
     depends_on:
-      - redis
+      - redis-cache
     profiles:
       - dev
 
@@ -43,11 +43,11 @@ services:
       SPRING_PROFILES_ACTIVE: prod
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: yourpassword
+      REDIS_PASSWORD: password
     depends_on:
       - insurance-db
-      - redis
+      - redis-cache
     ports:
-      - "8080:8080"
+      - "8081:8081"
     profiles:
       - prod
