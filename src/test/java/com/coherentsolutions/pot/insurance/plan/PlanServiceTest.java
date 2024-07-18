@@ -2,13 +2,17 @@ package com.coherentsolutions.pot.insurance.plan;
 
 import com.coherentsolutions.pot.insurance.dto.PlanDTO;
 import com.coherentsolutions.pot.insurance.constants.PlanStatus;
+import com.coherentsolutions.pot.insurance.entity.PackageEntity;
 import com.coherentsolutions.pot.insurance.entity.PlanEntity;
 import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.mapper.PlanMapper;
+import com.coherentsolutions.pot.insurance.repository.PackageRepository;
 import com.coherentsolutions.pot.insurance.repository.PlanRepository;
 import com.coherentsolutions.pot.insurance.service.PlanService;
 import com.coherentsolutions.pot.insurance.specifications.PlanFilterCriteria;
+
 import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.jeasy.random.EasyRandom;
@@ -40,11 +44,20 @@ class PlanServiceTest {
   private PlanService planService;
   @Mock
   private PlanRepository planRepository;
+  @Mock
+  private PackageRepository packageRepository;
 
   @Test
   void testAddPlan() {
     PlanDTO newPlanDTO = easyRandom.nextObject(PlanDTO.class);
+    newPlanDTO.setPackageId(UUID.fromString("83d8456f-95bb-4f84-859f-8da1f6abac2d"));
+    newPlanDTO.setTotalLimit(100);
     PlanEntity planEntity = PlanMapper.INSTANCE.toPlanEntity(newPlanDTO);
+
+    PackageEntity packageEntity = new PackageEntity();
+    packageEntity.setId(newPlanDTO.getPackageId());
+    packageEntity.setContributions(1000);
+    when(packageRepository.findById(newPlanDTO.getPackageId())).thenReturn(Optional.of(packageEntity));
 
     when(planRepository.save(any(PlanEntity.class))).thenReturn(planEntity);
     PlanDTO createdPlanDTO = planService.addPlan(newPlanDTO);
@@ -82,11 +95,18 @@ class PlanServiceTest {
   @Test
   void testUpdatePlan() {
     PlanDTO originalPlanDTO = easyRandom.nextObject(PlanDTO.class);
+    originalPlanDTO.setTotalLimit(200);
+    originalPlanDTO.setPackageId(UUID.fromString("83d8456f-95bb-4f84-859f-8da1f6abac2d"));
     PlanEntity planEntity = PlanMapper.INSTANCE.toPlanEntity(originalPlanDTO);
     UUID planId = originalPlanDTO.getId();
 
     when(planRepository.findById(planId)).thenReturn(Optional.of(planEntity));
     when(planRepository.save(any(PlanEntity.class))).thenReturn(planEntity);
+
+    PackageEntity packageEntity = new PackageEntity();
+    packageEntity.setId(originalPlanDTO.getPackageId());
+    packageEntity.setContributions(1000);
+    when(packageRepository.findById(originalPlanDTO.getPackageId())).thenReturn(Optional.of(packageEntity));
 
     PlanDTO updatedPlanDTO = planService.updatePlan(planId, originalPlanDTO);
 

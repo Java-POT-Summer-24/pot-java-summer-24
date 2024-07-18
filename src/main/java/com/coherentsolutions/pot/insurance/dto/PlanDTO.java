@@ -2,6 +2,7 @@ package com.coherentsolutions.pot.insurance.dto;
 
 import com.coherentsolutions.pot.insurance.constants.PlanStatus;
 import com.coherentsolutions.pot.insurance.constants.PlanType;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -36,4 +37,8 @@ public class PlanDTO implements Serializable {
   @NotNull(message = "End date is required")
   private LocalDate endDate;
 
+  private UUID packageId;
+
+  @DecimalMin(value = "0.0", inclusive = false, message = "Total limit must be greater than zero")
+  private double totalLimit;
 }

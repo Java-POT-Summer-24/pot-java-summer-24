@@ -6,6 +6,8 @@ import com.coherentsolutions.pot.insurance.constants.PlanType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.time.LocalDate;
@@ -37,4 +39,10 @@ public class PlanEntity extends BaseEntity {
 
   @Enumerated(EnumType.STRING)
   private PlanStatus status;
+
+  @ManyToOne
+  @JoinColumn(name = "package_id", referencedColumnName = "id")
+  private PackageEntity packageId;
+
+  private double totalLimit;
 }

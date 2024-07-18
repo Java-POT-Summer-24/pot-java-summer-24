@@ -18,6 +18,7 @@
     <include file="changelog/dml/4_insert_packages_table.xml"/>
     <include file="/changelog/ddl/5_create_plans_table.xml"/>
     <include file="/changelog/dml/5_insert_plans_table.xml"/>
+    <include file="changelog/ddl/5_1_update_plan_table_and_relationship.xml"/>
     <include file="changelog/ddl/6_create_employees_table.xml"/>
     <include file="changelog/dml/6_insert_employees_table.xml"/>
     <include file="changelog/ddl/3_1_define_claims_relationships.xml"/>
