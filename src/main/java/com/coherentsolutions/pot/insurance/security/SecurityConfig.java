@@ -54,7 +54,8 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        String issuerUri = System.getenv("KEYCLOAK_AUTH_SERVER_URL");
+        //String issuerUri = System.getenv("KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080/realms/myrealm");
+        String issuerUri = "http://localhost:8080/realms/myrealm"; // Working version for now
         return JwtDecoders.fromIssuerLocation(issuerUri);
     }
 

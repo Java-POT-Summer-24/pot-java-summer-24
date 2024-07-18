@@ -14,4 +14,3 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     contexts: postgres
-

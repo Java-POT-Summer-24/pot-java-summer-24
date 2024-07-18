@@ -1,16 +1,40 @@
 spring:
+  application:
+    name: insurance
   profiles:
     active: dev # development profile - dev (by default)
                 # change to production profile - prod
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: ${KEYCLOAK_RESOURCE:insurance}
+            client-secret: ${KEYCLOAK_CREDENTIALS_SECRET:ZhSxzJMLiekYZ7Q99bUbxzilcioV8vK7}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080/realms/myrealm}
+            user-name-attribute: preferred_username
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080/realms/myrealm}
+  liquibase:
+    change-log: classpath:changelog/changelog-master.xml
+
   data:
     web:
       pageable:
         default-page-size: 10
-  liquibase:
-    change-log: classpath:changelog/changelog-master.xml
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:password}
 
 server:
+  port: 8081
   error:
     include-message: always
     include-binding-errors: always
-  port: 8080
