@@ -5,6 +5,10 @@ import com.coherentsolutions.pot.insurance.service.PlanService;
 import com.coherentsolutions.pot.insurance.specifications.PlanFilterCriteria;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springdoc.api.annotations.ParameterObject;
@@ -24,30 +28,41 @@ public class PlanController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
+  @Cacheable(value = "plansList")
   public List<PlanDTO> getAllPlans() {
     return planService.getAllPlans();
   }
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
+  @Cacheable(value = "plan", key = "#id")
   public PlanDTO getPlanById(@PathVariable UUID id) {
     return planService.getPlanById(id);
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
+  @CacheEvict(value = "plansList", allEntries = true)
   public PlanDTO addPlan(@Valid @RequestBody PlanDTO planDTO) {
     return planService.addPlan(planDTO);
   }
 
   @PutMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
+  @Caching(
+          evict = {@CacheEvict(value = "plansList", allEntries = true)},
+          put = {@CachePut(value = "plan", key = "#id")}
+  )
   public PlanDTO updatePlan(@PathVariable UUID id, @Valid @RequestBody PlanDTO planDTO) {
     return planService.updatePlan(id, planDTO);
   }
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
+  @Caching(
+          evict = {@CacheEvict(value = "plansList", allEntries = true)},
+          put = {@CachePut(value = "plan", key = "#id")}
+  )
   public PlanDTO deactivatePlan(@PathVariable UUID id) {
     return planService.deactivatePlan(id);
   }
@@ -55,8 +70,8 @@ public class PlanController {
   @GetMapping("/filtered")
   @ResponseStatus(HttpStatus.OK)
   public Page<PlanDTO> getFilteredSortedPlans(
-      @ParameterObject PlanFilterCriteria criteria,
-      @ParameterObject Pageable pageable) {
+          @ParameterObject PlanFilterCriteria criteria,
+          @ParameterObject Pageable pageable) {
     return planService.getFilteredSortedPlans(criteria, pageable);
   }
 }
