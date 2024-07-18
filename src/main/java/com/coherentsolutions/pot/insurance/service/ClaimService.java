@@ -39,7 +39,7 @@ public class ClaimService {
 
   private final WebClient webClient = WebClient.create();
 
-  private static final String NOTIFICATION_SERVICE_URL = "http://localhost:8081/v1/mail/send";
+  private static final String NOTIFICATION_SERVICE_URL = "http://localhost:8081/v1/notification/send";
 
   public Page<ClaimDTO> getFilteredSortedClaims(ClaimFilterCriteria claimFilterCriteria,
       Pageable pageable) {
