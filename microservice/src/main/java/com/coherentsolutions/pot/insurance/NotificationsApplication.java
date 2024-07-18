@@ -5,9 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class })
-public class NotificationsMicroserviceApplication {
+public class NotificationsApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(NotificationsMicroserviceApplication.class, args);
+		SpringApplication.run(NotificationsApplication.class, args);
 	}
 }
