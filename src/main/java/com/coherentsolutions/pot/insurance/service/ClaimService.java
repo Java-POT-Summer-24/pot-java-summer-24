@@ -114,11 +114,11 @@ public class ClaimService {
     if (isNotEmpty(claimFilterCriteria.getClaimNumber())) {
       spec = spec.and(ClaimSpecifications.byClaimNumber(claimFilterCriteria.getClaimNumber()));
     }
-    if (isNotEmpty(claimFilterCriteria.getConsumer())) {
-      spec = spec.and(ClaimSpecifications.byConsumer(claimFilterCriteria.getConsumer()));
+    if (claimFilterCriteria.getEmployee() != null) {
+      spec = spec.and(ClaimSpecifications.byEmployeeUserName(claimFilterCriteria.getEmployee()));
     }
-    if (isNotEmpty(claimFilterCriteria.getEmployer())) {
-      spec = spec.and(ClaimSpecifications.byEmployer(claimFilterCriteria.getEmployer()));
+    if (claimFilterCriteria.getCompany() != null) {
+      spec = spec.and(ClaimSpecifications.byCompanyName(claimFilterCriteria.getCompany()));
     }
     if (claimFilterCriteria.getStatus() != null) {
       spec = spec.and(ClaimSpecifications.byStatus(claimFilterCriteria.getStatus()));
