@@ -13,6 +13,10 @@ import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.ClaimSpecifications;
 import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
+import com.coherentsolutions.pot.insurance.util.NotificationUtil;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,14 +24,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,9 +33,6 @@ public class ClaimService {
   private final EmployeeRepository employeeRepository;
   private final CompanyRepository companyRepository;
 
-  private final WebClient webClient = WebClient.create();
-
-  private static final String NOTIFICATION_SERVICE_URL = "http://localhost:8081/v1/notification/send";
 
   public Page<ClaimDTO> getFilteredSortedClaims(ClaimFilterCriteria claimFilterCriteria,
       Pageable pageable) {
@@ -55,8 +48,7 @@ public class ClaimService {
   }
 
   public List<ClaimDTO> getAllClaims() {
-    return claimRepository.findAll().stream()
-        .map(ClaimMapper.INSTANCE::entityToDto)
+    return claimRepository.findAll().stream().map(ClaimMapper.INSTANCE::entityToDto)
         .collect(Collectors.toList());
   }
 
@@ -70,10 +62,11 @@ public class ClaimService {
     String generatedClaimNumber = ClaimNumberGenerator.generate();
     claimDTO.setClaimNumber(generatedClaimNumber);
 
-    EmployeeEntity employee = employeeRepository.findByUserName(claimDTO.getEmployee())
-        .orElseThrow(() -> new NotFoundException("Employee with userName " + claimDTO.getEmployee() + " not found"));
-    CompanyEntity company = companyRepository.findByName(claimDTO.getCompany())
-        .orElseThrow(() -> new NotFoundException("Company with name " + claimDTO.getCompany() + " not found"));
+    EmployeeEntity employee = employeeRepository.findByUserName(claimDTO.getEmployee()).orElseThrow(
+        () -> new NotFoundException(
+            "Employee with userName " + claimDTO.getEmployee() + " not found"));
+    CompanyEntity company = companyRepository.findByName(claimDTO.getCompany()).orElseThrow(
+        () -> new NotFoundException("Company with name " + claimDTO.getCompany() + " not found"));
 
     ClaimEntity claim = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
     claim.setEmployee(employee);
@@ -93,44 +86,28 @@ public class ClaimService {
   }
 
   public ClaimDTO deactivateClaim(UUID id) {
-    return claimRepository.findById(id)
-        .map(claim -> {
-          claim.setStatus(ClaimStatus.DEACTIVATED);
-          claim = claimRepository.save(claim);
+    return claimRepository.findById(id).map(claim -> {
+      claim.setStatus(ClaimStatus.DEACTIVATED);
+      claim = claimRepository.save(claim);
 
-          // Send notification
-          sendDeactivationNotification(claim);
+      // Send notification
+      String message = "Dear " + claim.getEmployee().getFirstName() + ",\n\nThe claim with number "
+          + claim.getClaimNumber() + " has been deactivated.\n\nBest regards,\nYour Company";
+      NotificationUtil.sendDeactivationNotification(claim.getEmployee().getEmail(),
+          "Claim Deactivated", message);
 
-          return ClaimMapper.INSTANCE.entityToDto(claim);
-        })
-        .orElseThrow(() -> new NotFoundException("Claim with ID " + id + " was not found"));
-  }
-
-  private void sendDeactivationNotification(ClaimEntity claim) {
-    Map<String, String> notificationPayload = new HashMap<>();
-    notificationPayload.put("subject", "Claim Deactivated");
-    notificationPayload.put("message", "Dear " + claim.getEmployee().getFirstName() + ",\n\nThe claim with number " + claim.getClaimNumber() + " has been deactivated.\n\nBest regards,\nYour Company");
-
-    webClient.post()
-        .uri(NOTIFICATION_SERVICE_URL + "/" + claim.getEmployee().getEmail())
-        .body(Mono.just(notificationPayload), Map.class)
-        .retrieve()
-        .bodyToMono(String.class)
-        .block();
+      return ClaimMapper.INSTANCE.entityToDto(claim);
+    }).orElseThrow(() -> new NotFoundException("Claim with ID " + id + " was not found"));
   }
 
   public List<ClaimDTO> getAllClaimsByEmployeeUserName(String employeeUserName) {
     List<ClaimEntity> claims = claimRepository.findAllByEmployeeUserName(employeeUserName);
-    return claims.stream()
-        .map(ClaimMapper.INSTANCE::entityToDto)
-        .collect(Collectors.toList());
+    return claims.stream().map(ClaimMapper.INSTANCE::entityToDto).collect(Collectors.toList());
   }
 
   public List<ClaimDTO> getAllClaimsByCompanyName(String companyName) {
     List<ClaimEntity> claims = claimRepository.findAllByCompanyName(companyName);
-    return claims.stream()
-        .map(ClaimMapper.INSTANCE::entityToDto)
-        .collect(Collectors.toList());
+    return claims.stream().map(ClaimMapper.INSTANCE::entityToDto).collect(Collectors.toList());
   }
 
   private Specification<ClaimEntity> buildSpecification(ClaimFilterCriteria claimFilterCriteria) {
