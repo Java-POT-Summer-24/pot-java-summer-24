@@ -32,7 +32,7 @@ public class EmployeeService {
 
   private final WebClient webClient = WebClient.create();
 
-  private static final String NOTIFICATION_SERVICE_URL = "http://localhost:8081/v1/mail/send";
+  private static final String NOTIFICATION_SERVICE_URL = "http://localhost:8081/v1/notification/send";
 
   public Page<EmployeeDTO> getFilteredSortedEmployees(EmployeeFilterCriteria employeeFilterCriteria,
       Pageable pageable) {
