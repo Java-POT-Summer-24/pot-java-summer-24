@@ -2,6 +2,7 @@ package com.coherentsolutions.pot.insurance.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
@@ -32,6 +33,7 @@ public class SecurityConfig {
     private static final String ROLES_CLAIM = "roles";
 
     @Bean
+    @Profile("prod")
     public SecurityFilterChain securityFilterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
@@ -53,13 +55,24 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Profile("dev")
+    public SecurityFilterChain devSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        return http.build();
+    }
+
+
+    @Bean
+    @Profile("prod")
     public JwtDecoder jwtDecoder() {
         //String issuerUri = System.getenv("KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080/realms/myrealm");
-        String issuerUri = "http://localhost:8080/realms/myrealm"; // Working version for now
+        String issuerUri = "http://keycloak:8080/realms/myrealm"; // Working version for now
         return JwtDecoders.fromIssuerLocation(issuerUri);
     }
 
     @Bean
+    @Profile("prod")
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
@@ -91,6 +104,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Profile("prod")
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("http://localhost:8080");

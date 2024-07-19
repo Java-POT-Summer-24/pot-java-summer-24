@@ -23,11 +23,29 @@ services:
       - dev
       - prod
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: insurance-db
+      DB_DATABASE: postgres
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      KEYCLOAK_ADMIN: admin1
+      KEYCLOAK_ADMIN_PASSWORD: aRentetaRmIt
+    ports:
+      - "8080:8080"
+    command: ["start-dev"]
+    depends_on:
+      - insurance-db
+    profiles:
+      - prod
+
   insurance-app-dev:
     build: .
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      REDIS_HOST: redis
+      REDIS_HOST: redis-cache
       REDIS_PORT: 6379
       REDIS_PASSWORD: password
     ports:
@@ -41,12 +59,14 @@ services:
     build: .
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      REDIS_HOST: redis
+      REDIS_HOST: redis-cache
       REDIS_PORT: 6379
       REDIS_PASSWORD: password
+      OAUTH2_ISSUER_URI: http://keycloak:8080/realms/myrealm
     depends_on:
       - insurance-db
       - redis-cache
+      - keycloak
     ports:
       - "8081:8081"
     profiles:
