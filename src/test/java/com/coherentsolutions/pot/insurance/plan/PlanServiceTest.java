@@ -161,4 +161,58 @@ class PlanServiceTest {
 
     verify(planRepository).findAll(any(Specification.class), any(Pageable.class));
   }
+
+  @Test
+  void testAddPlanValidContribution() {
+    PlanDTO planDTO = easyRandom.nextObject(PlanDTO.class);
+    planDTO.setTotalLimit(100);
+    planDTO.setPackageId(UUID.fromString("83d8456f-95bb-4f84-859f-8da1f6abac2d"));
+    PlanEntity planEntity = PlanMapper.INSTANCE.toPlanEntity(planDTO);
+
+    UUID packageId = planDTO.getPackageId();
+    PackageEntity packageEntity = new PackageEntity();
+    packageEntity.setId(packageId);
+    packageEntity.setContributions(1000);
+
+    when(planRepository.findSumOfTotalLimitByPackageId(packageId)).thenReturn(500.0);
+    when(packageRepository.findById(packageId)).thenReturn(Optional.of(packageEntity));
+    when(planRepository.save(any(PlanEntity.class))).thenReturn(planEntity);
+
+    PlanDTO result = planService.addPlan(planDTO);
+
+    assertNotNull(result);
+    assertEquals(planDTO.getPlanName(), result.getPlanName());
+    assertEquals(planDTO.getTotalLimit(), result.getTotalLimit());
+  }
+
+  @Test
+  void testAddPlanInvalidContribution() {
+    PlanDTO planDTO = easyRandom.nextObject(PlanDTO.class);
+    planDTO.setTotalLimit(600);
+    planDTO.setPackageId(UUID.fromString("83d8456f-95bb-4f84-859f-8da1f6abac2d"));
+    PlanEntity planEntity = PlanMapper.INSTANCE.toPlanEntity(planDTO);
+
+    UUID packageId = planDTO.getPackageId();
+    PackageEntity packageEntity = new PackageEntity();
+    packageEntity.setId(packageId);
+    packageEntity.setContributions(1000);
+
+    when(planRepository.findSumOfTotalLimitByPackageId(packageId)).thenReturn(500.0);
+    when(packageRepository.findById(packageId)).thenReturn(Optional.of(packageEntity));
+
+    assertThrows(IllegalStateException.class, () -> planService.addPlan(planDTO));
+  }
+
+  @Test
+  void testAddPlanPackageNotFound() {
+    PlanDTO planDTO = easyRandom.nextObject(PlanDTO.class);
+    planDTO.setPackageId(UUID.fromString("83d8456f-95bb-4f84-859f-8da1f6abac2d"));
+    PlanEntity planEntity = PlanMapper.INSTANCE.toPlanEntity(planDTO);
+
+    UUID packageId = planDTO.getPackageId();
+
+    when(packageRepository.findById(packageId)).thenReturn(Optional.empty());
+
+    assertThrows(NotFoundException.class, () -> planService.addPlan(planDTO));
+  }
 }

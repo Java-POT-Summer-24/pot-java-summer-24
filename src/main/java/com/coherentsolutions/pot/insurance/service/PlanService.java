@@ -107,12 +107,10 @@ public class PlanService {
 
   private void validateContributionLimit(PlanEntity planEntity) {
     double totalContributions =
-        planRepository.findAllByPackageId(planEntity.getPackageId()).stream()
-            .mapToDouble(PlanEntity::getTotalLimit)
-            .sum();
-    PackageEntity packageContribution = packageRepository.findById(planEntity.getPackageId().getId())
+        planRepository.findSumOfTotalLimitByPackageId(planEntity.getPackageId().getId());
+    PackageEntity packageEntity = packageRepository.findById(planEntity.getPackageId().getId())
             .orElseThrow(() -> new NotFoundException("Package with id " + planEntity.getPackageId().getId() + " not found"));
-    double remainingContribution = packageContribution.getContributions() - totalContributions;
+    double remainingContribution = packageEntity.getContributions() - totalContributions;
 
     if (planEntity.getTotalLimit() > remainingContribution) {
       throw new IllegalStateException("The sum of limits has exceeded the package contribution.");
