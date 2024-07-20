@@ -70,8 +70,39 @@ Step 2: Run application
 
 poehali.lt   
 
-#### Manual to setup redis server:
+### Manual to run different profiles in the project:
+#### Development mode profile - the application uses an H2 in-memory database.
+Run the following commands:
+1. "gradle build" in Git bash
+2. "docker-compose --profile dev up" in cmd
 
-1. Download redis from official website: https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/
-2. Write "redis-server" to console. 
-3. To check all keys in redis open terminal, and write "redis-cli", then "KEYS *"
+This command will:
+
+Build the application Docker image.
+
+Start the application with the development profile.
+
+Map port 8081 on your host to port 8080 in the container to avoid port conflicts.
+
+Access the application on http://localhost:8081
+
+#### Production mode profile - the application uses a PostgreSQL database.
+Run the following commands:
+1. "gradle build" in Git bash
+2. "docker-compose --profile prod up" in cmd
+
+This command will:
+
+Build the application Docker image.
+
+Start the PostgreSQL database service.
+
+Start the application with the production profile.
+
+Map port 8080 on your host to port 8080 in the container.
+
+Access the application on http://localhost:8080
+
+#### To stop the application and remove the containers:
+Run the following command:
+"docker-compose down"
