@@ -36,7 +36,6 @@ public class ClaimService {
 
   public Page<ClaimDTO> getFilteredSortedClaims(ClaimFilterCriteria claimFilterCriteria,
       Pageable pageable) {
-
     Sort defaultSort = Sort.by("dateOfService").descending();
 
     if (!pageable.getSort().isSorted()) {
@@ -44,6 +43,7 @@ public class ClaimService {
     }
 
     Specification<ClaimEntity> spec = buildSpecification(claimFilterCriteria);
+
     return claimRepository.findAll(spec, pageable).map(ClaimMapper.INSTANCE::entityToDto);
   }
 
@@ -92,8 +92,15 @@ public class ClaimService {
       claim = claimRepository.save(claim);
 
       // Send notification
-      String message = "Dear " + claim.getEmployee().getFirstName() + ",\n\nThe claim with number "
-          + claim.getClaimNumber() + " has been deactivated.\n\nBest regards,\nYour Company";
+      String message = """
+          Dear %s,
+
+          The claim with number %s has been deactivated.
+
+          Best regards,
+          Your Company
+          """.formatted(claim.getEmployee().getFirstName(), claim.getClaimNumber());
+
       notificationClient.sendDeactivationNotification(claim.getEmployee().getEmail(),
           "Claim Deactivated", message);
 
