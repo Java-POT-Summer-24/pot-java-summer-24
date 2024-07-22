@@ -49,4 +49,12 @@
       ALTER TABLE claim ADD CONSTRAINT fk_claim_plan FOREIGN KEY (plan_id) REFERENCES plan(id);
     </sql>
   </changeSet>
+
+  <changeSet id="3_2_6" author="heorhii.popov">
+    <renameColumn
+      tableName="claim"
+      oldColumnName="plan"
+      newColumnName="plan_type"
+    />
+  </changeSet>
 </databaseChangeLog>

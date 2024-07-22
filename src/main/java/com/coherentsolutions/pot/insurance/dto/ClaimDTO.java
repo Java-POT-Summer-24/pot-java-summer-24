@@ -32,7 +32,7 @@ public class ClaimDTO implements Serializable {
   private LocalDate dateOfService;
 
   @NotNull(message = "Plan type is required")
-  private ClaimPlan plan;
+  private ClaimPlan planType;
 
   @NotNull(message = "Plan ID is required")
   private UUID planId;
