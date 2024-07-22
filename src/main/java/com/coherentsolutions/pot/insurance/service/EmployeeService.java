@@ -8,7 +8,7 @@ import com.coherentsolutions.pot.insurance.mapper.EmployeeMapper;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeSpecifications;
-import com.coherentsolutions.pot.insurance.util.NotificationUtil;
+import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import com.coherentsolutions.pot.insurance.util.ValidationUtil;
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 public class EmployeeService {
 
   private final EmployeeRepository employeeRepository;
+  private final NotificationClient notificationClient;
 
   public Page<EmployeeDTO> getFilteredSortedEmployees(EmployeeFilterCriteria employeeFilterCriteria,
       Pageable pageable) {
@@ -81,7 +82,7 @@ public class EmployeeService {
       // Send notification
       String message = "Dear " + employee.getFirstName()
           + ",\n\nYour account has been deactivated.\n\nBest regards,\nYour Company";
-      NotificationUtil.sendDeactivationNotification(employee.getEmail(), "Account Deactivated",
+      notificationClient.sendDeactivationNotification(employee.getEmail(), "Account Deactivated",
           message);
 
       return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employee);
