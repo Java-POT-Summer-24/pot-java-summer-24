@@ -80,8 +80,15 @@ public class EmployeeService {
       employee = employeeRepository.save(employee);
 
       // Send notification
-      String message = "Dear " + employee.getFirstName()
-          + ",\n\nYour account has been deactivated.\n\nBest regards,\nYour Company";
+      String message = """
+          Dear %s,
+
+          Your account has been deactivated.
+
+          Best regards,
+          Your Company
+          """.formatted(employee.getFirstName());
+
       notificationClient.sendDeactivationNotification(employee.getEmail(), "Account Deactivated",
           message);
 
