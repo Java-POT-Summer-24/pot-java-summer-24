@@ -54,18 +54,20 @@ public class ClaimService {
   }
 
   public ClaimDTO getClaimById(UUID id) {
-    ClaimEntity claim = claimRepository.findById(id)
+    return claimRepository.findById(id)
+        .map(ClaimMapper.INSTANCE::entityToDto)
         .orElseThrow(() -> new NotFoundException("Claim with ID " + id + " not found"));
-    return ClaimMapper.INSTANCE.entityToDto(claim);
   }
 
   public ClaimDTO addClaim(ClaimDTO claimDTO) {
     String generatedClaimNumber = ClaimNumberGenerator.generate();
     claimDTO.setClaimNumber(generatedClaimNumber);
 
-    EmployeeEntity employee = employeeRepository.findByUserName(claimDTO.getEmployee()).orElseThrow(
+    // in ClaimDTO we get username as getEmployee
+    String employeeUserName = claimDTO.getEmployee();
+    EmployeeEntity employee = employeeRepository.findByUserName(employeeUserName).orElseThrow(
         () -> new NotFoundException(
-            "Employee with userName " + claimDTO.getEmployee() + " not found"));
+            "Employee with userName " + employeeUserName + " not found"));
     CompanyEntity company = companyRepository.findByName(claimDTO.getCompany()).orElseThrow(
         () -> new NotFoundException("Company with name " + claimDTO.getCompany() + " not found"));
 
@@ -77,13 +79,14 @@ public class ClaimService {
   }
 
   public ClaimDTO updateClaim(UUID claimId, ClaimDTO claimDTO) {
-    ClaimEntity existingClaim = claimRepository.findById(claimId)
-        .orElseThrow(() -> new NotFoundException("Claim with ID " + claimId + " not found"));
-
-    ClaimMapper.INSTANCE.updateClaimFromDTO(claimDTO, existingClaim);
-    existingClaim = claimRepository.save(existingClaim);
-
-    return ClaimMapper.INSTANCE.entityToDto(existingClaim);
+    return claimRepository.findById(claimId)
+        .map(existingClaim -> {
+          if (existingClaim.getStatus() == ClaimStatus.DEACTIVATED) {
+            throw new NotFoundException("Cannot update. Claim with ID " + claimId + " is deactivated");
+          }
+          ClaimMapper.INSTANCE.updateClaimFromDTO(claimDTO, existingClaim);
+          return ClaimMapper.INSTANCE.entityToDto(claimRepository.save(existingClaim));
+        }).orElseThrow(() -> new NotFoundException("Claim not found with id: " + claimId));
   }
 
   public ClaimDTO deactivateClaim(UUID id) {
@@ -110,12 +113,16 @@ public class ClaimService {
 
   public List<ClaimDTO> getAllClaimsByEmployeeUserName(String employeeUserName) {
     List<ClaimEntity> claims = claimRepository.findAllByEmployeeUserName(employeeUserName);
-    return claims.stream().map(ClaimMapper.INSTANCE::entityToDto).collect(Collectors.toList());
+    return claims.stream()
+        .map(ClaimMapper.INSTANCE::entityToDto)
+        .collect(Collectors.toList());
   }
 
   public List<ClaimDTO> getAllClaimsByCompanyName(String companyName) {
     List<ClaimEntity> claims = claimRepository.findAllByCompanyName(companyName);
-    return claims.stream().map(ClaimMapper.INSTANCE::entityToDto).collect(Collectors.toList());
+    return claims.stream()
+        .map(ClaimMapper.INSTANCE::entityToDto)
+        .collect(Collectors.toList());
   }
 
   private Specification<ClaimEntity> buildSpecification(ClaimFilterCriteria claimFilterCriteria) {
