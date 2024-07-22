@@ -55,7 +55,8 @@ public class EmployeeService {
   }
 
   public List<EmployeeDTO> getAllEmployees() {
-    return employeeRepository.findAll().stream().map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO)
+    return employeeRepository.findAll().stream()
+        .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO)
         .toList();
   }
 
