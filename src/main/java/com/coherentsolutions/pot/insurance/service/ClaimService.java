@@ -13,7 +13,7 @@ import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.ClaimSpecifications;
 import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
-import com.coherentsolutions.pot.insurance.util.NotificationUtil;
+import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,7 +32,7 @@ public class ClaimService {
   private final ClaimRepository claimRepository;
   private final EmployeeRepository employeeRepository;
   private final CompanyRepository companyRepository;
-
+  private final NotificationClient notificationClient;
 
   public Page<ClaimDTO> getFilteredSortedClaims(ClaimFilterCriteria claimFilterCriteria,
       Pageable pageable) {
@@ -94,7 +94,7 @@ public class ClaimService {
       // Send notification
       String message = "Dear " + claim.getEmployee().getFirstName() + ",\n\nThe claim with number "
           + claim.getClaimNumber() + " has been deactivated.\n\nBest regards,\nYour Company";
-      NotificationUtil.sendDeactivationNotification(claim.getEmployee().getEmail(),
+      notificationClient.sendDeactivationNotification(claim.getEmployee().getEmail(),
           "Claim Deactivated", message);
 
       return ClaimMapper.INSTANCE.entityToDto(claim);
