@@ -48,7 +48,8 @@ public class ClaimService {
   }
 
   public List<ClaimDTO> getAllClaims() {
-    return claimRepository.findAll().stream().map(ClaimMapper.INSTANCE::entityToDto)
+    return claimRepository.findAll().stream()
+        .map(ClaimMapper.INSTANCE::entityToDto)
         .collect(Collectors.toList());
   }
 
