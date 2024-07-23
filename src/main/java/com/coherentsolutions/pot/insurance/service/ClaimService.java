@@ -64,7 +64,7 @@ public class ClaimService {
     claimDTO.setClaimNumber(generatedClaimNumber);
 
     // in ClaimDTO we get username as getEmployee
-    String employeeUserName = claimDTO.getEmployee();
+    String employeeUserName = claimDTO.getEmployeeUserName();
     EmployeeEntity employee = employeeRepository.findByUserName(employeeUserName).orElseThrow(
         () -> new NotFoundException(
             "Employee with userName " + employeeUserName + " not found"));
