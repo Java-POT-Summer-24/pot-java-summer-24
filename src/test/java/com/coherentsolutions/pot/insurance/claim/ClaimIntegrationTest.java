@@ -159,7 +159,7 @@ public class ClaimIntegrationTest {
         .peek(entity -> entity.getEmployee().setUserName(employee)).toList();
     List<ClaimDTO> claimDTOs = claimEntities.stream()
         .map(ClaimMapper.INSTANCE::entityToDto)
-        .peek(dto -> dto.setEmployee(employee))
+        .peek(dto -> dto.setEmployeeUserName(employee))
         .toList();
 
     Mockito.when(claimRepository.findAllByEmployeeUserName(employee)).thenReturn(claimEntities);
