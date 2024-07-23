@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="8" author="NormantasN">
+    <sql>
+      CREATE TABLE authority
+      (
+        id UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
+        authority VARCHAR(255) NOT NULL,
+        user_id UUID NOT NULL,
+        CONSTRAINT fk_authority_user FOREIGN KEY (user_id) REFERENCES user(id)
+      );
+    </sql>
+  </changeSet>
+</databaseChangeLog>

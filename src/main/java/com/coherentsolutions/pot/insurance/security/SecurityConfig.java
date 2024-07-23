@@ -2,6 +2,7 @@ package com.coherentsolutions.pot.insurance.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,7 +37,15 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).hasRole("insuranceAdmin")
-                .requestMatchers(new AntPathRequestMatcher("/**")).hasRole("insuranceAdmin")
+                .requestMatchers(HttpMethod.GET, "/v1/claims").hasRole("insuranceAdmin")
+                .requestMatchers(HttpMethod.GET, "/v1/claims/filtered").hasAnyRole("insuranceAdmin", "companyAdmin")
+                .requestMatchers(HttpMethod.GET, "/v1/claims/{id}").hasAnyRole("insuranceAdmin", "companyAdmin", "user")
+                .requestMatchers(HttpMethod.POST, "/v1/claims").hasAnyRole("insuranceAdmin", "companyAdmin")
+                .requestMatchers(HttpMethod.PUT, "/v1/claims/{id}").hasAnyRole("insuranceAdmin", "companyAdmin")
+                .requestMatchers(HttpMethod.GET, "/v1/claims/companies/{companyName}").hasAnyRole("insuranceAdmin", "companyAdmin")
+                .requestMatchers(HttpMethod.GET, "/v1/claims/employees/{employeeUserName}").permitAll() // TODO: Custom authorization filter
+                //.requestMatchers(HttpMethod.GET, "/v1/claims/employees/{employeeUserName}").hasAnyRole("insuranceAdmin", "companyAdmin", "user")
+                .requestMatchers(HttpMethod.DELETE, "/v1/claims/{id}").hasAnyRole("insuranceAdmin", "companyAdmin")
                 .anyRequest().authenticated())
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**")))
