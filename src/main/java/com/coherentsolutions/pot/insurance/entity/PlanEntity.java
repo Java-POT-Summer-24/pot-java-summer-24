@@ -44,7 +44,7 @@ public class PlanEntity extends BaseEntity {
 
   @ManyToOne
   @JoinColumn(name = "package_id", referencedColumnName = "id")
-  private PackageEntity packageId;
+  private PackageEntity packageEntity;
 
   private double totalLimit;
 }

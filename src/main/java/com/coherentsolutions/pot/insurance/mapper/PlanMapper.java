@@ -14,13 +14,13 @@ import java.util.UUID;
 @Mapper
 public interface PlanMapper {
     PlanMapper INSTANCE = Mappers.getMapper(PlanMapper.class);
-    @Mapping(source = "packageId.id", target="packageId")
+    @Mapping(source = "packageEntity.id", target="packageId")
     PlanDTO toPlanDto(PlanEntity plan);
-    @Mapping(source = "packageId", target="packageId", qualifiedByName = "uuidToPackage")
+    @Mapping(source = "packageId", target="packageEntity", qualifiedByName = "uuidToPackage")
     PlanEntity toPlanEntity(PlanDTO planDTO);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target="packageId", ignore = true)
+    @Mapping(target="packageEntity", ignore = true)
     void updatePlanFromDTO(PlanDTO dto, @MappingTarget PlanEntity entity);
 
     @Named("uuidToPackage")

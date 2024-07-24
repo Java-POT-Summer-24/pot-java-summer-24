@@ -106,10 +106,11 @@ public class PlanService {
   }
 
   private void validateContributionLimit(PlanEntity planEntity) {
+    UUID packageId = planEntity.getPackageEntity().getId();
     double totalContributions =
-        planRepository.findSumOfTotalLimitByPackageId(planEntity.getPackageId().getId());
-    PackageEntity packageEntity = packageRepository.findById(planEntity.getPackageId().getId())
-            .orElseThrow(() -> new NotFoundException("Package with id " + planEntity.getPackageId().getId() + " not found"));
+        planRepository.findSumOfTotalLimitByPackageId(packageId);
+    PackageEntity packageEntity = packageRepository.findById(packageId)
+            .orElseThrow(() -> new NotFoundException("Package with id " + packageId + " not found"));
     double remainingContribution = packageEntity.getContributions() - totalContributions;
 
     if (planEntity.getTotalLimit() > remainingContribution) {
