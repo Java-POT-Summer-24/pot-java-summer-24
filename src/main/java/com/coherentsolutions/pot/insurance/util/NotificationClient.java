@@ -1,16 +1,21 @@
 package com.coherentsolutions.pot.insurance.util;
 
-import java.util.Map;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
+@Component
 public class NotificationClient {
 
   private final WebClient webClient;
   private final String notificationServiceUrl;
 
-  public NotificationClient(WebClient webClient, String notificationServiceUrl) {
-    this.webClient = webClient;
+  public NotificationClient(WebClient.Builder webClientBuilder,
+      @Value("${notification.service.url:http://localhost:8081/v1/notification/send}") String notificationServiceUrl) {
+    this.webClient = webClientBuilder.build();
     this.notificationServiceUrl = notificationServiceUrl;
   }
 
