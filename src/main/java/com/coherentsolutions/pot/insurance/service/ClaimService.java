@@ -86,7 +86,7 @@ public class ClaimService {
     ClaimEntity claim = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
     claim.setEmployee(employee);
     claim.setCompany(company);
-    claim.setPlanId(plan);
+    claim.setPlanEntity(plan);
     claim = claimRepository.save(claim);
     return ClaimMapper.INSTANCE.entityToDto(claim);
   }
@@ -110,7 +110,7 @@ public class ClaimService {
     }
 
     ClaimMapper.INSTANCE.updateClaimFromDTO(claimDTO, existingClaim);
-    existingClaim.setPlanId(planRepository.findById(claimDTO.getPlanId())
+    existingClaim.setPlanEntity(planRepository.findById(claimDTO.getPlanId())
         .orElseThrow(() -> new NotFoundException("Plan with ID " + claimDTO.getPlanId() + " not found"))); // Ensure planId is correctly set
     existingClaim = claimRepository.save(existingClaim);
 

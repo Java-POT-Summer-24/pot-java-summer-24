@@ -19,19 +19,19 @@ public interface ClaimMapper {
 
   @Mapping(source = "employee.userName", target = "employee")
   @Mapping(source = "company.name", target = "company")
-  @Mapping(source = "planId.id", target = "planId")
+  @Mapping(source = "planEntity.id", target = "planId")
   ClaimDTO entityToDto(ClaimEntity claim);
 
   @Mapping(source = "employee", target = "employee", qualifiedByName = "stringToEmployee")
   @Mapping(source = "company", target = "company", qualifiedByName = "stringToCompany")
-  @Mapping(source = "planId", target = "planId", qualifiedByName = "uuidToPlan")
+  @Mapping(source = "planId", target = "planEntity", qualifiedByName = "uuidToPlan")
   ClaimEntity dtoToEntity(ClaimDTO claimDTO);
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "claimNumber", ignore = true)
   @Mapping(target = "employee", ignore = true)
   @Mapping(target = "company", ignore = true)
-  @Mapping(target = "planId", ignore = true)
+  @Mapping(target = "planEntity", ignore = true)
   void updateClaimFromDTO(ClaimDTO dto, @MappingTarget ClaimEntity entity);
 
   @Named("stringToEmployee")

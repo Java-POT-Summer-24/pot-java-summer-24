@@ -41,7 +41,7 @@ public class ClaimEntity extends BaseEntity {
 
   @ManyToOne
   @JoinColumn(name = "plan_id", referencedColumnName = "id")
-  private PlanEntity planId;
+  private PlanEntity planEntity;
 
   private double amount;
 
