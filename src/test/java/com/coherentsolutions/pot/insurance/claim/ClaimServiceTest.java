@@ -17,6 +17,7 @@ import com.coherentsolutions.pot.insurance.repository.CompanyRepository;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
 import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
+import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,6 +47,9 @@ class ClaimServiceTest {
 
   @Mock
   private CompanyRepository companyRepository;
+
+  @Mock
+  private NotificationClient notificationClient;
 
   @InjectMocks
   private ClaimService claimService;
