@@ -13,6 +13,7 @@ import com.coherentsolutions.pot.insurance.mapper.EmployeeMapper;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.service.EmployeeService;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
+import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import java.util.List;
 import java.util.UUID;
 import org.jeasy.random.EasyRandom;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +35,9 @@ class EmployeeServiceTest {
   private final EasyRandom easyRandom = new EasyRandom();
   @Mock
   private EmployeeRepository employeeRepository;
+
+  @Mock
+  private NotificationClient notificationClient;
 
   @InjectMocks
   private EmployeeService employeeService;

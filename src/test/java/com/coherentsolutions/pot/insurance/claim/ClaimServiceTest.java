@@ -17,6 +17,7 @@ import com.coherentsolutions.pot.insurance.repository.CompanyRepository;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
 import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
+import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +49,8 @@ class ClaimServiceTest {
   @Mock
   private CompanyRepository companyRepository;
 
+  @Mock
+  private NotificationClient notificationClient;
   @InjectMocks
   private ClaimService claimService;
 
