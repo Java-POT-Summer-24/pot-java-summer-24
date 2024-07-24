@@ -8,10 +8,6 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.api.annotations.ParameterObject;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -34,7 +30,6 @@ public class ClaimController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  @Cacheable(value = "claimsList")
   public List<ClaimDTO> getAllClaims() {
     return claimService.getAllClaims();
   }
@@ -42,41 +37,31 @@ public class ClaimController {
   @GetMapping("/filtered")
   @ResponseStatus(HttpStatus.OK)
   public Page<ClaimDTO> getFilteredSortedClaims(
-          @ParameterObject ClaimFilterCriteria claimFilterCriteria,
-          @ParameterObject Pageable pageable) {
+      @ParameterObject ClaimFilterCriteria claimFilterCriteria,
+      @ParameterObject Pageable pageable) {
     return claimService.getFilteredSortedClaims(claimFilterCriteria, pageable);
   }
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  @Cacheable(value = "claim", key = "#id")
   public ClaimDTO getClaimById(@PathVariable UUID id) {
     return claimService.getClaimById(id);
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  @CacheEvict(value = "claimsList", allEntries = true)
   public ClaimDTO addClaim(@Valid @RequestBody ClaimDTO claimDTO) {
     return claimService.addClaim(claimDTO);
   }
 
   @PutMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  @Caching(
-          evict = {@CacheEvict(value = "claimsList", allEntries = true)},
-          put = {@CachePut(value = "claim", key = "#id")}
-  )
   public ClaimDTO updateClaim(@PathVariable UUID id, @Valid @RequestBody ClaimDTO claimDTO) {
     return claimService.updateClaim(id, claimDTO);
   }
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  @Caching(
-          evict = {@CacheEvict(value = "claimsList", allEntries = true)},
-          put = {@CachePut(value = "claim", key = "#id")}
-  )
   public ClaimDTO deactivateClaim(@PathVariable UUID id) {
     return claimService.deactivateClaim(id);
   }

@@ -21,7 +21,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -46,12 +45,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest({CompanyController.class, CompanyService.class})
-@TestPropertySource(properties = {
-    "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration," +
-        "org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration," +
-        "org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration," +
-        "org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration"
-})
 class CompanyIntegrationTest {
 
     @Autowired
@@ -66,6 +59,7 @@ class CompanyIntegrationTest {
     private final EasyRandom easyRandom = new EasyRandom();
 
     @Test
+    @WithMockUser(username = "admin")
     void testGetFilteredSortedCompanies() throws Exception {
         List<CompanyEntity> companyEntities = easyRandom.objects(CompanyEntity.class, 3).toList();
         List<CompanyDTO> companyDTOS = companyEntities.stream()
@@ -95,6 +89,7 @@ class CompanyIntegrationTest {
 
 
     @Test
+    @WithMockUser(username = "admin")
     void testCreateCompany() throws Exception {
         CompanyDTO companyDTO = easyRandom.nextObject(CompanyDTO.class);
         CompanyEntity companyEntity = CompanyMapper.INSTANCE.toEntity(companyDTO);
@@ -111,6 +106,7 @@ class CompanyIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "admin")
     void testGetAllCompany() throws Exception {
         List<CompanyEntity> companyEntities = easyRandom.objects(CompanyEntity.class, 3).toList();
 
@@ -125,6 +121,7 @@ class CompanyIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "admin")
     void testUpdateCompany() throws Exception {
         UUID companyId = UUID.randomUUID();
         CompanyDTO originalCompanyDTO = easyRandom.nextObject(CompanyDTO.class);
@@ -145,6 +142,7 @@ class CompanyIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "admin")
     void testDeactivateCompany() throws Exception {
         UUID companyId = UUID.randomUUID();
         CompanyDTO companyDTO = easyRandom.nextObject(CompanyDTO.class);

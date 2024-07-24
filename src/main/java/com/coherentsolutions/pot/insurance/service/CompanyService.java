@@ -53,12 +53,6 @@ public class CompanyService {
 
     }
 
-    public CompanyDTO getCompanyById (UUID id) {
-        CompanyEntity company = companyRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Company with ID " + id + " not found"));
-        return CompanyMapper.INSTANCE.toDTO(company);
-    }
-
     public CompanyDTO updateCompany(CompanyDTO updatedCompany, UUID id) {
         CompanyEntity company = companyRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Company with ID " + id + " was not found"));

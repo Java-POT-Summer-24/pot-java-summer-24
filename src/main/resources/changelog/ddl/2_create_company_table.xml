@@ -8,7 +8,7 @@
     <changeSet id="2" author="dmytro.mazurev">
         <sql>
             CREATE TABLE company (
-                                    id UUID DEFAULT GEN_RANDOM_UUID() PRIMARY KEY,
+                                    id UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
                                     name VARCHAR(255) NOT NULL,
                                     country_code VARCHAR(255) NOT NULL,
                                     address VARCHAR(255) NOT NULL,

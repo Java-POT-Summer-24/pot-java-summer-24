@@ -5,8 +5,6 @@ import com.coherentsolutions.pot.insurance.constants.PackageStatus;
 import com.coherentsolutions.pot.insurance.constants.PackageType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
-
-import java.io.Serializable;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +17,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PackageDTO implements Serializable {
+public class PackageDTO {
 
   private UUID id;
 

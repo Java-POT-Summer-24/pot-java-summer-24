@@ -2,8 +2,6 @@ package com.coherentsolutions.pot.insurance.specifications;
 
 import com.coherentsolutions.pot.insurance.constants.ClaimStatus;
 import com.coherentsolutions.pot.insurance.entity.ClaimEntity;
-import com.coherentsolutions.pot.insurance.entity.CompanyEntity;
-import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 
@@ -13,12 +11,12 @@ public class ClaimSpecifications {
     return (root, query, cb) -> cb.equal(root.get("claimNumber"), claimNumber);
   }
 
-  public static Specification<ClaimEntity> byEmployeeUserName(String employeeUserName) {
-    return (root, query, cb) -> cb.equal(root.get("employee").get("userName"), employeeUserName);
+  public static Specification<ClaimEntity> byConsumer(String consumer) {
+    return (root, query, cb) -> cb.equal(root.get("consumer"), consumer);
   }
 
-  public static Specification<ClaimEntity> byCompanyName(String companyName) {
-    return (root, query, cb) -> cb.equal(root.get("company").get("name"), companyName);
+  public static Specification<ClaimEntity> byEmployer(String employer) {
+    return (root, query, cb) -> cb.equal(root.get("employer"), employer);
   }
 
   public static Specification<ClaimEntity> byStatus(ClaimStatus status) {
