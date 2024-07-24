@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ public class PlanController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("@securityService.canGetAllPlans(authentication)")
   @Cacheable(value = "plansList")
   public List<PlanDTO> getAllPlans() {
     return planService.getAllPlans();
@@ -35,6 +37,7 @@ public class PlanController {
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("@securityService.canAccessPlan(authentication, #id)")
   @Cacheable(value = "plan", key = "#id")
   public PlanDTO getPlanById(@PathVariable UUID id) {
     return planService.getPlanById(id);
@@ -42,6 +45,7 @@ public class PlanController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
+  @PreAuthorize("@securityService.canAddPlan(authentication)")
   @CacheEvict(value = "plansList", allEntries = true)
   public PlanDTO addPlan(@Valid @RequestBody PlanDTO planDTO) {
     return planService.addPlan(planDTO);
@@ -49,9 +53,10 @@ public class PlanController {
 
   @PutMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("@securityService.canUpdatePlan(authentication, #id)")
   @Caching(
-          evict = {@CacheEvict(value = "plansList", allEntries = true)},
-          put = {@CachePut(value = "plan", key = "#id")}
+      evict = {@CacheEvict(value = "plansList", allEntries = true)},
+      put = {@CachePut(value = "plan", key = "#id")}
   )
   public PlanDTO updatePlan(@PathVariable UUID id, @Valid @RequestBody PlanDTO planDTO) {
     return planService.updatePlan(id, planDTO);
@@ -59,9 +64,10 @@ public class PlanController {
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("@securityService.canDeletePlan(authentication, #id)")
   @Caching(
-          evict = {@CacheEvict(value = "plansList", allEntries = true)},
-          put = {@CachePut(value = "plan", key = "#id")}
+      evict = {@CacheEvict(value = "plansList", allEntries = true)},
+      put = {@CachePut(value = "plan", key = "#id")}
   )
   public PlanDTO deactivatePlan(@PathVariable UUID id) {
     return planService.deactivatePlan(id);
@@ -69,9 +75,10 @@ public class PlanController {
 
   @GetMapping("/filtered")
   @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("@securityService.canGetFilteredSortedPlans(authentication)")
   public Page<PlanDTO> getFilteredSortedPlans(
-          @ParameterObject PlanFilterCriteria criteria,
-          @ParameterObject Pageable pageable) {
+      @ParameterObject PlanFilterCriteria criteria,
+      @ParameterObject Pageable pageable) {
     return planService.getFilteredSortedPlans(criteria, pageable);
   }
 }

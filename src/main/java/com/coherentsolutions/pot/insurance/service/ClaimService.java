@@ -68,7 +68,7 @@ public class ClaimService {
         .orElseThrow(() -> new NotFoundException("Company with name " + claimDTO.getCompany() + " not found"));
 
     ClaimEntity claim = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
-    claim.setEmployee(employee);
+
     claim.setCompany(company);
     claim = claimRepository.save(claim);
     return ClaimMapper.INSTANCE.entityToDto(claim);

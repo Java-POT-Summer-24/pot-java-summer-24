@@ -12,7 +12,6 @@
         id        UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
         name      VARCHAR(255) NOT NULL,
         email     VARCHAR(255) NOT NULL UNIQUE,
-        password  VARCHAR(255) NOT NULL,
         companyId UUID,
         authorityId UUID,
         CONSTRAINT fk_user_company FOREIGN KEY (companyId) REFERENCES company(id)

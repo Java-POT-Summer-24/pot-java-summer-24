@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,10 +30,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/employees")
 @RequiredArgsConstructor
 public class EmployeeController {
+
     private final EmployeeService employeeService;
 
     @GetMapping("/filtered")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("@securityService.canGetFilteredSortedEmployees(authentication)")
     public Page<EmployeeDTO> getFilteredSortedEmployees(
         @ParameterObject EmployeeFilterCriteria employeeFilterCriteria,
         @ParameterObject Pageable pageable) {
@@ -41,6 +44,7 @@ public class EmployeeController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("@securityService.canAddEmployee(authentication)")
     @CacheEvict(value = "employeesList", allEntries = true)
     public EmployeeDTO addEmployee(@RequestBody EmployeeDTO employeeDTO){
         return employeeService.addEmployee(employeeDTO);
@@ -48,6 +52,7 @@ public class EmployeeController {
 
     @GetMapping("/{employeeId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("@securityService.canAccessEmployee(authentication, #employeeId)")
     @Cacheable(value = "employee", key = "#employeeId")
     public EmployeeDTO getEmployee(@PathVariable UUID employeeId){
         return employeeService.getEmployee(employeeId);
@@ -55,6 +60,7 @@ public class EmployeeController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("@securityService.canGetAllEmployees(authentication)")
     @Cacheable(value = "employeesList")
     public List<EmployeeDTO> getAllEmployees(){
         return employeeService.getAllEmployees();
@@ -62,9 +68,10 @@ public class EmployeeController {
 
     @PutMapping("/{employeeId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("@securityService.canUpdateEmployee(authentication, #employeeId)")
     @Caching(
-            evict = {@CacheEvict(value = "employeesList", allEntries = true)},
-            put = {@CachePut(value = "employee", key = "#employeeId")}
+        evict = {@CacheEvict(value = "employeesList", allEntries = true)},
+        put = {@CachePut(value = "employee", key = "#employeeId")}
     )
     public EmployeeDTO updateEmployee(@PathVariable UUID employeeId, @RequestBody EmployeeDTO updatedEmployeeDTO){
         return employeeService.updateEmployee(employeeId, updatedEmployeeDTO);
@@ -72,9 +79,10 @@ public class EmployeeController {
 
     @DeleteMapping("/{employeeId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("@securityService.canDeactivateEmployee(authentication, #employeeId)")
     @Caching(
-            evict = {@CacheEvict(value = "employeesList", allEntries = true)},
-            put = {@CachePut(value = "employee", key = "#employeeId")}
+        evict = {@CacheEvict(value = "employeesList", allEntries = true)},
+        put = {@CachePut(value = "employee", key = "#employeeId")}
     )
     public EmployeeDTO deactivateEmployee(@PathVariable UUID employeeId) {
         return employeeService.deactivateEmployee(employeeId);

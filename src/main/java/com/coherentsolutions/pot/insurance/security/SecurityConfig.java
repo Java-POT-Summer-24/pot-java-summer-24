@@ -31,21 +31,48 @@ public class SecurityConfig {
 
     private static final String REALM_ACCESS_CLAIM = "realm_access";
     private static final String ROLES_CLAIM = "roles";
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).hasRole("insuranceAdmin")
+                // ------------------------------------- CLAIMS ------------------------------------------------
                 .requestMatchers(HttpMethod.GET, "/v1/claims").hasRole("insuranceAdmin")
                 .requestMatchers(HttpMethod.GET, "/v1/claims/filtered").hasAnyRole("insuranceAdmin", "companyAdmin")
                 .requestMatchers(HttpMethod.GET, "/v1/claims/{id}").hasAnyRole("insuranceAdmin", "companyAdmin", "user")
                 .requestMatchers(HttpMethod.POST, "/v1/claims").hasAnyRole("insuranceAdmin", "companyAdmin")
                 .requestMatchers(HttpMethod.PUT, "/v1/claims/{id}").hasAnyRole("insuranceAdmin", "companyAdmin")
                 .requestMatchers(HttpMethod.GET, "/v1/claims/companies/{companyName}").hasAnyRole("insuranceAdmin", "companyAdmin")
-                .requestMatchers(HttpMethod.GET, "/v1/claims/employees/{employeeUserName}").permitAll() // TODO: Custom authorization filter
-                //.requestMatchers(HttpMethod.GET, "/v1/claims/employees/{employeeUserName}").hasAnyRole("insuranceAdmin", "companyAdmin", "user")
+                .requestMatchers(HttpMethod.GET, "/v1/claims/employees/{employeeUserName}").hasAnyRole("insuranceAdmin", "companyAdmin", "user")
                 .requestMatchers(HttpMethod.DELETE, "/v1/claims/{id}").hasAnyRole("insuranceAdmin", "companyAdmin")
+                // ------------------------------------- COMPANIES ----------------------------------------------
+                .requestMatchers(HttpMethod.GET, "/v1/companies").hasRole("insuranceAdmin")
+                .requestMatchers(HttpMethod.POST, "/v1/companies").hasRole("insuranceAdmin")
+                .requestMatchers(HttpMethod.GET, "/v1/companies/{id}").hasAnyRole("insuranceAdmin", "companyAdmin")
+                .requestMatchers(HttpMethod.GET, "/v1/companies/filtered").hasRole("insuranceAdmin")
+                .requestMatchers(HttpMethod.PUT, "/v1/companies/{id}").hasAnyRole("insuranceAdmin", "companyAdmin")
+                .requestMatchers(HttpMethod.DELETE, "/v1/companies/{id}").hasAnyRole("insuranceAdmin", "companyAdmin")
+                // ------------------------------------- EMPLOYEES ----------------------------------------------
+                .requestMatchers(HttpMethod.GET, "/v1/employees").hasRole("insuranceAdmin")
+                .requestMatchers(HttpMethod.GET, "/v1/employees/filtered").hasAnyRole("insuranceAdmin", "companyAdmin")
+                .requestMatchers(HttpMethod.GET, "/v1/employees/{id}").hasAnyRole("insuranceAdmin", "companyAdmin", "user")
+                .requestMatchers(HttpMethod.POST, "/v1/employees").hasAnyRole("insuranceAdmin", "companyAdmin")
+                .requestMatchers(HttpMethod.PUT, "/v1/employees/{id}").hasAnyRole("insuranceAdmin", "companyAdmin")
+                .requestMatchers(HttpMethod.DELETE, "/v1/employees/{id}").hasAnyRole("insuranceAdmin", "companyAdmin")
+                // ------------------------------------- PACKAGES ----------------------------------------------
+                .requestMatchers(HttpMethod.GET, "/v1/packages").hasAnyRole("insuranceAdmin", "companyAdmin", "user")
+                .requestMatchers(HttpMethod.GET, "/v1/packages/filtered").hasAnyRole("insuranceAdmin", "companyAdmin", "user")
+                .requestMatchers(HttpMethod.GET, "/v1/packages/{id}").hasAnyRole("insuranceAdmin", "companyAdmin", "user")
+                .requestMatchers(HttpMethod.POST, "/v1/packages").hasRole("insuranceAdmin")
+                .requestMatchers(HttpMethod.PUT, "/v1/packages/{id}").hasRole("insuranceAdmin")
+                .requestMatchers(HttpMethod.DELETE, "/v1/packages/{id}").hasRole("insuranceAdmin")
+                // ------------------------------------- PLANS ----------------------------------------------
+                .requestMatchers(HttpMethod.GET, "/v1/plans").hasAnyRole("insuranceAdmin", "companyAdmin", "user")
+                .requestMatchers(HttpMethod.GET, "/v1/plans/filtered").hasAnyRole("insuranceAdmin", "companyAdmin", "user")
+                .requestMatchers(HttpMethod.GET, "/v1/plans/{id}").hasAnyRole("insuranceAdmin", "companyAdmin", "user")
+                .requestMatchers(HttpMethod.POST, "/v1/plans").hasRole("insuranceAdmin")
+                .requestMatchers(HttpMethod.PUT, "/v1/plans/{id}").hasRole("insuranceAdmin")
+                .requestMatchers(HttpMethod.DELETE, "/v1/plans/{id}").hasRole("insuranceAdmin")
                 .anyRequest().authenticated())
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**")))
