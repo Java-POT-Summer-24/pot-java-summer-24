@@ -12,5 +12,22 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: ${KEYCLOAK_RESOURCE:insurance}
+            client-secret: ${KEYCLOAK_CREDENTIALS_SECRET:ZhSxzJMLiekYZ7Q99bUbxzilcioV8vK7}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid
+        provider:
+          keycloak:
+            issuer-uri: ${OAUTH2_ISSUER_URI:http://keycloak:8080/realms/myrealm}
+            user-name-attribute: preferred_username
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI:http://keycloak:8080/realms/myrealm}
   liquibase:
     contexts: postgres
