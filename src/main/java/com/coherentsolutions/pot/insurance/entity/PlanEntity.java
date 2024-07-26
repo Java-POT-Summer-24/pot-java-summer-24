@@ -47,4 +47,6 @@ public class PlanEntity extends BaseEntity {
   private PackageEntity packageEntity;
 
   private double totalLimit;
+
+  private double remainingLimit;
 }

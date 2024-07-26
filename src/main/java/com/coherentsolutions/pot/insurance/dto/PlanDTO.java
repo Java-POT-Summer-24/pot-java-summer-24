@@ -39,6 +39,9 @@ public class PlanDTO implements Serializable {
 
   private UUID packageId;
 
+  @NotNull(message = "Total limit is required")
   @DecimalMin(value = "0.0", inclusive = false, message = "Total limit must be greater than zero")
   private double totalLimit;
+
+  private double remainingLimit;
 }
