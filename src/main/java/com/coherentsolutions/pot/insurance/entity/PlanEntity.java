@@ -39,4 +39,8 @@ public class PlanEntity extends BaseEntity {
 
   @Enumerated(EnumType.STRING)
   private PlanStatus status;
+
+  private double totalLimit;
+
+  private double remainingLimit;
 }

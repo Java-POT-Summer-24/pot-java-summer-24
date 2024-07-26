@@ -37,7 +37,11 @@ public class ClaimEntity extends BaseEntity {
   private LocalDate dateOfService;
 
   @Enumerated(EnumType.STRING)
-  private ClaimPlan plan;
+  private ClaimPlan planType;
+
+  @ManyToOne
+  @JoinColumn(name = "plan_id", referencedColumnName = "id")
+  private PlanEntity planEntity;
 
   private double amount;
 
