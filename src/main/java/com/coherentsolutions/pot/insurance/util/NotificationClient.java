@@ -14,7 +14,7 @@ public class NotificationClient {
   private final String notificationServiceUrl;
 
   public NotificationClient(WebClient.Builder webClientBuilder,
-      @Value("${notification.service.url:http://localhost:8081/v1/notification/send}") String notificationServiceUrl) {
+      @Value("${notification.service.url:http://localhost:8082/v1/notification/send}") String notificationServiceUrl) {
     this.webClient = webClientBuilder.build();
     this.notificationServiceUrl = notificationServiceUrl;
   }

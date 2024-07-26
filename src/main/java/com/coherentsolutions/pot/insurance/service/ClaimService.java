@@ -15,6 +15,8 @@ import com.coherentsolutions.pot.insurance.specifications.ClaimSpecifications;
 import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
 import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -94,16 +96,13 @@ public class ClaimService {
       claim.setStatus(ClaimStatus.DEACTIVATED);
       claim = claimRepository.save(claim);
 
+      ResourceBundle messages = ResourceBundle.getBundle("notif_msg", Locale.getDefault());
+
+      String messageTemplate = messages.getString("claim.deactivation.message");
+
+      String message = messageTemplate.formatted(claim.getEmployee().getFirstName(), claim.getClaimNumber());
+
       // Send notification
-      String message = """
-          Dear %s,
-
-          The claim with number %s has been deactivated.
-
-          Best regards,
-          Your Company
-          """.formatted(claim.getEmployee().getFirstName(), claim.getClaimNumber());
-
       notificationClient.sendDeactivationNotification(claim.getEmployee().getEmail(),
           "Claim Deactivated", message);
 

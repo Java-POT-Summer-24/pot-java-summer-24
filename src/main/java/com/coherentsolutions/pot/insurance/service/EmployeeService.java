@@ -11,6 +11,8 @@ import com.coherentsolutions.pot.insurance.specifications.EmployeeSpecifications
 import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import com.coherentsolutions.pot.insurance.util.ValidationUtil;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -80,16 +82,13 @@ public class EmployeeService {
       employee.setStatus(EmployeeStatus.INACTIVE);
       employee = employeeRepository.save(employee);
 
+      ResourceBundle messages = ResourceBundle.getBundle("notif_msg", Locale.getDefault());
+
+      String messageTemplate = messages.getString("employee.deactivation.message");
+
+      String message = messageTemplate.formatted(employee.getFirstName());
+
       // Send notification
-      String message = """
-          Dear %s,
-
-          Your account has been deactivated.
-
-          Best regards,
-          Your Company
-          """.formatted(employee.getFirstName());
-
       notificationClient.sendDeactivationNotification(employee.getEmail(), "Account Deactivated",
           message);
 
