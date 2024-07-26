@@ -2,9 +2,11 @@ package com.coherentsolutions.pot.insurance.service;
 
 import com.coherentsolutions.pot.insurance.dto.PlanDTO;
 import com.coherentsolutions.pot.insurance.constants.PlanStatus;
+import com.coherentsolutions.pot.insurance.entity.PackageEntity;
 import com.coherentsolutions.pot.insurance.entity.PlanEntity;
 import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.mapper.PlanMapper;
+import com.coherentsolutions.pot.insurance.repository.PackageRepository;
 import com.coherentsolutions.pot.insurance.repository.PlanRepository;
 import com.coherentsolutions.pot.insurance.specifications.PlanFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.PlanSpecifications;
@@ -25,9 +27,11 @@ import java.util.stream.Collectors;
 public class PlanService {
 
   private final PlanRepository planRepository;
+  private final PackageRepository packageRepository;
 
   public PlanDTO addPlan(PlanDTO planDTO) {
     PlanEntity plan = PlanMapper.INSTANCE.toPlanEntity(planDTO);
+    validateContributionLimit(plan);
     PlanEntity createdPlan = planRepository.save(plan);
     return PlanMapper.INSTANCE.toPlanDto(createdPlan);
   }
@@ -41,6 +45,9 @@ public class PlanService {
   public PlanDTO updatePlan(UUID planId, PlanDTO planDTO) {
     PlanEntity existingPlan = planRepository.findById(planId)
         .orElseThrow(() -> new NotFoundException("Plan with ID " + planId + " not found"));
+
+    PlanEntity planEntity = PlanMapper.INSTANCE.toPlanEntity(planDTO);
+    validateContributionLimit(planEntity);
 
     PlanMapper.INSTANCE.updatePlanFromDTO(planDTO, existingPlan);
     existingPlan = planRepository.save(existingPlan);
@@ -96,6 +103,19 @@ public class PlanService {
 
   private boolean isNotEmpty(String value) {
     return value != null && !value.isEmpty();
+  }
+
+  private void validateContributionLimit(PlanEntity planEntity) {
+    UUID packageId = planEntity.getPackageEntity().getId();
+    double totalContributions =
+        planRepository.findSumOfTotalLimitByPackageId(packageId);
+    PackageEntity packageEntity = packageRepository.findById(packageId)
+            .orElseThrow(() -> new NotFoundException("Package with id " + packageId + " not found"));
+    double remainingContribution = packageEntity.getContributions() - totalContributions;
+
+    if (planEntity.getTotalLimit() > remainingContribution) {
+      throw new IllegalStateException("The sum of limits has exceeded the package contribution.");
+    }
   }
 
 }
