@@ -70,7 +70,7 @@ class ClaimServiceTest {
     claimEntity.setId(UUID.randomUUID());
 
     EmployeeEntity employeeEntity = new EmployeeEntity();
-    employeeEntity.setUserName(newClaimDTO.getEmployee());
+    employeeEntity.setUserName(newClaimDTO.getEmployeeUserName());
 
     employeeEntity.setUserName(newClaimDTO.getEmployeeUserName());
     CompanyEntity companyEntity = new CompanyEntity();
@@ -105,7 +105,7 @@ class ClaimServiceTest {
     claimEntity.setId(UUID.randomUUID());
 
     EmployeeEntity employeeEntity = new EmployeeEntity();
-    employeeEntity.setUserName(newClaimDTO.getEmployee());
+    employeeEntity.setUserName(newClaimDTO.getEmployeeUserName());
 
     CompanyEntity companyEntity = new CompanyEntity();
     companyEntity.setName(newClaimDTO.getCompany());
@@ -114,7 +114,7 @@ class ClaimServiceTest {
     planEntity.setId(newClaimDTO.getPlanId());
     planEntity.setRemainingLimit(200.0);
 
-    when(employeeRepository.findByUserName(newClaimDTO.getEmployee())).thenReturn(Optional.of(employeeEntity));
+    when(employeeRepository.findByUserName(newClaimDTO.getEmployeeUserName())).thenReturn(Optional.of(employeeEntity));
     when(companyRepository.findByName(newClaimDTO.getCompany())).thenReturn(Optional.of(companyEntity));
     when(planRepository.findById(newClaimDTO.getPlanId())).thenReturn(Optional.of(planEntity));
 

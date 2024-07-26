@@ -74,8 +74,8 @@ public class ClaimService {
     String generatedClaimNumber = ClaimNumberGenerator.generate();
     claimDTO.setClaimNumber(generatedClaimNumber);
 
-    EmployeeEntity employee = employeeRepository.findByUserName(claimDTO.getEmployee())
-        .orElseThrow(() -> new NotFoundException("Employee with userName " + claimDTO.getEmployee() + " not found"));
+    EmployeeEntity employee = employeeRepository.findByUserName(claimDTO.getEmployeeUserName())
+        .orElseThrow(() -> new NotFoundException("Employee with userName " + claimDTO.getEmployeeUserName() + " not found"));
     CompanyEntity company = companyRepository.findByName(claimDTO.getCompany())
         .orElseThrow(() -> new NotFoundException("Company with name " + claimDTO.getCompany() + " not found"));
     PlanEntity plan = planRepository.findById(claimDTO.getPlanId())
