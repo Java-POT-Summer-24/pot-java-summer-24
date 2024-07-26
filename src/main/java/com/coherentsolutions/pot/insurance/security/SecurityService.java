@@ -210,7 +210,7 @@ public class SecurityService {
       return false;
     }
     UserEntity user = userOptional.get();
-    return user.getName().equals(authentication.getName());
+    return user.getUserName().equals(authentication.getName());
   }
 
   // ------------------------------------- PACKAGES ----------------------------------------------

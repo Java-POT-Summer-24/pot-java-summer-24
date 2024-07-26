@@ -1,5 +1,7 @@
 package com.coherentsolutions.pot.insurance.entity;
 
+import com.coherentsolutions.pot.insurance.constants.UserRole;
+import com.nimbusds.jose.crypto.opts.UserAuthenticationRequired;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -11,16 +13,14 @@ import lombok.Setter;
 
 
 @Entity
-@Table(name = "user")
+@Table(name = "insuranceUser")
 @Setter
 @Getter
-public class UserEntity extends BaseEntity {
-  private String name;
+public class
+UserEntity extends BaseEntity {
+  private String userName;
   private String email;
-
-  @OneToMany(mappedBy = "user")
-  private Set<AuthorityEntity> authorities;
-
+  private UserRole role;
   @ManyToOne
   @JoinColumn(name = "companyId")
   private CompanyEntity company;
