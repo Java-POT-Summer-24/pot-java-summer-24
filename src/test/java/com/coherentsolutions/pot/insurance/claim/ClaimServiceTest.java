@@ -2,6 +2,7 @@ package com.coherentsolutions.pot.insurance.claim;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,10 +12,12 @@ import com.coherentsolutions.pot.insurance.dto.ClaimDTO;
 import com.coherentsolutions.pot.insurance.entity.ClaimEntity;
 import com.coherentsolutions.pot.insurance.entity.CompanyEntity;
 import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
+import com.coherentsolutions.pot.insurance.entity.PlanEntity;
 import com.coherentsolutions.pot.insurance.mapper.ClaimMapper;
 import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
 import com.coherentsolutions.pot.insurance.repository.CompanyRepository;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
+import com.coherentsolutions.pot.insurance.repository.PlanRepository;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
 import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
 import com.coherentsolutions.pot.insurance.util.NotificationClient;
@@ -51,21 +54,35 @@ class ClaimServiceTest {
   @Mock
   private NotificationClient notificationClient;
 
+  @Mock
+  private PlanRepository planRepository;
+
   @InjectMocks
   private ClaimService claimService;
 
   @Test
   void testAddClaim() {
     ClaimDTO newClaimDTO = easyRandom.nextObject(ClaimDTO.class);
+    newClaimDTO.setStatus(ClaimStatus.APPROVED);
+    newClaimDTO.setAmount(100.0);
+
     ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(newClaimDTO);
     claimEntity.setId(UUID.randomUUID());
+
     EmployeeEntity employeeEntity = new EmployeeEntity();
+    employeeEntity.setUserName(newClaimDTO.getEmployee());
+
     employeeEntity.setUserName(newClaimDTO.getEmployeeUserName());
     CompanyEntity companyEntity = new CompanyEntity();
     companyEntity.setName(newClaimDTO.getCompany());
 
+    PlanEntity planEntity = new PlanEntity();
+    planEntity.setId(newClaimDTO.getPlanId());
+    planEntity.setRemainingLimit(200.0);
+
     when(employeeRepository.findByUserName(newClaimDTO.getEmployeeUserName())).thenReturn(Optional.of(employeeEntity));
     when(companyRepository.findByName(newClaimDTO.getCompany())).thenReturn(Optional.of(companyEntity));
+    when(planRepository.findById(newClaimDTO.getPlanId())).thenReturn(Optional.of(planEntity));
     when(claimRepository.save(any(ClaimEntity.class))).thenReturn(claimEntity);
 
     ClaimDTO createdClaimDTO = claimService.addClaim(newClaimDTO);
@@ -73,6 +90,39 @@ class ClaimServiceTest {
     assertEquals(claimEntity.getId(), createdClaimDTO.getId());
     assertEquals(newClaimDTO.getAmount(), createdClaimDTO.getAmount());
     verify(claimRepository).save(any(ClaimEntity.class));
+    verify(planRepository).save(any(PlanEntity.class));
+
+    assertEquals(100.0, planEntity.getRemainingLimit());
+  }
+
+  @Test
+  void testAddClaimExceedsLimit() {
+    ClaimDTO newClaimDTO = easyRandom.nextObject(ClaimDTO.class);
+    newClaimDTO.setStatus(ClaimStatus.APPROVED);
+    newClaimDTO.setAmount(300.0);
+
+    ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(newClaimDTO);
+    claimEntity.setId(UUID.randomUUID());
+
+    EmployeeEntity employeeEntity = new EmployeeEntity();
+    employeeEntity.setUserName(newClaimDTO.getEmployee());
+
+    CompanyEntity companyEntity = new CompanyEntity();
+    companyEntity.setName(newClaimDTO.getCompany());
+
+    PlanEntity planEntity = new PlanEntity();
+    planEntity.setId(newClaimDTO.getPlanId());
+    planEntity.setRemainingLimit(200.0);
+
+    when(employeeRepository.findByUserName(newClaimDTO.getEmployee())).thenReturn(Optional.of(employeeEntity));
+    when(companyRepository.findByName(newClaimDTO.getCompany())).thenReturn(Optional.of(companyEntity));
+    when(planRepository.findById(newClaimDTO.getPlanId())).thenReturn(Optional.of(planEntity));
+
+    assertThrows(IllegalStateException.class, () -> {
+      claimService.addClaim(newClaimDTO);
+    });
+
+    assertEquals(200.0, planEntity.getRemainingLimit());
   }
 
   @Test
@@ -105,15 +155,54 @@ class ClaimServiceTest {
     UUID claimId = UUID.randomUUID();
     ClaimDTO originalClaimDTO = easyRandom.nextObject(ClaimDTO.class);
     originalClaimDTO.setId(claimId);
+    originalClaimDTO.setStatus(ClaimStatus.ACTIVE);
+    originalClaimDTO.setAmount(100.0);
+
     ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(originalClaimDTO);
+    PlanEntity planEntity = easyRandom.nextObject(PlanEntity.class);
+    planEntity.setRemainingLimit(200.0);
 
-    when(claimRepository.findById(claimId)).thenReturn(java.util.Optional.of(claimEntity));
+    ClaimDTO updatedClaimDTO = ClaimMapper.INSTANCE.entityToDto(claimEntity);
+    updatedClaimDTO.setStatus(ClaimStatus.APPROVED);
+
+    when(claimRepository.findById(claimId)).thenReturn(Optional.of(claimEntity));
     when(claimRepository.save(any(ClaimEntity.class))).thenReturn(claimEntity);
+    when(planRepository.findById(any(UUID.class))).thenReturn(Optional.of(planEntity));
+    when(planRepository.save(any(PlanEntity.class))).thenReturn(planEntity);
 
-    ClaimDTO updatedClaimDTO = claimService.updateClaim(claimId, originalClaimDTO);
+    ClaimDTO resultClaimDTO = claimService.updateClaim(claimId, updatedClaimDTO);
 
-    assertEquals(originalClaimDTO.getAmount(), updatedClaimDTO.getAmount());
-    verify(claimRepository).save(claimEntity);
+    assertEquals(updatedClaimDTO.getAmount(), resultClaimDTO.getAmount());
+    verify(claimRepository).save(any(ClaimEntity.class));
+    verify(planRepository).save(any(PlanEntity.class));
+
+    assertEquals(100.0, planEntity.getRemainingLimit());
+  }
+
+  @Test
+  void testUpdateClaimExceedsLimit() {
+    UUID claimId = UUID.randomUUID();
+    ClaimDTO originalClaimDTO = easyRandom.nextObject(ClaimDTO.class);
+    originalClaimDTO.setId(claimId);
+    originalClaimDTO.setStatus(ClaimStatus.ACTIVE);
+    originalClaimDTO.setAmount(250.0);
+
+    ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(originalClaimDTO);
+    PlanEntity planEntity = easyRandom.nextObject(PlanEntity.class);
+    planEntity.setRemainingLimit(200.0);
+
+    ClaimDTO updatedClaimDTO = ClaimMapper.INSTANCE.entityToDto(claimEntity);
+    updatedClaimDTO.setStatus(ClaimStatus.APPROVED);
+
+    when(claimRepository.findById(claimId)).thenReturn(Optional.of(claimEntity));
+    when(planRepository.findById(any(UUID.class))).thenReturn(Optional.of(planEntity));
+
+
+    assertThrows(IllegalStateException.class, () -> {
+      claimService.updateClaim(claimId, updatedClaimDTO);
+    });
+
+    assertEquals(200.0, planEntity.getRemainingLimit());
   }
 
   @Test

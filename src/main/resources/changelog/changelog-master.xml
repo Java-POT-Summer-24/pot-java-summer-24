@@ -28,5 +28,6 @@
   <include file="changelog/ddl/3_1_define_claims_relationships.xml"/>
   <include file="changelog/ddl/3_1_1_update_claim_table_and_relationships.xml"/>
   <include file="changelog/dml/3_insert_claims_table.xml"/>
-
+  <include file="changelog/ddl/3_2_corrected_update_claim_table_and_relationships.xml"/>
+  
 </databaseChangeLog>

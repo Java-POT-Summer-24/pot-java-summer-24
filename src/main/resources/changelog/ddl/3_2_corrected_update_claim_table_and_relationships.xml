@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="3_2_1" author="heorhii.popov">
+    <sql>
+      ALTER TABLE plan ADD COLUMN total_limit DOUBLE DEFAULT 0 NOT NULL;
+    </sql>
+    <sql>
+      ALTER TABLE plan ADD COLUMN remaining_limit DOUBLE DEFAULT 0 NOT NULL;
+    </sql>
+  </changeSet>
+
+  <changeSet id="3_2_2" author="heorhii.popov">
+    <sql>
+      UPDATE plan SET total_limit = 1000, remaining_limit = 1000 WHERE plan_name = 'VIP Package';
+    </sql>
+    <sql>
+      UPDATE plan SET total_limit = 500, remaining_limit = 500 WHERE plan_name = 'Standard Package';
+    </sql>
+    <sql>
+      UPDATE plan SET total_limit = 750, remaining_limit = 750 WHERE plan_name = 'General Medical Insurance';
+    </sql>
+  </changeSet>
+
+  <changeSet id="3_2_3" author="heorhii.popov">
+    <sql>
+      ALTER TABLE claim ADD COLUMN plan_id UUID;
+    </sql>
+  </changeSet>
+
+  <changeSet id="3_2_4" author="heorhii.popov">
+    <sql>
+      UPDATE claim SET plan_id = (SELECT id FROM plan WHERE plan_name = 'VIP Package') WHERE claim_number = 'BY-8730AB3C';
+    </sql>
+    <sql>
+      UPDATE claim SET plan_id = (SELECT id FROM plan WHERE plan_name = 'Standard Package') WHERE claim_number = 'BY-7620FB4B';
+    </sql>
+    <sql>
+      UPDATE claim SET plan_id = (SELECT id FROM plan WHERE plan_name = 'General Medical Insurance') WHERE claim_number = 'BY-6519CB2A';
+    </sql>
+  </changeSet>
+
+  <changeSet id="3_2_5" author="heorhii.popov">
+    <sql>
+      ALTER TABLE claim ADD CONSTRAINT fk_claim_plan FOREIGN KEY (plan_id) REFERENCES plan(id);
+    </sql>
+  </changeSet>
+
+  <changeSet id="3_2_6" author="heorhii.popov">
+    <renameColumn
+      tableName="claim"
+      oldColumnName="plan"
+      newColumnName="plan_type"
+    />
+  </changeSet>
+</databaseChangeLog>

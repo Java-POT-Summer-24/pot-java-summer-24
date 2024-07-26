@@ -5,11 +5,13 @@ import com.coherentsolutions.pot.insurance.dto.ClaimDTO;
 import com.coherentsolutions.pot.insurance.entity.ClaimEntity;
 import com.coherentsolutions.pot.insurance.entity.CompanyEntity;
 import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
+import com.coherentsolutions.pot.insurance.entity.PlanEntity;
 import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.mapper.ClaimMapper;
 import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
 import com.coherentsolutions.pot.insurance.repository.CompanyRepository;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
+import com.coherentsolutions.pot.insurance.repository.PlanRepository;
 import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.ClaimSpecifications;
 import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
@@ -19,6 +21,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +29,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +42,11 @@ public class ClaimService {
   private final EmployeeRepository employeeRepository;
   private final CompanyRepository companyRepository;
   private final NotificationClient notificationClient;
+  private final PlanRepository planRepository;
 
   public Page<ClaimDTO> getFilteredSortedClaims(ClaimFilterCriteria claimFilterCriteria,
       Pageable pageable) {
+
     Sort defaultSort = Sort.by("dateOfService").descending();
 
     if (!pageable.getSort().isSorted()) {
@@ -45,7 +54,6 @@ public class ClaimService {
     }
 
     Specification<ClaimEntity> spec = buildSpecification(claimFilterCriteria);
-
     return claimRepository.findAll(spec, pageable).map(ClaimMapper.INSTANCE::entityToDto);
   }
 
@@ -56,39 +64,64 @@ public class ClaimService {
   }
 
   public ClaimDTO getClaimById(UUID id) {
-    return claimRepository.findById(id)
-        .map(ClaimMapper.INSTANCE::entityToDto)
+    ClaimEntity claim = claimRepository.findById(id)
         .orElseThrow(() -> new NotFoundException("Claim with ID " + id + " not found"));
+    return ClaimMapper.INSTANCE.entityToDto(claim);
   }
 
+  @Transactional
   public ClaimDTO addClaim(ClaimDTO claimDTO) {
     String generatedClaimNumber = ClaimNumberGenerator.generate();
     claimDTO.setClaimNumber(generatedClaimNumber);
 
-    // in ClaimDTO we get username as getEmployee
-    String employeeUserName = claimDTO.getEmployeeUserName();
-    EmployeeEntity employee = employeeRepository.findByUserName(employeeUserName).orElseThrow(
-        () -> new NotFoundException(
-            "Employee with userName " + employeeUserName + " not found"));
-    CompanyEntity company = companyRepository.findByName(claimDTO.getCompany()).orElseThrow(
-        () -> new NotFoundException("Company with name " + claimDTO.getCompany() + " not found"));
+    EmployeeEntity employee = employeeRepository.findByUserName(claimDTO.getEmployee())
+        .orElseThrow(() -> new NotFoundException("Employee with userName " + claimDTO.getEmployee() + " not found"));
+    CompanyEntity company = companyRepository.findByName(claimDTO.getCompany())
+        .orElseThrow(() -> new NotFoundException("Company with name " + claimDTO.getCompany() + " not found"));
+    PlanEntity plan = planRepository.findById(claimDTO.getPlanId())
+        .orElseThrow(() -> new NotFoundException("Plan with ID " + claimDTO.getPlanId() + " not found"));
+
+    if (claimDTO.getStatus() == ClaimStatus.APPROVED) {
+      double newRemainingLimit = plan.getRemainingLimit() - claimDTO.getAmount();
+      if (newRemainingLimit < 0) {
+        throw new IllegalStateException("Claim amount exceeds plan's remaining limit");
+      }
+      plan.setRemainingLimit(newRemainingLimit);
+      planRepository.save(plan);
+    }
 
     ClaimEntity claim = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
     claim.setEmployee(employee);
     claim.setCompany(company);
+    claim.setPlanEntity(plan);
     claim = claimRepository.save(claim);
     return ClaimMapper.INSTANCE.entityToDto(claim);
   }
 
+  @Transactional
   public ClaimDTO updateClaim(UUID claimId, ClaimDTO claimDTO) {
-    return claimRepository.findById(claimId)
-        .map(existingClaim -> {
-          if (existingClaim.getStatus() == ClaimStatus.DEACTIVATED) {
-            throw new NotFoundException("Cannot update. Claim with ID " + claimId + " is deactivated");
-          }
-          ClaimMapper.INSTANCE.updateClaimFromDTO(claimDTO, existingClaim);
-          return ClaimMapper.INSTANCE.entityToDto(claimRepository.save(existingClaim));
-        }).orElseThrow(() -> new NotFoundException("Claim not found with id: " + claimId));
+    ClaimEntity existingClaim = claimRepository.findById(claimId)
+        .orElseThrow(() -> new NotFoundException("Claim with ID " + claimId + " not found"));
+
+    if (claimDTO.getStatus() == ClaimStatus.APPROVED && existingClaim.getStatus() != ClaimStatus.APPROVED) {
+      PlanEntity plan = planRepository.findById(claimDTO.getPlanId())
+          .orElseThrow(() -> new NotFoundException("Plan with ID " + claimDTO.getPlanId() + " not found"));
+
+      double newRemainingLimit = plan.getRemainingLimit() - claimDTO.getAmount();
+      if (newRemainingLimit < 0) {
+        throw new IllegalStateException("Claim amount exceeds plan's remaining limit");
+      }
+
+      plan.setRemainingLimit(newRemainingLimit);
+      planRepository.save(plan);
+    }
+
+    ClaimMapper.INSTANCE.updateClaimFromDTO(claimDTO, existingClaim);
+    existingClaim.setPlanEntity(planRepository.findById(claimDTO.getPlanId())
+        .orElseThrow(() -> new NotFoundException("Plan with ID " + claimDTO.getPlanId() + " not found"))); // Ensure planId is correctly set
+    existingClaim = claimRepository.save(existingClaim);
+
+    return ClaimMapper.INSTANCE.entityToDto(existingClaim);
   }
 
   public ClaimDTO deactivateClaim(UUID id) {
