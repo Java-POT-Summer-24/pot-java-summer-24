@@ -71,3 +71,13 @@ services:
       - "8081:8081"
     profiles:
       - prod
+
+  notification-service:
+    build: ./notif-svc
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    ports:
+      - "8082:8082"
+    profiles:
+      - dev
+      - prod

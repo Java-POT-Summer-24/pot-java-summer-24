@@ -17,6 +17,7 @@ import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
 import com.coherentsolutions.pot.insurance.mapper.EmployeeMapper;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.service.EmployeeService;
+import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +54,9 @@ public class EmployeeIntegrationTest {
 
   @MockBean
   private EmployeeRepository employeeRepository;
+
+  @MockBean
+  private NotificationClient notificationClient;
 
   private final EasyRandom easyRandom = new EasyRandom();
 

@@ -24,7 +24,7 @@ public class ClaimDTO implements Serializable {
 
   private String claimNumber;
 
-  private String employee;
+  private String employeeUserName;
 
   private String company;
 

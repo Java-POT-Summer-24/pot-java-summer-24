@@ -20,6 +20,8 @@ public class NotificationController {
   public String sendMail(@PathVariable String mail,
       @RequestBody NotificationEntity notificationEntity) {
     notificationService.sendMail(mail, notificationEntity);
+    System.out.println("Received POST request to send notification to " + mail + " with payload: " + notificationEntity);
+    notificationService.sendMail(mail, notificationEntity);
     return "Mail sent successfully";
   }
 }
