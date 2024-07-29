@@ -1,7 +1,5 @@
 package com.coherentsolutions.pot.insurance.service;
 
-import static org.springframework.util.StringUtils.hasText;
-
 import com.coherentsolutions.pot.insurance.constants.EmployeeStatus;
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
 import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
@@ -42,7 +40,7 @@ public class EmployeeService {
         .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO);
   }
 
-  public EmployeeDTO addEmployee(EmployeeDTO employeeDTO){
+  public EmployeeDTO addEmployee(EmployeeDTO employeeDTO) {
     EmployeeEntity employee = EmployeeMapper.INSTANCE.employeeDTOToEmployee(employeeDTO);
     EmployeeEntity createdEmployee = employeeRepository.save(employee);
 
@@ -85,7 +83,8 @@ public class EmployeeService {
           employee = employeeRepository.save(employee);
           return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employee);
         })
-        .orElseThrow(() -> new NotFoundException("Employee with ID " + employeeId + " was not found"));
+        .orElseThrow(
+            () -> new NotFoundException("Employee with ID " + employeeId + " was not found"));
   }
 
 
@@ -111,6 +110,9 @@ public class EmployeeService {
     }
     if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getStatus())) {
       spec = spec.and(EmployeeSpecifications.byStatus(employeeFilterCriteria.getStatus()));
+    }
+    if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getCompanyName())) {
+      spec = spec.and(EmployeeSpecifications.byCompany(employeeFilterCriteria.getCompanyName()));
     }
 
     return spec;

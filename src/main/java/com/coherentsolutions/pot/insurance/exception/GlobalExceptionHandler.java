@@ -13,9 +13,17 @@ import org.springframework.web.context.request.WebRequest;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+  @ExceptionHandler(UnauthorizedAccessException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public ResponseEntity<String> handleUnauthorizedCompanyAccessException(
+      UnauthorizedAccessException ex) {
+    return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+  }
+
   @ExceptionHandler(NotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex, WebRequest request) {
+  public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex,
+      WebRequest request) {
     ErrorResponse errorResponse = new ErrorResponse(
         HttpStatus.NOT_FOUND.value(),
         ex.getMessage(),
@@ -37,7 +45,8 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(BadRequestException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex, WebRequest request) {
+  public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex,
+      WebRequest request) {
     ErrorResponse errorResponse = new ErrorResponse(
         HttpStatus.BAD_REQUEST.value(),
         ex.getMessage(),
@@ -48,7 +57,8 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+  public ResponseEntity<ErrorResponse> handleValidationExceptions(
+      MethodArgumentNotValidException ex) {
     Map<String, String> errors = new HashMap<>();
     ex.getBindingResult().getAllErrors().forEach((error) -> {
       String fieldName = ((org.springframework.validation.FieldError) error).getField();

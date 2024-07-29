@@ -63,13 +63,16 @@ public class ClaimService {
     claimDTO.setClaimNumber(generatedClaimNumber);
 
     EmployeeEntity employee = employeeRepository.findByUserName(claimDTO.getEmployee())
-        .orElseThrow(() -> new NotFoundException("Employee with userName " + claimDTO.getEmployee() + " not found"));
+        .orElseThrow(() -> new NotFoundException(
+            "Employee with userName " + claimDTO.getEmployee() + " not found"));
     CompanyEntity company = companyRepository.findByName(claimDTO.getCompany())
-        .orElseThrow(() -> new NotFoundException("Company with name " + claimDTO.getCompany() + " not found"));
+        .orElseThrow(() -> new NotFoundException(
+            "Company with name " + claimDTO.getCompany() + " not found"));
 
     ClaimEntity claim = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
 
     claim.setCompany(company);
+    claim.setEmployee(employee);
     claim = claimRepository.save(claim);
     return ClaimMapper.INSTANCE.entityToDto(claim);
   }

@@ -24,7 +24,6 @@
   <include file="/changelog/dml/5_insert_plans_table.xml"/>
   <include file="/changelog/ddl/postgres/6_create_employees_table.xml" context="postgres"/>
   <include file="/changelog/ddl/h2/6_create_employees_table.xml" context="h2"/>
-  <include file="/changelog/ddl/h2/7_create_users_table.xml" context="h2"/>
   <include file="changelog/dml/6_insert_employees_table.xml"/>
   <include file="changelog/ddl/3_1_define_claims_relationships.xml"/>
   <include file="changelog/ddl/3_1_1_update_claim_table_and_relationships.xml"/>

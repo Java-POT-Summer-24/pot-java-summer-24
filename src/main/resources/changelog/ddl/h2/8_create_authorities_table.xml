@@ -5,19 +5,18 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="7" author="NormantasN">
+  <changeSet id="8" author="NormantasN">
     <sql>
-      CREATE TABLE insuranceUser
+      CREATE TABLE authority
       (
-        id        UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
-        name      VARCHAR(255) NOT NULL,
-        email     VARCHAR(255) NOT NULL UNIQUE,
-        companyId UUID,
-        CONSTRAINT fk_user_company FOREIGN KEY (companyId) REFERENCES company(id)
+        id UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
+        authority VARCHAR(255) NOT NULL,
+        user_id UUID NOT NULL,
+        CONSTRAINT fk_authority_user FOREIGN KEY (user_id) REFERENCES user(id)
       );
     </sql>
   </changeSet>
-  <changeSet id="7_1" author="NormantasN">
-    <dropTable tableName="insuranceUser"/>
+  <changeSet id="8_1" author="NormantasN">
+    <dropTable tableName="authority"/>
   </changeSet>
 </databaseChangeLog>

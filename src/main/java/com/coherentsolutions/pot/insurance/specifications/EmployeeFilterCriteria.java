@@ -8,10 +8,12 @@ import org.springdoc.api.annotations.ParameterObject;
 @Data
 @ParameterObject
 public class EmployeeFilterCriteria {
+
   private String firstName;
   private String lastName;
   private String userName;
   private LocalDate dateOfBirth;
   private Integer ssn;
   private EmployeeStatus status;
+  private String companyName;
 }

@@ -7,9 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,25 +21,23 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CompanyEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private UUID id;
 
-    private String name;
+  private String name;
 
-    private String countryCode;
+  private String countryCode;
 
-    private String address;
+  private String address;
 
-    private String phoneNumber;
+  private String phoneNumber;
 
-    private String email;
+  private String email;
 
-    private String website;
+  private String website;
 
-    @Enumerated(EnumType.STRING)
-    private CompanyStatus status;
+  @Enumerated(EnumType.STRING)
+  private CompanyStatus status;
 
-    @OneToMany(mappedBy = "company")
-    private List<UserEntity> users;
 }

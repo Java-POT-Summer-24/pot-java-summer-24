@@ -3,6 +3,7 @@ package com.coherentsolutions.pot.insurance.controller;
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
 import com.coherentsolutions.pot.insurance.service.EmployeeService;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -31,60 +32,61 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class EmployeeController {
 
-    private final EmployeeService employeeService;
+  private final EmployeeService employeeService;
 
-    @GetMapping("/filtered")
-    @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("@securityService.canGetFilteredSortedEmployees(authentication)")
-    public Page<EmployeeDTO> getFilteredSortedEmployees(
-        @ParameterObject EmployeeFilterCriteria employeeFilterCriteria,
-        @ParameterObject Pageable pageable) {
-        return employeeService.getFilteredSortedEmployees(employeeFilterCriteria, pageable);
-    }
+  @GetMapping("/filtered")
+  @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("@securityService.canGetFilteredSortedEmployees(authentication, #employeeFilterCriteria)")
+  public Page<EmployeeDTO> getFilteredSortedEmployees(
+      @ParameterObject EmployeeFilterCriteria employeeFilterCriteria,
+      @ParameterObject Pageable pageable) {
+    return employeeService.getFilteredSortedEmployees(employeeFilterCriteria, pageable);
+  }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("@securityService.canAddEmployee(authentication)")
-    @CacheEvict(value = "employeesList", allEntries = true)
-    public EmployeeDTO addEmployee(@RequestBody EmployeeDTO employeeDTO){
-        return employeeService.addEmployee(employeeDTO);
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  @PreAuthorize("@securityService.canAddEmployee(authentication, #employeeDTO)")
+  @CacheEvict(value = "employeesList", allEntries = true)
+  public EmployeeDTO addEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
+    return employeeService.addEmployee(employeeDTO);
+  }
 
-    @GetMapping("/{employeeId}")
-    @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("@securityService.canAccessEmployee(authentication, #employeeId)")
-    @Cacheable(value = "employee", key = "#employeeId")
-    public EmployeeDTO getEmployee(@PathVariable UUID employeeId){
-        return employeeService.getEmployee(employeeId);
-    }
+  @GetMapping("/{employeeId}")
+  @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("@securityService.canAccessEmployee(authentication, #employeeId)")
+  @Cacheable(value = "employee", key = "#employeeId")
+  public EmployeeDTO getEmployee(@PathVariable UUID employeeId) {
+    return employeeService.getEmployee(employeeId);
+  }
 
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("@securityService.canGetAllEmployees(authentication)")
-    @Cacheable(value = "employeesList")
-    public List<EmployeeDTO> getAllEmployees(){
-        return employeeService.getAllEmployees();
-    }
+  @GetMapping
+  @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("@securityService.canGetAllEmployees(authentication)")
+  @Cacheable(value = "employeesList")
+  public List<EmployeeDTO> getAllEmployees() {
+    return employeeService.getAllEmployees();
+  }
 
-    @PutMapping("/{employeeId}")
-    @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("@securityService.canUpdateEmployee(authentication, #employeeId)")
-    @Caching(
-        evict = {@CacheEvict(value = "employeesList", allEntries = true)},
-        put = {@CachePut(value = "employee", key = "#employeeId")}
-    )
-    public EmployeeDTO updateEmployee(@PathVariable UUID employeeId, @RequestBody EmployeeDTO updatedEmployeeDTO){
-        return employeeService.updateEmployee(employeeId, updatedEmployeeDTO);
-    }
+  @PutMapping("/{employeeId}")
+  @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("@securityService.canUpdateEmployee(authentication, #employeeId)")
+  @Caching(
+      evict = {@CacheEvict(value = "employeesList", allEntries = true)},
+      put = {@CachePut(value = "employee", key = "#employeeId")}
+  )
+  public EmployeeDTO updateEmployee(@PathVariable UUID employeeId,
+      @RequestBody EmployeeDTO updatedEmployeeDTO) {
+    return employeeService.updateEmployee(employeeId, updatedEmployeeDTO);
+  }
 
-    @DeleteMapping("/{employeeId}")
-    @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("@securityService.canDeactivateEmployee(authentication, #employeeId)")
-    @Caching(
-        evict = {@CacheEvict(value = "employeesList", allEntries = true)},
-        put = {@CachePut(value = "employee", key = "#employeeId")}
-    )
-    public EmployeeDTO deactivateEmployee(@PathVariable UUID employeeId) {
-        return employeeService.deactivateEmployee(employeeId);
-    }
+  @DeleteMapping("/{employeeId}")
+  @ResponseStatus(HttpStatus.OK)
+  @Caching(
+      evict = {@CacheEvict(value = "employeesList", allEntries = true)},
+      put = {@CachePut(value = "employee", key = "#employeeId")}
+  )
+  @PreAuthorize("@securityService.canDeactivateEmployee(authentication, #employeeId)")
+  public EmployeeDTO deactivateEmployee(@PathVariable UUID employeeId) {
+    return employeeService.deactivateEmployee(employeeId);
+  }
 }

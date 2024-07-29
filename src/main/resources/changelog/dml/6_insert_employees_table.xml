@@ -7,10 +7,10 @@
 
   <changeSet id="6" author="lukas.simonelis">
     <sql>
-      INSERT INTO employee (first_name, last_name, user_name, email, date_of_birth, ssn, phone_number, status)
+      INSERT INTO employee (first_name, last_name, user_name, email, date_of_birth, ssn, phone_number, status, company_name)
       VALUES
-      ('John', 'Doe', 'johndoe', 'john.doe@example.com', '1980-01-01', '123456789', '1234567890', 'ACTIVE'),
-      ('Jane', 'Doe', 'janedoe', 'jane.doe@example.com', '1985-01-01', '987654321', '9876543210', 'INACTIVE');
+      ('John', 'Doe', 'johndoe', 'john.doe@example.com', '1980-01-01', '123456789', '1234567890', 'ACTIVE', 'ISSoft'),
+      ('Jane', 'Doe', 'janedoe', 'jane.doe@example.com', '1985-01-01', '987654321', '9876543210', 'INACTIVE', 'ISSoft');
     </sql>
   </changeSet>
 

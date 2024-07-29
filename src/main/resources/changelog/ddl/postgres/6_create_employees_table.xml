@@ -20,4 +20,10 @@
       );
     </sql>
   </changeSet>
+
+  <changeSet id="6_1" author="NormantasN">
+    <addColumn tableName="employee">
+      <column name="company_name" type="VARCHAR(255)" />
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>
