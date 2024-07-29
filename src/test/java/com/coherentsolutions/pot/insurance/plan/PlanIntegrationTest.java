@@ -2,6 +2,7 @@ package com.coherentsolutions.pot.insurance.plan;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -11,8 +12,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.coherentsolutions.pot.insurance.constants.PlanStatus;
+import com.coherentsolutions.pot.insurance.entity.PackageEntity;
 import com.coherentsolutions.pot.insurance.entity.PlanEntity;
 import com.coherentsolutions.pot.insurance.mapper.PlanMapper;
+import com.coherentsolutions.pot.insurance.repository.PackageRepository;
 import com.coherentsolutions.pot.insurance.repository.PlanRepository;
 import java.util.List;
 import java.util.Optional;
@@ -53,14 +56,23 @@ public class PlanIntegrationTest {
   @MockBean
   private PlanRepository planRepository;
 
+  @MockBean
+  private PackageRepository packageRepository;
+
   private final EasyRandom easyRandom = new EasyRandom();
 
   @Test
   void testAddPlan() throws Exception {
     PlanDTO newPlanDTO = easyRandom.nextObject(PlanDTO.class);
+    newPlanDTO.setTotalLimit(200);
+    newPlanDTO.setPackageId(UUID.fromString("83d8456f-95bb-4f84-859f-8da1f6abac2d"));
     PlanEntity planEntity = PlanMapper.INSTANCE.toPlanEntity(newPlanDTO);
 
     Mockito.when(planRepository.save(any(PlanEntity.class))).thenReturn(planEntity);
+    PackageEntity packageEntity = new PackageEntity();
+    packageEntity.setId(newPlanDTO.getPackageId());
+    packageEntity.setContributions(1000);
+    when(packageRepository.findById(newPlanDTO.getPackageId())).thenReturn(Optional.of(packageEntity));
 
     mockMvc.perform(post("/v1/plans")
             .contentType(MediaType.APPLICATION_JSON)
@@ -105,10 +117,17 @@ public class PlanIntegrationTest {
     UUID planId = UUID.randomUUID();
     PlanDTO originalPlanDTO = easyRandom.nextObject(PlanDTO.class);
     originalPlanDTO.setId(planId);
+    originalPlanDTO.setTotalLimit(200);
+    originalPlanDTO.setPackageId(UUID.fromString("83d8456f-95bb-4f84-859f-8da1f6abac2d"));
     PlanEntity planEntity = PlanMapper.INSTANCE.toPlanEntity(originalPlanDTO);
 
     Mockito.when(planRepository.findById(eq(planId))).thenReturn(Optional.of(planEntity));
     Mockito.when(planRepository.save(any(PlanEntity.class))).thenReturn(planEntity);
+
+    PackageEntity packageEntity = new PackageEntity();
+    packageEntity.setId(originalPlanDTO.getPackageId());
+    packageEntity.setContributions(1000);
+    when(packageRepository.findById(originalPlanDTO.getPackageId())).thenReturn(Optional.of(packageEntity));
 
     mockMvc.perform(put("/v1/plans/{id}", planId)
             .contentType(MediaType.APPLICATION_JSON)

@@ -37,10 +37,11 @@ public class PlanDTO implements Serializable {
   @NotNull(message = "End date is required")
   private LocalDate endDate;
 
+  private UUID packageId;
+
   @NotNull(message = "Total limit is required")
   @DecimalMin(value = "0.0", inclusive = false, message = "Total limit must be greater than zero")
   private double totalLimit;
 
   private double remainingLimit;
-
 }

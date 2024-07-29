@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="5_1_1" author="dmytro.mazurev">
+    <sql>
+      ALTER TABLE plan ADD COLUMN total_limit DOUBLE PRECISION DEFAULT 0 NOT NULL;
+    </sql>
+    <sql>
+      ALTER TABLE plan ADD COLUMN package_id UUID;
+    </sql>
+  </changeSet>
+
+  <changeSet id="5_1_2" author="dmytro.mazurev">
+    <sql>
+      UPDATE plan SET total_limit = 100, package_id = '83d8456f-95bb-4f84-859f-8da1f6abac3c' WHERE plan_name = 'VIP Package';
+    </sql>
+    <sql>
+      UPDATE plan SET total_limit = 100, package_id = '83d8456f-95bb-4f84-859f-8da1f6abac3c'  WHERE plan_name = 'Standard Package';
+    </sql>
+    <sql>
+      UPDATE plan SET total_limit = 1000, package_id = '83d8456f-95bb-4f84-859f-8da1f6abac2b' WHERE plan_name = 'General Medical Insurance';
+    </sql>
+  </changeSet>
+
+  <changeSet id="5_1_3" author="dmytro.mazurev">
+    <sql>
+      ALTER TABLE plan ALTER COLUMN package_id SET NOT NULL;
+    </sql>
+    <sql>
+      ALTER TABLE plan ADD CONSTRAINT fk_package_plan FOREIGN KEY (package_id) REFERENCES package(id);
+    </sql>
+  </changeSet>
+</databaseChangeLog>
