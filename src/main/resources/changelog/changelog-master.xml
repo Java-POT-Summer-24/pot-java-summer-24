@@ -22,13 +22,13 @@
   <include file="/changelog/ddl/postgres/5_create_plans_table.xml" context="postgres"/>
   <include file="/changelog/ddl/h2/5_create_plans_table.xml" context="h2"/>
   <include file="/changelog/dml/5_insert_plans_table.xml"/>
-  <include file="changelog/ddl/5_1_update_plan_table_and_relationship.xml"/>
+  <include file="changelog/ddl/5_1_fixed_update_plan_table_and_relationships.xml"/>
   <include file="/changelog/ddl/postgres/6_create_employees_table.xml" context="postgres"/>
   <include file="/changelog/ddl/h2/6_create_employees_table.xml" context="h2"/>
   <include file="changelog/dml/6_insert_employees_table.xml"/>
   <include file="changelog/ddl/3_1_define_claims_relationships.xml"/>
   <include file="changelog/ddl/3_1_1_update_claim_table_and_relationships.xml"/>
   <include file="changelog/dml/3_insert_claims_table.xml"/>
-  <include file="changelog/ddl/3_2_corrected_update_claim_table_and_relationships.xml"/>
+  <include file="changelog/ddl/3_2_fixed_update_claim_table_and_relationships.xml"/>
   
 </databaseChangeLog>
