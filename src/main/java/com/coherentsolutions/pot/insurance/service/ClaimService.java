@@ -17,6 +17,7 @@ import com.coherentsolutions.pot.insurance.specifications.ClaimSpecifications;
 import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
 import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import jakarta.transaction.Transactional;
+import java.text.MessageFormat;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -130,8 +131,7 @@ public class ClaimService {
           ResourceBundle messages = ResourceBundle.getBundle("notif_msg", Locale.getDefault());
 
           String messageTemplate = messages.getString("claim.deactivation.message");
-
-          String message = messageTemplate.formatted(claim.getEmployee().getFirstName(), claim.getClaimNumber());
+          String message = MessageFormat.format(messageTemplate, claim.getEmployee().getFirstName(), claim.getClaimNumber());
 
           // Send notification
           notificationClient.sendDeactivationNotification(claim.getEmployee().getEmail(),
