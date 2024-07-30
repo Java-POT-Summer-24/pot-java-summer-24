@@ -13,7 +13,7 @@ spring:
       pageable:
         default-page-size: 10
     redis:
-      host: ${REDIS_HOST:localhost}
+      host: ${REDIS_HOST:redis-cache}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:password}
 
@@ -29,3 +29,7 @@ logging:
     org.springframework.data.redis: DEBUG
     org.springframework.web: DEBUG
     com.coherentsolutions.pot.insurance: DEBUG
+
+notification:
+  service:
+    url: http://localhost:8082/v1/notification/send

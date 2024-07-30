@@ -48,6 +48,7 @@ services:
       REDIS_HOST: redis-cache
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
+      NOTIFICATION_SERVICE_URL: http://notification-service:8082/v1/notification/send
     ports:
       - "8081:8081"
     depends_on:
@@ -63,6 +64,7 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
       OAUTH2_ISSUER_URI: http://keycloak:8080/realms/myrealm
+      NOTIFICATION_SERVICE_URL: http://notification-service:8082/v1/notification/send
     depends_on:
       - insurance-db
       - redis-cache
@@ -81,3 +83,7 @@ services:
     profiles:
       - dev
       - prod
+
+networks:
+  mynetwork:
+    driver: bridge
