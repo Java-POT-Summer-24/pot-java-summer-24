@@ -10,6 +10,7 @@ import com.coherentsolutions.pot.insurance.mapper.EmployeeMapper;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeSpecifications;
+import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import com.coherentsolutions.pot.insurance.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +30,7 @@ import java.util.UUID;
 public class EmployeeService {
 
   private final EmployeeRepository employeeRepository;
+  private final NotificationClient notificationClient;
 
   public Page<EmployeeDTO> getFilteredSortedEmployees(EmployeeFilterCriteria employeeFilterCriteria,
       Pageable pageable) {
@@ -83,6 +87,17 @@ public class EmployeeService {
           }
           employee.setStatus(EmployeeStatus.INACTIVE);
           employee = employeeRepository.save(employee);
+
+          ResourceBundle messages = ResourceBundle.getBundle("notif_msg", Locale.getDefault());
+
+          String messageTemplate = messages.getString("employee.deactivation.message");
+
+          String message = messageTemplate.formatted(employee.getFirstName());
+
+          // Send notification
+          notificationClient.sendDeactivationNotification(employee.getEmail(), "Account Deactivated",
+              message);
+
           return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employee);
         })
         .orElseThrow(() -> new NotFoundException("Employee with ID " + employeeId + " was not found"));

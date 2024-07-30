@@ -22,3 +22,7 @@ server:
   error:
     include-message: always
     include-binding-errors: always
+
+notification:
+  service:
+    url: http://localhost:8082/v1/notification/send

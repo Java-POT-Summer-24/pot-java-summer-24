@@ -17,12 +17,12 @@ public interface ClaimMapper {
 
   ClaimMapper INSTANCE = Mappers.getMapper(ClaimMapper.class);
 
-  @Mapping(source = "employee.userName", target = "employee")
+  @Mapping(source = "employee.userName", target = "employeeUserName")
   @Mapping(source = "company.name", target = "company")
   @Mapping(source = "planEntity.id", target = "planId")
   ClaimDTO entityToDto(ClaimEntity claim);
 
-  @Mapping(source = "employee", target = "employee", qualifiedByName = "stringToEmployee")
+  @Mapping(source = "employeeUserName", target = "employee", qualifiedByName = "stringToEmployee")
   @Mapping(source = "company", target = "company", qualifiedByName = "stringToCompany")
   @Mapping(source = "planId", target = "planEntity", qualifiedByName = "uuidToPlan")
   ClaimEntity dtoToEntity(ClaimDTO claimDTO);

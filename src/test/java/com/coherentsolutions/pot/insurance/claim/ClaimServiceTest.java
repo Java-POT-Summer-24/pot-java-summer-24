@@ -20,6 +20,7 @@ import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.repository.PlanRepository;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
 import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
+import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,6 +52,9 @@ class ClaimServiceTest {
   private CompanyRepository companyRepository;
 
   @Mock
+  private NotificationClient notificationClient;
+
+  @Mock
   private PlanRepository planRepository;
 
   @InjectMocks
@@ -66,8 +70,9 @@ class ClaimServiceTest {
     claimEntity.setId(UUID.randomUUID());
 
     EmployeeEntity employeeEntity = new EmployeeEntity();
-    employeeEntity.setUserName(newClaimDTO.getEmployee());
+    employeeEntity.setUserName(newClaimDTO.getEmployeeUserName());
 
+    employeeEntity.setUserName(newClaimDTO.getEmployeeUserName());
     CompanyEntity companyEntity = new CompanyEntity();
     companyEntity.setName(newClaimDTO.getCompany());
 
@@ -75,7 +80,7 @@ class ClaimServiceTest {
     planEntity.setId(newClaimDTO.getPlanId());
     planEntity.setRemainingLimit(200.0);
 
-    when(employeeRepository.findByUserName(newClaimDTO.getEmployee())).thenReturn(Optional.of(employeeEntity));
+    when(employeeRepository.findByUserName(newClaimDTO.getEmployeeUserName())).thenReturn(Optional.of(employeeEntity));
     when(companyRepository.findByName(newClaimDTO.getCompany())).thenReturn(Optional.of(companyEntity));
     when(planRepository.findById(newClaimDTO.getPlanId())).thenReturn(Optional.of(planEntity));
     when(claimRepository.save(any(ClaimEntity.class))).thenReturn(claimEntity);
@@ -100,7 +105,7 @@ class ClaimServiceTest {
     claimEntity.setId(UUID.randomUUID());
 
     EmployeeEntity employeeEntity = new EmployeeEntity();
-    employeeEntity.setUserName(newClaimDTO.getEmployee());
+    employeeEntity.setUserName(newClaimDTO.getEmployeeUserName());
 
     CompanyEntity companyEntity = new CompanyEntity();
     companyEntity.setName(newClaimDTO.getCompany());
@@ -109,7 +114,7 @@ class ClaimServiceTest {
     planEntity.setId(newClaimDTO.getPlanId());
     planEntity.setRemainingLimit(200.0);
 
-    when(employeeRepository.findByUserName(newClaimDTO.getEmployee())).thenReturn(Optional.of(employeeEntity));
+    when(employeeRepository.findByUserName(newClaimDTO.getEmployeeUserName())).thenReturn(Optional.of(employeeEntity));
     when(companyRepository.findByName(newClaimDTO.getCompany())).thenReturn(Optional.of(companyEntity));
     when(planRepository.findById(newClaimDTO.getPlanId())).thenReturn(Optional.of(planEntity));
 

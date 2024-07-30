@@ -15,7 +15,10 @@ import com.coherentsolutions.pot.insurance.repository.PlanRepository;
 import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.ClaimSpecifications;
 import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
+import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import jakarta.transaction.Transactional;
+import java.text.MessageFormat;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import java.util.ResourceBundle;
 
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +40,7 @@ public class ClaimService {
   private final EmployeeRepository employeeRepository;
   private final CompanyRepository companyRepository;
   private final PlanRepository planRepository;
+  private final NotificationClient notificationClient;
 
   public Page<ClaimDTO> getFilteredSortedClaims(ClaimFilterCriteria claimFilterCriteria,
       Pageable pageable) {
@@ -67,8 +72,8 @@ public class ClaimService {
     String generatedClaimNumber = ClaimNumberGenerator.generate();
     claimDTO.setClaimNumber(generatedClaimNumber);
 
-    EmployeeEntity employee = employeeRepository.findByUserName(claimDTO.getEmployee())
-        .orElseThrow(() -> new NotFoundException("Employee with userName " + claimDTO.getEmployee() + " not found"));
+    EmployeeEntity employee = employeeRepository.findByUserName(claimDTO.getEmployeeUserName())
+        .orElseThrow(() -> new NotFoundException("Employee with userName " + claimDTO.getEmployeeUserName() + " not found"));
     CompanyEntity company = companyRepository.findByName(claimDTO.getCompany())
         .orElseThrow(() -> new NotFoundException("Company with name " + claimDTO.getCompany() + " not found"));
     PlanEntity plan = planRepository.findById(claimDTO.getPlanId())
@@ -122,6 +127,16 @@ public class ClaimService {
         .map(claim -> {
           claim.setStatus(ClaimStatus.DEACTIVATED);
           claim = claimRepository.save(claim);
+
+          ResourceBundle messages = ResourceBundle.getBundle("notif_msg", Locale.getDefault());
+
+          String messageTemplate = messages.getString("claim.deactivation.message");
+          String message = MessageFormat.format(messageTemplate, claim.getEmployee().getFirstName(), claim.getClaimNumber());
+
+          // Send notification
+          notificationClient.sendDeactivationNotification(claim.getEmployee().getEmail(),
+              "Claim Deactivated", message);
+
           return ClaimMapper.INSTANCE.entityToDto(claim);
         })
         .orElseThrow(() -> new NotFoundException("Claim with ID " + id + " was not found"));
