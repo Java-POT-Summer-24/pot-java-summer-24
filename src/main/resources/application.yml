@@ -23,13 +23,6 @@ server:
     include-message: always
     include-binding-errors: always
 
-logging:
-  level:
-    org.springframework.cache: DEBUG
-    org.springframework.data.redis: DEBUG
-    org.springframework.web: DEBUG
-    com.coherentsolutions.pot.insurance: DEBUG
-
 notification:
   service:
     url: http://localhost:8082/v1/notification/send
