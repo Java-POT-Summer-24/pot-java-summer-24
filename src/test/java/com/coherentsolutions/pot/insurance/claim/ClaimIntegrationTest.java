@@ -258,4 +258,3 @@ public class ClaimIntegrationTest {
         .andExpect(jsonPath("$.content[2].claimNumber").value(claimDTOs.get(2).getClaimNumber()));
   }
 }
-

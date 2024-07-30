@@ -1,5 +1,7 @@
 package com.coherentsolutions.pot.insurance.service;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import com.coherentsolutions.pot.insurance.constants.EmployeeStatus;
 import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
 import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
@@ -10,10 +12,6 @@ import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria
 import com.coherentsolutions.pot.insurance.specifications.EmployeeSpecifications;
 import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import com.coherentsolutions.pot.insurance.util.ValidationUtil;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +19,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +46,7 @@ public class EmployeeService {
         .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO);
   }
 
-  public EmployeeDTO addEmployee(EmployeeDTO employeeDTO) {
+  public EmployeeDTO addEmployee(EmployeeDTO employeeDTO){
     EmployeeEntity employee = EmployeeMapper.INSTANCE.employeeDTOToEmployee(employeeDTO);
     EmployeeEntity createdEmployee = employeeRepository.save(employee);
 
@@ -63,39 +66,43 @@ public class EmployeeService {
   }
 
   public EmployeeDTO updateEmployee(UUID employeeId, EmployeeDTO updatedEmployeeDTO) {
-    return employeeRepository.findById(employeeId).map(employee -> {
-      if (employee.getStatus() == EmployeeStatus.INACTIVE) {
-        throw new NotFoundException(
-            "Cannot update. Employee with id: " + employeeId + " is inactive");
-      }
-      EmployeeMapper.INSTANCE.updateEmployeeFromDTO(updatedEmployeeDTO, employee);
-      return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employeeRepository.save(employee));
-    }).orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
+    return employeeRepository.findById(employeeId)
+        .map(employee -> {
+          if (employee.getStatus() == EmployeeStatus.INACTIVE) {
+            throw new NotFoundException(
+                "Cannot update. Employee with id: " + employeeId + " is inactive");
+          }
+          EmployeeMapper.INSTANCE.updateEmployeeFromDTO(updatedEmployeeDTO, employee);
+          return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employeeRepository.save(employee));
+        })
+        .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
   }
 
   public EmployeeDTO deactivateEmployee(UUID employeeId) {
-    return employeeRepository.findById(employeeId).map(employee -> {
-      if (employee.getStatus() == EmployeeStatus.INACTIVE) {
-        throw new NotFoundException(
-            "Cannot deactivate. Employee with id: " + employeeId + " is already inactive");
-      }
-      employee.setStatus(EmployeeStatus.INACTIVE);
-      employee = employeeRepository.save(employee);
+    return employeeRepository.findById(employeeId)
+        .map(employee -> {
+          if (employee.getStatus() == EmployeeStatus.INACTIVE) {
+            throw new NotFoundException(
+                "Cannot deactivate. Employee with id: " + employeeId + " is already inactive");
+          }
+          employee.setStatus(EmployeeStatus.INACTIVE);
+          employee = employeeRepository.save(employee);
 
-      ResourceBundle messages = ResourceBundle.getBundle("notif_msg", Locale.getDefault());
+          ResourceBundle messages = ResourceBundle.getBundle("notif_msg", Locale.getDefault());
 
-      String messageTemplate = messages.getString("employee.deactivation.message");
+          String messageTemplate = messages.getString("employee.deactivation.message");
 
-      String message = messageTemplate.formatted(employee.getFirstName());
+          String message = messageTemplate.formatted(employee.getFirstName());
 
-      // Send notification
-      notificationClient.sendDeactivationNotification(employee.getEmail(), "Account Deactivated",
-          message);
+          // Send notification
+          notificationClient.sendDeactivationNotification(employee.getEmail(), "Account Deactivated",
+              message);
 
-      return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employee);
-    }).orElseThrow(
-        () -> new NotFoundException("Employee with ID " + employeeId + " was not found"));
+          return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employee);
+        })
+        .orElseThrow(() -> new NotFoundException("Employee with ID " + employeeId + " was not found"));
   }
+
 
   private Specification<EmployeeEntity> buildSpecification(
       EmployeeFilterCriteria employeeFilterCriteria) {

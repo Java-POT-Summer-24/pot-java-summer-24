@@ -14,12 +14,15 @@ public class NotificationClient {
   private final String notificationServiceUrl;
 
   public NotificationClient(WebClient.Builder webClientBuilder,
-      @Value("${notification.service.url:http://localhost:8082/v1/notification/send}") String notificationServiceUrl) {
+      @Value("${notification.service.url}") String notificationServiceUrl) {
     this.webClient = webClientBuilder.build();
     this.notificationServiceUrl = notificationServiceUrl;
   }
 
   public void sendNotification(String email, Map<String, String> notificationPayload) {
+    System.out.println("Sending POST request to: " + notificationServiceUrl + "/" + email);
+    System.out.println("Payload: " + notificationPayload);
+
     webClient.post()
         .uri(notificationServiceUrl + "/" + email)
         .body(Mono.just(notificationPayload), Map.class)

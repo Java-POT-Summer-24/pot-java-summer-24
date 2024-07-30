@@ -16,12 +16,9 @@ import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.ClaimSpecifications;
 import com.coherentsolutions.pot.insurance.util.ClaimNumberGenerator;
 import com.coherentsolutions.pot.insurance.util.NotificationClient;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import jakarta.transaction.Transactional;
+import java.text.MessageFormat;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import java.util.ResourceBundle;
 
 import java.util.List;
 import java.util.UUID;
@@ -41,8 +39,8 @@ public class ClaimService {
   private final ClaimRepository claimRepository;
   private final EmployeeRepository employeeRepository;
   private final CompanyRepository companyRepository;
-  private final NotificationClient notificationClient;
   private final PlanRepository planRepository;
+  private final NotificationClient notificationClient;
 
   public Page<ClaimDTO> getFilteredSortedClaims(ClaimFilterCriteria claimFilterCriteria,
       Pageable pageable) {
@@ -125,22 +123,23 @@ public class ClaimService {
   }
 
   public ClaimDTO deactivateClaim(UUID id) {
-    return claimRepository.findById(id).map(claim -> {
-      claim.setStatus(ClaimStatus.DEACTIVATED);
-      claim = claimRepository.save(claim);
+    return claimRepository.findById(id)
+        .map(claim -> {
+          claim.setStatus(ClaimStatus.DEACTIVATED);
+          claim = claimRepository.save(claim);
 
-      ResourceBundle messages = ResourceBundle.getBundle("notif_msg", Locale.getDefault());
+          ResourceBundle messages = ResourceBundle.getBundle("notif_msg", Locale.getDefault());
 
-      String messageTemplate = messages.getString("claim.deactivation.message");
+          String messageTemplate = messages.getString("claim.deactivation.message");
+          String message = MessageFormat.format(messageTemplate, claim.getEmployee().getFirstName(), claim.getClaimNumber());
 
-      String message = messageTemplate.formatted(claim.getEmployee().getFirstName(), claim.getClaimNumber());
+          // Send notification
+          notificationClient.sendDeactivationNotification(claim.getEmployee().getEmail(),
+              "Claim Deactivated", message);
 
-      // Send notification
-      notificationClient.sendDeactivationNotification(claim.getEmployee().getEmail(),
-          "Claim Deactivated", message);
-
-      return ClaimMapper.INSTANCE.entityToDto(claim);
-    }).orElseThrow(() -> new NotFoundException("Claim with ID " + id + " was not found"));
+          return ClaimMapper.INSTANCE.entityToDto(claim);
+        })
+        .orElseThrow(() -> new NotFoundException("Claim with ID " + id + " was not found"));
   }
 
   public List<ClaimDTO> getAllClaimsByEmployeeUserName(String employeeUserName) {
