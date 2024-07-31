@@ -31,5 +31,8 @@ out/
 /nbdist/
 /.nb-gradle/
 
+# Package Files #
+*.jar
+
 ### VS Code ###
 .vscode/
