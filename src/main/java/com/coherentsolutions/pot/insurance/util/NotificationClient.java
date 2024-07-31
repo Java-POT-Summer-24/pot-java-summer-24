@@ -20,9 +20,6 @@ public class NotificationClient {
   }
 
   public void sendNotification(String email, Map<String, String> notificationPayload) {
-    System.out.println("Sending POST request to: " + notificationServiceUrl + "/" + email);
-    System.out.println("Payload: " + notificationPayload);
-
     webClient.post()
         .uri(notificationServiceUrl + "/" + email)
         .body(Mono.just(notificationPayload), Map.class)
