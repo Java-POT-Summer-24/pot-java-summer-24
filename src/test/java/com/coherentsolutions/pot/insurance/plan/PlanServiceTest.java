@@ -174,7 +174,7 @@ class PlanServiceTest {
     packageEntity.setId(packageId);
     packageEntity.setContributions(1000);
 
-    when(planRepository.findSumOfTotalLimitByPackageId(packageId)).thenReturn(500.0);
+    when(planRepository.findSumOfTotalLimitByPackageId(packageId, PlanStatus.ACTIVE)).thenReturn(500.0);
     when(packageRepository.findById(packageId)).thenReturn(Optional.of(packageEntity));
     when(planRepository.save(any(PlanEntity.class))).thenReturn(planEntity);
 
@@ -197,7 +197,7 @@ class PlanServiceTest {
     packageEntity.setId(packageId);
     packageEntity.setContributions(1000);
 
-    when(planRepository.findSumOfTotalLimitByPackageId(packageId)).thenReturn(500.0);
+    when(planRepository.findSumOfTotalLimitByPackageId(packageId, PlanStatus.ACTIVE)).thenReturn(500.0);
     when(packageRepository.findById(packageId)).thenReturn(Optional.of(packageEntity));
 
     assertThrows(IllegalStateException.class, () -> planService.addPlan(planDTO));
