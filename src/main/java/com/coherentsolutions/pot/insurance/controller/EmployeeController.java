@@ -61,8 +61,8 @@ public class EmployeeController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  @PreAuthorize("@securityService.canGetAllEmployees(authentication)")
   @Cacheable(value = "employeesList")
+  @PreAuthorize("@securityService.canGetAllEmployees(authentication)")
   public List<EmployeeDTO> getAllEmployees() {
     return employeeService.getAllEmployees();
   }

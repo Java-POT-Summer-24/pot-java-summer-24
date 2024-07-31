@@ -9,6 +9,7 @@ import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeSpecifications;
 import com.coherentsolutions.pot.insurance.util.ValidationUtil;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -56,7 +57,7 @@ public class EmployeeService {
   public List<EmployeeDTO> getAllEmployees() {
     return employeeRepository.findAll().stream()
         .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO)
-        .toList();
+        .collect(Collectors.toList());
   }
 
   public EmployeeDTO updateEmployee(UUID employeeId, EmployeeDTO updatedEmployeeDTO) {

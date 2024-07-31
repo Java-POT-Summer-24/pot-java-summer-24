@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
+import java.util.List;
 
 @Mapper
 public interface ClaimMapper {
@@ -28,6 +29,9 @@ public interface ClaimMapper {
   @Mapping(target = "employee", ignore = true)
   @Mapping(target = "company", ignore = true)
   void updateClaimFromDTO(ClaimDTO dto, @MappingTarget ClaimEntity entity);
+
+  List<ClaimDTO> entitiesToDtos(List<ClaimEntity> claims);
+  List<ClaimEntity> dtosToEntities(List<ClaimDTO> claimDTOs);
 
   @Named("stringToEmployee")
   default EmployeeEntity stringToEmployee(String userName) {

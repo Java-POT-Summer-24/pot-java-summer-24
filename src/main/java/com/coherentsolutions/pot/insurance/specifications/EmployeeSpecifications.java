@@ -33,7 +33,7 @@ public class EmployeeSpecifications {
     return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("status"), status);
   }
 
-  public static Specification<EmployeeEntity> byCompany(String company) {
-    return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("company"), company);
+  public static Specification<EmployeeEntity> byCompany(String companyName) {
+    return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("companyName"), companyName);
   }
 }

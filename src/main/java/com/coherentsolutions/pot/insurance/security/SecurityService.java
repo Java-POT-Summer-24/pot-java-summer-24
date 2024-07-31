@@ -15,6 +15,7 @@ import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
 import com.coherentsolutions.pot.insurance.service.CompanyService;
+import com.coherentsolutions.pot.insurance.service.EmployeeService;
 import com.coherentsolutions.pot.insurance.specifications.ClaimFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
 import java.util.Collection;
@@ -40,14 +41,12 @@ public class SecurityService {
 
   @Autowired
   private final ClaimService claimService;
-  @Autowired
-  private final ClaimRepository claimRepository;
   private final ClaimMapper claimMapper;
   @Autowired
   private final CompanyService companyService;
   private final CompanyMapper companyMapper;
   @Autowired
-  private final EmployeeRepository employeeRepository;
+  private final EmployeeService employeeService;
   private final EmployeeMapper employeeMapper;
 
 
@@ -55,7 +54,13 @@ public class SecurityService {
   public boolean canGetAllClaims(Authentication authentication) {
     if (hasRole(authentication, "insuranceAdmin")) {
       return true;
-    } else {
+    }
+    if(hasRole(authentication, "companyAdmin")){
+      ClaimFilterCriteria claimFilterCriteria = new ClaimFilterCriteria();
+      claimFilterCriteria.setCompany(getUserCompanyName(authentication));
+      return canAccessFilteredSortedClaims(authentication, claimFilterCriteria);
+    }
+    else {
       throw new UnauthorizedAccessException("You are not authorized to access this");
     }
   }
@@ -158,7 +163,7 @@ public class SecurityService {
       return true;
     }
     if (hasRole(authentication, "companyAdmin")) {
-      List<ClaimEntity> claims = claimRepository.findAllByEmployeeUserName(employeeUserName);
+      List<ClaimEntity> claims = mapClaims(employeeUserName);
       if (!claims.isEmpty()) {
         if (isUserCompanyAdmin(authentication, claims.getFirst().getCompany())) {
           return true;
@@ -231,6 +236,13 @@ public class SecurityService {
     throw new UnauthorizedAccessException("You are not authorized to access this");
   }
 
+  public List<ClaimEntity> mapClaims(String employeeUserName) {
+    assert claimService != null;
+    List<ClaimDTO> claims = claimService.getAllClaimsByEmployeeUserName(employeeUserName);
+    return claimMapper.INSTANCE.dtosToEntities(claims);
+  }
+
+
   // ------------------------------------- COMPANIES ----------------------------------------------
   public boolean canGetAllCompanies(Authentication authentication) {
     if (hasRole(authentication, "insuranceAdmin")) {
@@ -293,7 +305,13 @@ public class SecurityService {
   public boolean canGetAllEmployees(Authentication authentication) {
     if (hasRole(authentication, "insuranceAdmin")) {
       return true;
-    } else {
+    }
+    if(hasRole(authentication, "companyAdmin")){
+      EmployeeFilterCriteria employeeFilterCriteria = new EmployeeFilterCriteria();
+      employeeFilterCriteria.setCompanyName(getUserCompanyName(authentication));
+      return canGetFilteredSortedEmployees(authentication, employeeFilterCriteria);
+    }
+    else {
       throw new UnauthorizedAccessException("You are not authorized to access this");
     }
   }
@@ -314,21 +332,21 @@ public class SecurityService {
   }
 
   public boolean canAccessEmployee(Authentication authentication, UUID employeeId) {
-    assert employeeRepository != null;
-    EmployeeEntity employee = employeeRepository.findById(employeeId)
-        .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
+    assert employeeService != null;
+    EmployeeDTO employee = employeeService.getEmployee(employeeId);
+    EmployeeEntity employeeEntity = employeeMapper.INSTANCE.employeeDTOToEmployee(employee);
     if (hasRole(authentication, "insuranceAdmin")) {
       return true;
     }
     if (hasRole(authentication, "companyAdmin")) {
-      if (employee.getCompanyName().equals(getUserCompanyName(authentication))) {
+      if (employeeEntity.getCompanyName().equals(getUserCompanyName(authentication))) {
         return true;
       } else {
         throw new UnauthorizedAccessException("You are not authorized to access this");
       }
     }
     if (hasRole(authentication, "user")) {
-      if (employee.getUserName().equals(getUserName(authentication))) {
+      if (employeeEntity.getUserName().equals(getUserName(authentication))) {
         return true;
       } else {
         throw new UnauthorizedAccessException("You are not authorized to access this");
@@ -355,32 +373,40 @@ public class SecurityService {
   }
 
   public boolean canUpdateEmployee(Authentication authentication, UUID employeeId) {
-    assert employeeRepository != null;
-    EmployeeEntity employee = employeeRepository.findById(employeeId)
-        .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
+    assert employeeService != null;
+    EmployeeDTO employee = employeeService.getEmployee(employeeId);
+    EmployeeEntity employeeEntity = employeeMapper.INSTANCE.employeeDTOToEmployee(employee);
     if (hasRole(authentication, "insuranceAdmin")) {
       return true;
     }
     if (hasRole(authentication, "companyAdmin")) {
-      if (employee.getCompanyName().equals(getUserCompanyName(authentication))) {
+      if (employeeEntity.getCompanyName().equals(getUserCompanyName(authentication))) {
         return true;
       } else {
         throw new UnauthorizedAccessException("You are not authorized to access this");
       }
-    } else {
+    }
+    if (hasRole(authentication, "user")) {
+      if (employeeEntity.getUserName().equals(getUserName(authentication))) {
+        return true;
+      } else {
+        throw new UnauthorizedAccessException("You are not authorized to access this");
+      }
+    }
+    else {
       throw new UnauthorizedAccessException("You are not authorized to access this");
     }
   }
 
   public boolean canDeactivateEmployee(Authentication authentication, UUID employeeId) {
-    assert employeeRepository != null;
-    EmployeeEntity employee = employeeRepository.findById(employeeId)
-        .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
+    assert employeeService != null;
+    EmployeeDTO employee = employeeService.getEmployee(employeeId);
+    EmployeeEntity employeeEntity = employeeMapper.INSTANCE.employeeDTOToEmployee(employee);
     if (hasRole(authentication, "insuranceAdmin")) {
       return true;
     }
     if (hasRole(authentication, "companyAdmin")) {
-      if (employee.getCompanyName().equals(getUserCompanyName(authentication))) {
+      if (employeeEntity.getCompanyName().equals(getUserCompanyName(authentication))) {
         return true;
       } else {
         throw new UnauthorizedAccessException("You are not authorized to access this");

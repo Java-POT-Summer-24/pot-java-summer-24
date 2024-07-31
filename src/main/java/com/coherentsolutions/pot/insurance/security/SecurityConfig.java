@@ -41,7 +41,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).hasRole("insuranceAdmin")
             // ------------------------------------- CLAIMS ------------------------------------------------
-            .requestMatchers(HttpMethod.GET, "/v1/claims").hasRole("insuranceAdmin")
+            .requestMatchers(HttpMethod.GET, "/v1/claims").hasAnyRole("insuranceAdmin", "companyAdmin")
             .requestMatchers(HttpMethod.GET, "/v1/claims/filtered")
             .hasAnyRole("insuranceAdmin", "companyAdmin")
             .requestMatchers(HttpMethod.GET, "/v1/claims/{id}")
@@ -67,7 +67,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.DELETE, "/v1/companies/{id}")
             .hasAnyRole("insuranceAdmin", "companyAdmin")
             // ------------------------------------- EMPLOYEES ----------------------------------------------
-            .requestMatchers(HttpMethod.GET, "/v1/employees").hasRole("insuranceAdmin")
+            .requestMatchers(HttpMethod.GET, "/v1/employees").hasAnyRole("insuranceAdmin", "companyAdmin")
             .requestMatchers(HttpMethod.GET, "/v1/employees/filtered")
             .hasAnyRole("insuranceAdmin", "companyAdmin")
             .requestMatchers(HttpMethod.GET, "/v1/employees/{id}")
@@ -75,7 +75,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/v1/employees")
             .hasAnyRole("insuranceAdmin", "companyAdmin")
             .requestMatchers(HttpMethod.PUT, "/v1/employees/{id}")
-            .hasAnyRole("insuranceAdmin", "companyAdmin")
+            .hasAnyRole("insuranceAdmin", "companyAdmin", "user")
             .requestMatchers(HttpMethod.DELETE, "/v1/employees/{id}")
             .hasAnyRole("insuranceAdmin", "companyAdmin")
             // ------------------------------------- PACKAGES ----------------------------------------------
