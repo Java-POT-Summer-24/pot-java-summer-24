@@ -2,10 +2,12 @@ package com.coherentsolutions.pot.insurance.dto;
 
 import com.coherentsolutions.pot.insurance.constants.ClaimPlan;
 import com.coherentsolutions.pot.insurance.constants.ClaimStatus;
+import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
+import java.io.StringReader;
 import java.time.LocalDate;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -43,4 +45,5 @@ public class ClaimDTO implements Serializable {
 
   @NotNull(message = "Status is required")
   private ClaimStatus status;
+
 }

@@ -10,6 +10,7 @@ import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria
 import com.coherentsolutions.pot.insurance.specifications.EmployeeSpecifications;
 import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import com.coherentsolutions.pot.insurance.util.ValidationUtil;
+import java.util.stream.Collectors;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Locale;
@@ -44,7 +45,7 @@ public class EmployeeService {
         .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO);
   }
 
-  public EmployeeDTO addEmployee(EmployeeDTO employeeDTO){
+  public EmployeeDTO addEmployee(EmployeeDTO employeeDTO) {
     EmployeeEntity employee = EmployeeMapper.INSTANCE.employeeDTOToEmployee(employeeDTO);
     EmployeeEntity createdEmployee = employeeRepository.save(employee);
 
@@ -60,7 +61,7 @@ public class EmployeeService {
   public List<EmployeeDTO> getAllEmployees() {
     return employeeRepository.findAll().stream()
         .map(EmployeeMapper.INSTANCE::employeeToEmployeeDTO)
-        .toList();
+        .collect(Collectors.toList());
   }
 
   public EmployeeDTO updateEmployee(UUID employeeId, EmployeeDTO updatedEmployeeDTO) {
@@ -96,7 +97,8 @@ public class EmployeeService {
 
           return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employee);
         })
-        .orElseThrow(() -> new NotFoundException("Employee with ID " + employeeId + " was not found"));
+        .orElseThrow(
+            () -> new NotFoundException("Employee with ID " + employeeId + " was not found"));
   }
 
   private Specification<EmployeeEntity> buildSpecification(
@@ -121,6 +123,9 @@ public class EmployeeService {
     }
     if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getStatus())) {
       spec = spec.and(EmployeeSpecifications.byStatus(employeeFilterCriteria.getStatus()));
+    }
+    if (ValidationUtil.isNotEmpty(employeeFilterCriteria.getCompanyName())) {
+      spec = spec.and(EmployeeSpecifications.byCompany(employeeFilterCriteria.getCompanyName()));
     }
 
     return spec;

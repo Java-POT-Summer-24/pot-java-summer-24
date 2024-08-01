@@ -89,9 +89,11 @@ public class ClaimService {
     }
 
     ClaimEntity claim = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
-    claim.setEmployee(employee);
+
     claim.setCompany(company);
+    claim.setEmployee(employee);
     claim.setPlanEntity(plan);
+
     claim = claimRepository.save(claim);
     return ClaimMapper.INSTANCE.entityToDto(claim);
   }

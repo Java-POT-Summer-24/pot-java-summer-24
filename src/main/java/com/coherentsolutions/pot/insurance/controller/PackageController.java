@@ -15,6 +15,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,14 +35,16 @@ public class PackageController {
 
   @GetMapping("/filtered")
   @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("@securityService.canGetFilteredSortedPackages(authentication)")
   public Page<PackageDTO> getFilteredSortedPackages(
-          @ParameterObject PackageFilterCriteria criteria,
-          @ParameterObject Pageable pageable) {
+      @ParameterObject PackageFilterCriteria criteria,
+      @ParameterObject Pageable pageable) {
     return packageService.getFilteredSortedPackages(criteria, pageable);
   }
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("@securityService.canGetAllPackages(authentication)")
   @Cacheable(value = "packagesList")
   public List<PackageDTO> getAllPackages() {
     return packageService.getAllPackages();
@@ -49,6 +52,7 @@ public class PackageController {
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("@securityService.canAccessPackage(authentication, #id)")
   @Cacheable(value = "package", key = "#id")
   public PackageDTO getPackageById(@PathVariable UUID id) {
     return packageService.getPackageById(id);
@@ -56,6 +60,7 @@ public class PackageController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
+  @PreAuthorize("@securityService.canAddPackage(authentication)")
   @CacheEvict(value = "packagesList", allEntries = true)
   public PackageDTO addPackage(@Valid @RequestBody PackageDTO packageDTO) {
     return packageService.addPackage(packageDTO);
@@ -63,9 +68,10 @@ public class PackageController {
 
   @PutMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("@securityService.canUpdatePackage(authentication, #id)")
   @Caching(
-          evict = {@CacheEvict(value = "packagesList", allEntries = true)},
-          put = {@CachePut(value = "package", key = "#id")}
+      evict = {@CacheEvict(value = "packagesList", allEntries = true)},
+      put = {@CachePut(value = "package", key = "#id")}
   )
   public PackageDTO updatePackage(@PathVariable UUID id, @Valid @RequestBody PackageDTO packageDTO) {
     return packageService.updatePackage(id, packageDTO);
@@ -73,9 +79,10 @@ public class PackageController {
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("@securityService.canDeletePackage(authentication, #id)")
   @Caching(
-          evict = {@CacheEvict(value = "packagesList", allEntries = true)},
-          put = {@CachePut(value = "package", key = "#id")}
+      evict = {@CacheEvict(value = "packagesList", allEntries = true)},
+      put = {@CachePut(value = "package", key = "#id")}
   )
   public PackageDTO deactivatePackage(@PathVariable UUID id) {
     return packageService.deactivatePackage(id);

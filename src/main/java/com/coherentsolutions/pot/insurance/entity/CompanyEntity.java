@@ -21,22 +21,23 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CompanyEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private UUID id;
 
-    private String name;
+  private String name;
 
-    private String countryCode;
+  private String countryCode;
 
-    private String address;
+  private String address;
 
-    private String phoneNumber;
+  private String phoneNumber;
 
-    private String email;
+  private String email;
 
-    private String website;
+  private String website;
 
-    @Enumerated(EnumType.STRING)
-    private CompanyStatus status;
+  @Enumerated(EnumType.STRING)
+  private CompanyStatus status;
+
 }

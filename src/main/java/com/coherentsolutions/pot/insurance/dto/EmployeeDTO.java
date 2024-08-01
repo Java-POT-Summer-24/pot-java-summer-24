@@ -17,29 +17,33 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmployeeDTO implements Serializable {
-    private UUID id;
 
-    @NotBlank(message = "First name is required")
-    private String firstName;
+  private UUID id;
 
-    @NotBlank(message = "Last name is required")
-    private String lastName;
+  @NotBlank(message = "First name is required")
+  private String firstName;
 
-    @NotBlank(message = "Username is required")
-    private String userName;
+  @NotBlank(message = "Last name is required")
+  private String lastName;
 
-    @NotBlank(message = "Email is required")
-    private String email;
+  @NotBlank(message = "Username is required")
+  private String userName;
 
-    @NotNull(message = "Date of birth is required")
-    private LocalDate dateOfBirth;
+  @NotBlank(message = "Email is required")
+  private String email;
 
-    @NotNull(message = "SSN is required")
-    private Integer ssn;
+  @NotNull(message = "Date of birth is required")
+  private LocalDate dateOfBirth;
 
-    @NotBlank(message = "Phone number is required")
-    private String phoneNumber;
+  @NotNull(message = "SSN is required")
+  private Integer ssn;
 
-    @NotNull(message = "Status is required")
-    private EmployeeStatus status;
+  @NotBlank(message = "Phone number is required")
+  private String phoneNumber;
+
+  @NotNull(message = "Status is required")
+  private EmployeeStatus status;
+
+  @NotBlank(message = "Company name is required")
+  private String companyName;
 }
