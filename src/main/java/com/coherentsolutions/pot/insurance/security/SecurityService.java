@@ -6,13 +6,10 @@ import com.coherentsolutions.pot.insurance.dto.EmployeeDTO;
 import com.coherentsolutions.pot.insurance.entity.ClaimEntity;
 import com.coherentsolutions.pot.insurance.entity.CompanyEntity;
 import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
-import com.coherentsolutions.pot.insurance.exception.NotFoundException;
 import com.coherentsolutions.pot.insurance.exception.UnauthorizedAccessException;
 import com.coherentsolutions.pot.insurance.mapper.ClaimMapper;
 import com.coherentsolutions.pot.insurance.mapper.CompanyMapper;
 import com.coherentsolutions.pot.insurance.mapper.EmployeeMapper;
-import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
-import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
 import com.coherentsolutions.pot.insurance.service.CompanyService;
 import com.coherentsolutions.pot.insurance.service.EmployeeService;
@@ -58,7 +55,7 @@ public class SecurityService {
     if(hasRole(authentication, "companyAdmin")){
       ClaimFilterCriteria claimFilterCriteria = new ClaimFilterCriteria();
       claimFilterCriteria.setCompany(getUserCompanyName(authentication));
-      return canAccessFilteredSortedClaims(authentication, claimFilterCriteria);
+      return claimFilterCriteria.getCompany().equals(getUserCompanyName(authentication));
     }
     else {
       throw new UnauthorizedAccessException("You are not authorized to access this");
@@ -71,13 +68,12 @@ public class SecurityService {
       return true;
     }
     if (hasRole(authentication, "companyAdmin")) {
-      if (claimFilterCriteria.getCompany().equals(getUserCompanyName(authentication))) {
-        return true;
-      } else {
-        throw new UnauthorizedAccessException("You are not authorized to access this");
-      }
+      claimFilterCriteria.setCompany(getUserCompanyName(authentication));
+      return true;
     }
-    throw new UnauthorizedAccessException("You are not authorized to access this");
+    else{
+      throw new UnauthorizedAccessException("You are not authorized to access this");
+    }
   }
 
   public boolean canAccessClaim(Authentication authentication, UUID claimId) {
@@ -309,7 +305,7 @@ public class SecurityService {
     if(hasRole(authentication, "companyAdmin")){
       EmployeeFilterCriteria employeeFilterCriteria = new EmployeeFilterCriteria();
       employeeFilterCriteria.setCompanyName(getUserCompanyName(authentication));
-      return canGetFilteredSortedEmployees(authentication, employeeFilterCriteria);
+      return employeeFilterCriteria.getCompanyName().equals(getUserCompanyName(authentication));
     }
     else {
       throw new UnauthorizedAccessException("You are not authorized to access this");
@@ -322,11 +318,8 @@ public class SecurityService {
       return true;
     }
     if (hasRole(authentication, "companyAdmin")) {
-      if (employeeFilterCriteria.getCompanyName().equals(getUserCompanyName(authentication))) {
-        return true;
-      } else {
-        throw new UnauthorizedAccessException("You are not authorized to access this");
-      }
+      employeeFilterCriteria.setCompanyName(getUserCompanyName(authentication));
+      return true;
     }
     throw new UnauthorizedAccessException("You are not authorized to access this");
   }
@@ -430,7 +423,7 @@ public class SecurityService {
         hasRole(authentication, "user");
   }
 
-  public boolean canAccessPackage(Authentication authentication, UUID packageId) {
+  public boolean canAccessPackage(Authentication authentication) {
     return hasRole(authentication, "insuranceAdmin") ||
         hasRole(authentication, "companyAdmin") ||
         hasRole(authentication, "user");
@@ -440,11 +433,11 @@ public class SecurityService {
     return hasRole(authentication, "insuranceAdmin");
   }
 
-  public boolean canUpdatePackage(Authentication authentication, UUID packageId) {
+  public boolean canUpdatePackage(Authentication authentication) {
     return hasRole(authentication, "insuranceAdmin");
   }
 
-  public boolean canDeletePackage(Authentication authentication, UUID packageId) {
+  public boolean canDeletePackage(Authentication authentication) {
     return hasRole(authentication, "insuranceAdmin");
   }
 
@@ -461,7 +454,7 @@ public class SecurityService {
         hasRole(authentication, "user");
   }
 
-  public boolean canAccessPlan(Authentication authentication, UUID planId) {
+  public boolean canAccessPlan(Authentication authentication) {
     return hasRole(authentication, "insuranceAdmin") ||
         hasRole(authentication, "companyAdmin") ||
         hasRole(authentication, "user");
@@ -471,11 +464,11 @@ public class SecurityService {
     return hasRole(authentication, "insuranceAdmin");
   }
 
-  public boolean canUpdatePlan(Authentication authentication, UUID planId) {
+  public boolean canUpdatePlan(Authentication authentication) {
     return hasRole(authentication, "insuranceAdmin");
   }
 
-  public boolean canDeletePlan(Authentication authentication, UUID planId) {
+  public boolean canDeletePlan(Authentication authentication) {
     return hasRole(authentication, "insuranceAdmin");
   }
 
