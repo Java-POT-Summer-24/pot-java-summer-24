@@ -60,7 +60,10 @@ public class ClaimController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  @CacheEvict(value = "claimsList", allEntries = true)
+  @Caching(evict = {
+      @CacheEvict(value = {"claimsList", "plansList"}, allEntries = true),
+      @CacheEvict(value = "plan", key = "#result.planId", allEntries = true)
+  })
   @PreAuthorize("@securityService.canAddClaim(authentication, #claimDTO)")
   public ClaimDTO addClaim(@Valid @RequestBody ClaimDTO claimDTO) {
     return claimService.addClaim(claimDTO);
@@ -69,8 +72,10 @@ public class ClaimController {
   @PutMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   @Caching(
-          evict = {@CacheEvict(value = "claimsList", allEntries = true)},
-          put = {@CachePut(value = "claim", key = "#id")}
+      evict = {@CacheEvict(value = "claimsList", allEntries = true),
+          @CacheEvict(value = "plansList", allEntries = true),
+          @CacheEvict(value = "plan", key = "#claimDTO.planId", allEntries = true)},
+      put = {@CachePut(value = "claim", key = "#id")}
   )
   @PreAuthorize("@securityService.canUpdateClaim(authentication, #id)")
   public ClaimDTO updateClaim(@PathVariable UUID id, @Valid @RequestBody ClaimDTO claimDTO) {

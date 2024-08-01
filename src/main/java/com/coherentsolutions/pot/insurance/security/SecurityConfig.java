@@ -4,8 +4,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
@@ -34,8 +36,9 @@ public class SecurityConfig {
   private static final String REALM_ACCESS_CLAIM = "realm_access";
   private static final String ROLES_CLAIM = "roles";
 
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http,
+    @Bean
+    @Profile("prod")
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
       ClientRegistrationRepository clientRegistrationRepository) throws Exception {
     http
         .authorizeHttpRequests(auth -> auth
@@ -113,22 +116,34 @@ public class SecurityConfig {
     return http.build();
   }
 
-  @Bean
-  public JwtDecoder jwtDecoder() {
-    //String issuerUri = System.getenv("KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080/realms/myrealm");
-    String issuerUri = "http://localhost:8080/realms/myrealm"; // Working version for now
-    return JwtDecoders.fromIssuerLocation(issuerUri);
-  }
+    @Bean
+    @Profile("dev")
+    public SecurityFilterChain devSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+            .csrf(AbstractHttpConfigurer::disable);
+        return http.build();
+    }
 
-  @Bean
-  public JwtAuthenticationConverter jwtAuthenticationConverter() {
-    JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
-      Collection<GrantedAuthority> authorities = extractRolesFromClaims(jwt.getClaims());
-      return authorities;
-    });
-    return jwtAuthenticationConverter;
-  }
+
+    @Bean
+    @Profile("prod")
+    public JwtDecoder jwtDecoder() {
+        //String issuerUri = System.getenv("KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080/realms/myrealm");
+        String issuerUri = "http://keycloak:8080/realms/myrealm"; // Working version for now
+        return JwtDecoders.fromIssuerLocation(issuerUri);
+    }
+
+    @Bean
+    @Profile("prod")
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            Collection<GrantedAuthority> authorities = extractRolesFromClaims(jwt.getClaims());
+            return authorities;
+        });
+        return jwtAuthenticationConverter;
+    }
 
   private Collection<GrantedAuthority> extractRolesFromClaims(Map<String, Object> claims) {
     if (claims.containsKey(REALM_ACCESS_CLAIM)) {
@@ -152,20 +167,21 @@ public class SecurityConfig {
     return successHandler;
   }
 
-  @Bean
-  public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-    configuration.addAllowedOrigin("http://localhost:8080");
-    configuration.addAllowedOrigin("http://localhost:8081");
-    configuration.addAllowedMethod("GET");
-    configuration.addAllowedMethod("POST");
-    configuration.addAllowedMethod("PUT");
-    configuration.addAllowedMethod("DELETE");
-    configuration.addAllowedHeader("Authorization");
-    configuration.addAllowedHeader("Content-Type");
-    configuration.setAllowCredentials(true);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
-    return source;
-  }
+    @Bean
+    @Profile("prod")
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("http://localhost:8080");
+        configuration.addAllowedOrigin("http://localhost:8081");
+        configuration.addAllowedMethod("GET");
+        configuration.addAllowedMethod("POST");
+        configuration.addAllowedMethod("PUT");
+        configuration.addAllowedMethod("DELETE");
+        configuration.addAllowedHeader("Authorization");
+        configuration.addAllowedHeader("Content-Type");
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }

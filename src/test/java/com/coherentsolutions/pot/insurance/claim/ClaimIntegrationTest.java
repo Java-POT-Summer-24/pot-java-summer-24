@@ -16,17 +16,21 @@ import com.coherentsolutions.pot.insurance.dto.ClaimDTO;
 import com.coherentsolutions.pot.insurance.entity.ClaimEntity;
 import com.coherentsolutions.pot.insurance.entity.CompanyEntity;
 import com.coherentsolutions.pot.insurance.entity.EmployeeEntity;
+import com.coherentsolutions.pot.insurance.entity.PlanEntity;
 import com.coherentsolutions.pot.insurance.mapper.ClaimMapper;
 import com.coherentsolutions.pot.insurance.repository.ClaimRepository;
 import com.coherentsolutions.pot.insurance.repository.CompanyRepository;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
+import com.coherentsolutions.pot.insurance.repository.PlanRepository;
 import com.coherentsolutions.pot.insurance.service.ClaimService;
+import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -64,6 +68,12 @@ public class ClaimIntegrationTest {
   @MockBean
   private CompanyRepository companyRepository;
 
+  @MockBean
+  private NotificationClient notificationClient;
+
+  @MockBean
+  private PlanRepository planRepository;
+
   private final EasyRandom easyRandom = new EasyRandom();
 
   @Test
@@ -85,20 +95,30 @@ public class ClaimIntegrationTest {
   @Test
   void testAddClaim() throws Exception {
     ClaimDTO claimDTO = easyRandom.nextObject(ClaimDTO.class);
+    claimDTO.setStatus(ClaimStatus.APPROVED);
+    claimDTO.setAmount(100.0);
+
     ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(claimDTO);
+    EmployeeEntity employeeEntity = easyRandom.nextObject(EmployeeEntity.class);
+    CompanyEntity companyEntity = easyRandom.nextObject(CompanyEntity.class);
+    PlanEntity planEntity = easyRandom.nextObject(PlanEntity.class);
+    planEntity.setRemainingLimit(200.0);
 
     Mockito.when(claimRepository.save(any(ClaimEntity.class))).thenReturn(claimEntity);
-    Mockito.when(employeeRepository.findByUserName(any(String.class)))
-        .thenReturn(Optional.of(easyRandom.nextObject(EmployeeEntity.class)));
-    Mockito.when(companyRepository.findByName(any(String.class)))
-        .thenReturn(Optional.of(easyRandom.nextObject(CompanyEntity.class)));
+    Mockito.when(employeeRepository.findByUserName(any(String.class))).thenReturn(Optional.of(employeeEntity));
+    Mockito.when(companyRepository.findByName(any(String.class))).thenReturn(Optional.of(companyEntity));
+    Mockito.when(planRepository.findById(any(UUID.class))).thenReturn(Optional.of(planEntity));
+    Mockito.when(planRepository.save(any(PlanEntity.class))).thenReturn(planEntity);
 
     String claimJson = objectMapper.writeValueAsString(claimDTO);
     mockMvc.perform(post("/v1/claims")
             .contentType(MediaType.APPLICATION_JSON)
             .content(claimJson))
+        .andDo(print())
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.claimNumber").value(claimDTO.getClaimNumber()));
+
+    Mockito.verify(planRepository).save(Mockito.argThat(plan -> plan.getRemainingLimit() == 100.0));
   }
 
   @Test
@@ -120,18 +140,32 @@ public class ClaimIntegrationTest {
     UUID claimId = UUID.randomUUID();
     ClaimDTO originalClaimDTO = easyRandom.nextObject(ClaimDTO.class);
     originalClaimDTO.setId(claimId);
+    originalClaimDTO.setStatus(ClaimStatus.ACTIVE);
+
     ClaimEntity claimEntity = ClaimMapper.INSTANCE.dtoToEntity(originalClaimDTO);
+    EmployeeEntity employeeEntity = easyRandom.nextObject(EmployeeEntity.class);
+    CompanyEntity companyEntity = easyRandom.nextObject(CompanyEntity.class);
+    PlanEntity planEntity = easyRandom.nextObject(PlanEntity.class);
+    planEntity.setRemainingLimit(200.0);
+
+    ClaimDTO updatedClaimDTO = ClaimMapper.INSTANCE.entityToDto(claimEntity);
+    updatedClaimDTO.setStatus(ClaimStatus.APPROVED);
+    updatedClaimDTO.setAmount(100.0);
 
     Mockito.when(claimRepository.findById(eq(claimId))).thenReturn(Optional.of(claimEntity));
     Mockito.when(claimRepository.save(any(ClaimEntity.class))).thenReturn(claimEntity);
+    Mockito.when(planRepository.findById(any(UUID.class))).thenReturn(Optional.of(planEntity));
+    Mockito.when(planRepository.save(any(PlanEntity.class))).thenReturn(planEntity);
 
-    String claimJson = objectMapper.writeValueAsString(originalClaimDTO);
+    String claimJson = objectMapper.writeValueAsString(updatedClaimDTO);
     mockMvc.perform(put("/v1/claims/{id}", claimId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(claimJson))
         .andDo(print())
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.claimNumber").value(originalClaimDTO.getClaimNumber()));
+        .andExpect(jsonPath("$.claimNumber").value(updatedClaimDTO.getClaimNumber()));
+
+    Mockito.verify(planRepository).save(Mockito.argThat(plan -> plan.getRemainingLimit() == 100.0));
   }
 
   @Test
@@ -153,13 +187,13 @@ public class ClaimIntegrationTest {
 
   @Test
   void testGetAllClaimsByEmployeeUserName() throws Exception {
-    String employee = "janedoe";
+    String employee = "johndoe";
 
     List<ClaimEntity> claimEntities = easyRandom.objects(ClaimEntity.class, 3)
         .peek(entity -> entity.getEmployee().setUserName(employee)).toList();
     List<ClaimDTO> claimDTOs = claimEntities.stream()
         .map(ClaimMapper.INSTANCE::entityToDto)
-        .peek(dto -> dto.setEmployee(employee))
+        .peek(dto -> dto.setEmployeeUserName(employee))
         .toList();
 
     Mockito.when(claimRepository.findAllByEmployeeUserName(employee)).thenReturn(claimEntities);
@@ -169,7 +203,7 @@ public class ClaimIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(3))
-        .andExpect(jsonPath("$[0].employee").value(employee));
+        .andExpect(jsonPath("$[0].employeeUserName").value(employee));
   }
 
   @Test
@@ -224,4 +258,3 @@ public class ClaimIntegrationTest {
         .andExpect(jsonPath("$.content[2].claimNumber").value(claimDTOs.get(2).getClaimNumber()));
   }
 }
-

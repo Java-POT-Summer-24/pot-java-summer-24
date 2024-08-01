@@ -8,8 +8,14 @@ import com.coherentsolutions.pot.insurance.mapper.EmployeeMapper;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeSpecifications;
+import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import com.coherentsolutions.pot.insurance.util.ValidationUtil;
 import java.util.stream.Collectors;
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,14 +24,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
 
   private final EmployeeRepository employeeRepository;
+  private final NotificationClient notificationClient;
 
   public Page<EmployeeDTO> getFilteredSortedEmployees(EmployeeFilterCriteria employeeFilterCriteria,
       Pageable pageable) {
@@ -78,16 +82,24 @@ public class EmployeeService {
         .map(employee -> {
           if (employee.getStatus() == EmployeeStatus.INACTIVE) {
             throw new NotFoundException(
-                "Cannot deactivate. Employee with id: " + employeeId + " is already inactive");
+                "Cannot deactivate. Employee with ID: " + employeeId + " is already inactive");
           }
           employee.setStatus(EmployeeStatus.INACTIVE);
           employee = employeeRepository.save(employee);
+
+          ResourceBundle messages = ResourceBundle.getBundle("notif_msg", Locale.getDefault());
+
+          String messageTemplate = messages.getString("employee.deactivation.message");
+          String message = MessageFormat.format(messageTemplate, employee.getFirstName());
+
+          // Send notification
+          notificationClient.sendDeactivationNotification(employee.getEmail(), "Account Deactivated", message);
+
           return EmployeeMapper.INSTANCE.employeeToEmployeeDTO(employee);
         })
         .orElseThrow(
             () -> new NotFoundException("Employee with ID " + employeeId + " was not found"));
   }
-
 
   private Specification<EmployeeEntity> buildSpecification(
       EmployeeFilterCriteria employeeFilterCriteria) {

@@ -13,6 +13,7 @@ import com.coherentsolutions.pot.insurance.mapper.EmployeeMapper;
 import com.coherentsolutions.pot.insurance.repository.EmployeeRepository;
 import com.coherentsolutions.pot.insurance.service.EmployeeService;
 import com.coherentsolutions.pot.insurance.specifications.EmployeeFilterCriteria;
+import com.coherentsolutions.pot.insurance.util.NotificationClient;
 import java.util.List;
 import java.util.UUID;
 import org.jeasy.random.EasyRandom;
@@ -34,6 +35,9 @@ class EmployeeServiceTest {
   private final EasyRandom easyRandom = new EasyRandom();
   @Mock
   private EmployeeRepository employeeRepository;
+
+  @Mock
+  private NotificationClient notificationClient;
 
   @InjectMocks
   private EmployeeService employeeService;

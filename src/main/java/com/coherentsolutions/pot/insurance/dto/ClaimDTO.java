@@ -26,15 +26,18 @@ public class ClaimDTO implements Serializable {
 
   private String claimNumber;
 
-  private String employee;
+  private String employeeUserName;
 
   private String company;
 
   @NotNull(message = "Date of service is required")
   private LocalDate dateOfService;
 
-  @NotNull(message = "Plan is required")
-  private ClaimPlan plan;
+  @NotNull(message = "Plan type is required")
+  private ClaimPlan planType;
+
+  @NotNull(message = "Plan ID is required")
+  private UUID planId;
 
   @NotNull(message = "Amount is required")
   @DecimalMin(value = "0.0", inclusive = false, message = "Amount must be greater than zero")
